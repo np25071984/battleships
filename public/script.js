@@ -1,18 +1,86 @@
+/**
+ * Message: 
+ *  types: 
+ *      - system (connected, timeout)
+ *      - game (joined, left, ready, round, shot, hit, announce, win, lost)
+ */
+
 window.onload = function() {
+    window.socket = io();
+    window.socketId = undefined;
+    window.socket.on('system', function(event) {
+        switch (event.type) {
+            case 'connected':
+                console.log(`We are connected to the server (socketId: ${event.socketId})`);
+                window.socketId = event.socketId;
+                break;
+            default:
+                throw new Error('Unknown system event type');
+        }
+    });
+
     window.render = new Render();
     const actionCanvas = document.getElementById("action-board");
     const sheepsCanvas = document.getElementById("my-ships");
 
+    const ships = shuffleShips();
+
     const startPoint = new Point(40, 40);
-    const actionBoard = Board.initBoard(startPoint, 40, 1, 10, 10, true);
+    const actionBoard = Board.initBoard(startPoint, 40, 1, 10, 10, [], true);
     window.render.drawBoard(actionCanvas, actionBoard);
 
-    const shipsBoard = Board.initBoard(startPoint, 40, 1, 10, 10, true);
-    const ships = shuffleShips();
+    const shipsBoard = Board.initBoard(startPoint, 40, 1, 10, 10, ships, true);
     shipsBoard.placeShips(ships);
-    shipsBoard.shot(new Position(0, 3));
-    shipsBoard.shot(new Position(1, 3));
     window.render.drawBoard(sheepsCanvas, shipsBoard);
+
+    window.socket.on('game', function(event) {
+        switch (event.type) {
+            case 'joined':
+                console.log(`Player ${event.socketId} has joined the game`);
+                break;
+            case 'left':
+                console.log(`Player ${event.socketId} has left the game`);
+                break;
+            case 'hit':
+                var pos = new Position(event.col, event.row);
+                shipsBoard.hit(pos);
+                window.render.refreshGrid(sheepsCanvas, shipsBoard);
+                break;
+            case 'announce':
+                var pos = new Position(event.col, event.row);
+                switch (event.result) {
+                    case HitResult.HIT_RESULT_MISS:
+                        actionBoard.setCellType(pos, Cell.CELL_TYPE_WATER);
+                        break;
+                    case HitResult.HIT_RESULT_DAMAGE:
+                        actionBoard.setCellType(pos, Cell.CELL_TYPE_WRACKAGE);
+                        break;
+                    case HitResult.HIT_RESULT_SUNK:
+                        actionBoard.setCellType(pos, Cell.CELL_TYPE_WRACKAGE);
+                        event.surround.forEach((pos) => {
+                            actionBoard.setCellType(new Position(pos.col, pos.row), Cell.CELL_TYPE_WATER);
+                        });
+                        break;
+                    default:
+                        throw new Error('Unknown hit result');
+                }
+                window.render.refreshGrid(actionCanvas, actionBoard);
+                break;
+            case 'round':
+                console.log("Round");
+                actionBoard.setClickable();
+                break;
+            case 'win':
+                console.log("Win");
+                break;
+            case 'lost':
+                console.log("Lost");
+                break;
+            default:
+                console.dir(event);
+                throw new Error('Unknown game event type');
+        }
+    });
 
     function getMousePoint(canvasRect, clientX, clientY) {
         const x = clientX - canvasRect.left;
@@ -24,7 +92,7 @@ window.onload = function() {
         const rect = this.getBoundingClientRect();
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
         board.mouseMove(mousePoint);
-        window.render.refreshGrid(this, board);        
+        window.render.refreshGrid(this, board);
     }.bind(actionCanvas, actionBoard));
 
     actionCanvas.addEventListener('click', function(board, e) {
@@ -33,6 +101,13 @@ window.onload = function() {
         board.mouseClick(mousePoint);
         window.render.refreshGrid(this, board);
     }.bind(actionCanvas, actionBoard));
+
+    // setTimeout(() => {
+    //     window.socket.emit('game', {
+    //         'type': 'ready',
+    //         "socketId": window.socketId
+    //     });
+    // }, 4000);
 };
 
 function shuffleShips() {
@@ -43,27 +118,27 @@ function shuffleShips() {
     const patrolBoatShipType = new ShipTypePatrolBoat();
     
     const ships = [];
-    var c = new Position(0, 0);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, carrierShipType);
-    ships.push(s);
-    var c = new Position(2, 0);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, battleShipType);
-    ships.push(s);
-    var c = new Position(4, 0);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, destroyerShipType);
-    ships.push(s);
-    var c = new Position(6, 0);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, submarineShipType);
-    ships.push(s);
+    // var c = new Position(0, 0);
+    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, carrierShipType);
+    // ships.push(s);
+    // var c = new Position(2, 0);
+    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, battleShipType);
+    // ships.push(s);
+    // var c = new Position(4, 0);
+    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, destroyerShipType);
+    // ships.push(s);
+    // var c = new Position(6, 0);
+    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, submarineShipType);
+    // ships.push(s);
     var c = new Position(8, 0);
     var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, patrolBoatShipType);
     ships.push(s);
-    var c = new Position(0, 6);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_HORIZONTAL, patrolBoatShipType);
-    ships.push(s);
-    var c = new Position(3, 6);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_HORIZONTAL, battleShipType);
-    ships.push(s);
+    // var c = new Position(0, 6);
+    // var s = new Ship(c, Ship.SHIP_ORIENTATION_HORIZONTAL, patrolBoatShipType);
+    // ships.push(s);
+    // var c = new Position(3, 6);
+    // var s = new Ship(c, Ship.SHIP_ORIENTATION_HORIZONTAL, battleShipType);
+    // ships.push(s);
 
     return ships;
 }
@@ -112,18 +187,89 @@ class Position
     generateKey() {
         return `${this.col}_${this.row}`;
     }
+
+    getSurraund() {
+        const res = {};
+        var p = new Position(this.col, this.row - 1);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col + 1, this.row - 1);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col + 1, this.row);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col + 1, this.row + 1);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col, this.row + 1);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col - 1, this.row + 1);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col - 1, this.row);
+        res[p.generateKey()] = p;
+        var p = new Position(this.col - 1, this.row - 1);
+        res[p.generateKey()] = p;
+
+        return res;
+    }
 }
 
 class Board
 {
-    constructor(outerRect, grid, showAgenda) {
+    constructor(outerRect, grid, ships, showAgenda) {
+        this.clickable = true;
         this.rect = outerRect;
         this.grid = grid;
+        this.ships = ships;
         this.showAgenda = showAgenda;
     }
 
-    shot(position) {
-        this.grid.shot(position);
+    hit(position) {
+        var moreShips = true;
+        var ship = undefined;
+        for (var i = 0; i < this.ships.length; i++) {
+            const s = this.ships[i];
+            if (s.isLocatedAt(position)) {
+                ship = s
+                break;
+            }
+        }
+
+        var hitResult = undefined;
+        var sunkShipSurround = [];
+        if (ship === undefined) {
+            hitResult = HitResult.HIT_RESULT_MISS;
+            this.setCellType(position, Cell.CELL_TYPE_WATER);    
+        } else {
+            hitResult = ship.hit(position);
+            this.setCellType(position, Cell.CELL_TYPE_WRACKAGE);
+            if (hitResult === HitResult.HIT_RESULT_SUNK) {
+                const surround = ship.getSurraund();
+                for (const key in surround) {
+                    const position = surround[key];
+                    if (this.grid.cellExists(position)) {
+                        sunkShipSurround.push(position);
+                        this.setCellType(position, Cell.CELL_TYPE_WATER);
+                    }
+                };
+
+                var isAlive = false;
+                for (var i = 0; i < this.ships.length; i++) {
+                    const s = this.ships[i];
+                    if (s.alive) {
+                        isAlive = true;
+                        break;
+                    }
+                }
+                moreShips = isAlive;        
+            }
+        }
+
+        window.socket.emit('game', {
+            'type': 'announce',
+            'col': position.col,
+            'row': position.row,
+            'result': hitResult,
+            'surround': sunkShipSurround,
+            'moreShips': moreShips ? 1 : 0
+        });
     }
 
     placeShips(ships) {
@@ -141,14 +287,27 @@ class Board
     }
 
     mouseMove(point) {
-        this.grid.mouseMove(point);
+        if (this.clickable) {
+            this.grid.mouseMove(point);
+        }
     }
 
     mouseClick(point) {
-        this.grid.mouseClick(point);
+        if (this.clickable) {
+            this.grid.mouseClick(point);
+            this.clickable = false;
+        }
     }
 
-    static initBoard(ltPoint, width, gap, col, row, showAgenda) {
+    setClickable(number) {
+        this.clickable = true;
+    }
+
+    setCellType(position, cellType) {
+        this.grid.setCellType(position, cellType)
+    }
+
+    static initBoard(ltPoint, width, gap, col, row, ships, showAgenda) {
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;
@@ -175,7 +334,7 @@ class Board
         const grid = new Grid(cells, col, row);
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
         const boardOuterRect = new Rect(ltPoint, rbPoint);
-        const board = new Board(boardOuterRect, grid, showAgenda);
+        const board = new Board(boardOuterRect, grid, ships, showAgenda);
     
         return board;
     }
@@ -187,20 +346,6 @@ class Grid
         this.cells = cells;
         this.rows = rows;
         this.cols = cols;
-    }
-
-    shot(position) {
-        const key = position.generateKey();
-        const cell = this.cells[key];
-        switch (cell.type) {
-            case Cell.CELL_TYPE_SHIP:
-                cell.type = Cell.CELL_TYPE_WRACKAGE;
-                break;
-            case Cell.CELL_TYPE_FOG_OF_WAR:
-                cell.type = Cell.CELL_TYPE_WATER;
-        }
-        cell.changed = true;
-        this.cells[key] = cell;
     }
 
     mouseMove(point) {
@@ -215,6 +360,22 @@ class Grid
             const cell = this.cells[key];
             cell.mouseClick(point);
         }
+    }
+
+    getCell(position) {
+        const key = position.generateKey();
+        return this.cells[key];
+    }
+
+    setCellType(position, cellType) {
+        const key = position.generateKey();
+        this.cells[key].type = cellType;
+        this.cells[key].changed = true;
+    }
+
+    cellExists(position) {
+        const key = position.generateKey();
+        return key in this.cells;
     }
 }
 
@@ -273,6 +434,27 @@ class Cell
 
         this.type = Cell.CELL_TYPE_CLICKED;
         this.changed = true;
+
+        window.socket.emit('game', {
+            'type': 'shot',
+            'col': this.position.col,
+            'row': this.position.row,
+            'socketId': window.socketId
+        });
+    }
+
+    hit(position) {
+        const key = position.generateKey();
+        const cell = this.cells[key];
+        switch (cell.type) {
+            case Cell.CELL_TYPE_SHIP:
+                cell.type = Cell.CELL_TYPE_WRACKAGE;
+                break;
+            case Cell.CELL_TYPE_FOG_OF_WAR:
+                cell.type = Cell.CELL_TYPE_WATER;
+        }
+        cell.changed = true;
+        this.cells[key] = cell;
     }
 }
 
@@ -344,10 +526,11 @@ class ShipTypePatrolBoat {
 class Ship 
 {
     constructor(position, orientation, type) {
+        this.liveSectionCount = type.getSize();
         this.position = position;
         this.orientation = orientation;
         this.alive = true;
-        this.sections = [];
+        this.sections = []; // TODO: hashed array
         for (var i = 0; i < type.getSize(); i++) {
             switch (orientation) {
                 case Ship.SHIP_ORIENTATION_VERTICAL:
@@ -364,15 +547,46 @@ class Ship
         }
     }
 
-    isLocated(position) {
+    isLocatedAt(position) {
         for (var i = 0; i < this.sections.length; i++) {
             const section = this.sections[i];
-            if (section.isLocated(position)) {
+            if (section.isLocatedAt(position)) {
                 return true;
             };
         }
 
         return false;
+    }
+
+    hit(position) {
+        for (var i = 0; i < this.sections.length; i++) {
+            const section = this.sections[i];
+            if (section.isLocatedAt(position)) {
+                this.sections[i].isAlive = false;
+                this.liveSectionCount--;
+                if (this.liveSectionCount === 0) {
+                    this.alive = false;
+                    return HitResult.HIT_RESULT_SUNK;
+                } else {
+                    return HitResult.HIT_RESULT_DAMAGE;
+                }
+            };
+        }
+    }
+
+    getSurraund() {
+        const res = {};
+        for (var i = 0; i < this.sections.length; i++) {
+            const section = this.sections[i];
+            const surround = section.position.getSurraund();
+            for (const key in surround) {
+                const s = surround[key];
+                if(!(key in res) && !this.isLocatedAt(s)) {
+                    res[key] = s;
+                }
+            }
+        }
+        return res;
     }
 }
 
@@ -397,7 +611,7 @@ class ShipSection
         this.isAlive = isAlive;
     }
 
-    isLocated(position) {
+    isLocatedAt(position) {
         if (this.position.isEqual(position)) {
             return true;
         }
@@ -545,6 +759,29 @@ Object.defineProperty(Render, "COLOR_CLICKED", {
 
 Object.defineProperty(Render, "COLOR_WATER", {
     value: 'yellow',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+class HitResult {}
+
+Object.defineProperty(HitResult, "HIT_RESULT_MISS", {
+    value: 1,
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(HitResult, "HIT_RESULT_DAMAGE", {
+    value: 2,
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(HitResult, "HIT_RESULT_SUNK", {
+    value: 3,
     writable: false,
     enumerable: true,
     configurable: true
