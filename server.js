@@ -18,7 +18,7 @@ const EVENT_TYPE_HIT = 'hit';
 const EVENT_TYPE_ANNOUNCE = 'announce';
 const EVENT_TYPE_ROUND = 'round';
 const EVENT_TYPE_WIN = 'win';
-const EVENT_TYPE_LOST = 'lost';
+const EVENT_TYPE_DEFEAT = 'defeat';
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -121,7 +121,7 @@ io.on('connection', (socket) => {
                         'type': EVENT_TYPE_WIN
                     });
                     io.sockets.to(socket.id).emit(EVENT_CHANNEL_NAME_GAME, {
-                        'type': EVENT_TYPE_LOST
+                        'type': EVENT_TYPE_DEFEAT
                     });
                 }
                 break;

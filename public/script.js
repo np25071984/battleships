@@ -79,8 +79,8 @@ window.onload = function() {
                 console.log("Win");
                 actionBoard.setActive(false);
                 break;
-            case Event.EVENT_TYPE_LOST:
-                console.log("Lost");
+            case Event.EVENT_TYPE_DEFEAT:
+                console.log("Defeat");
                 actionBoard.setActive(false);
                 break;
             default:
@@ -868,8 +868,8 @@ Object.defineProperty(Event, "EVENT_TYPE_WIN", {
     configurable: true
 });
 
-Object.defineProperty(Event, "EVENT_TYPE_LOST", {
-    value: 'lost',
+Object.defineProperty(Event, "EVENT_TYPE_DEFEAT", {
+    value: 'defeat',
     writable: false,
     enumerable: true,
     configurable: true
