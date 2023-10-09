@@ -1,19 +1,16 @@
 window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const playerId = urlParams.get('playerId');
-
-    const d = new Date();
-    d.setTime(d.getTime() + (1*24*60*60*1000));
-    let expires = "expires="+ d.toUTCString();
-    document.cookie = "playerId=" + playerId + ";" + expires + ";path=/";
+    console.log("gameId: " + window.gameId);
 
     window.socket = io();
-    window.socketId = undefined;
     window.socket.on(Event.EVENT_CHANNEL_NAME_SYSTEM, function(event) {
         switch (event.type) {
             case Event.EVENT_TYPE_CONNECTED:
-                console.log(`We are connected to the server (socketId: ${event.socketId})`);
-                window.socketId = event.socketId;
+                console.log(`We are connected to the server (playerId: ${event.playerId})`);
+                window.playerId = event.playerId;
+                const d = new Date();
+                d.setTime(d.getTime() + (1*24*60*60*1000));
+                let expires = "expires="+ d.toUTCString();
+                document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/";
                 break;
             default:
                 throw new Error(`Unknown system event type(${event.type})`);
@@ -77,11 +74,12 @@ window.onload = function() {
                 break;
             case Event.EVENT_TYPE_WIN:
                 console.log("Win");
-                actionBoard.setActive(false);
                 break;
             case Event.EVENT_TYPE_DEFEAT:
                 console.log("Defeat");
-                actionBoard.setActive(false);
+                break;
+            case Event.EVENT_TYPE_DRAW:
+                console.log("Draw");
                 break;
             default:
                 console.dir(event);
@@ -264,7 +262,8 @@ class Board
         }
 
         window.socket.emit('game', {
-            'type': 'announce',
+            'type': Event.EVENT_TYPE_ANNOUNCE,
+            'playerId': window.playerId,
             'col': position.col,
             'row': position.row,
             'result': hitResult,
@@ -308,10 +307,6 @@ class Board
 
     setCellType(position, cellType) {
         this.grid.setCellType(position, cellType)
-    }
-
-    setActive(isActive) {
-        this.active = isActive;
     }
 
     static initBoard(ltPoint, width, gap, col, row, showAgenda) {
@@ -445,10 +440,10 @@ class Cell
         this.changed = true;
 
         window.socket.emit('game', {
-            'type': 'shot',
+            'type': Event.EVENT_TYPE_SHOT,
             'col': this.position.col,
             'row': this.position.row,
-            'socketId': window.socketId
+            'playerId': window.playerId
         });
     }
 
@@ -847,6 +842,13 @@ Object.defineProperty(Event, "EVENT_TYPE_HIT", {
     configurable: true
 });
 
+Object.defineProperty(Event, "EVENT_TYPE_SHOT", {
+    value: 'shot',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
 Object.defineProperty(Event, "EVENT_TYPE_ANNOUNCE", {
     value: 'announce',
     writable: false,
@@ -870,6 +872,13 @@ Object.defineProperty(Event, "EVENT_TYPE_WIN", {
 
 Object.defineProperty(Event, "EVENT_TYPE_DEFEAT", {
     value: 'defeat',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_DRAW", {
+    value: 'draw',
     writable: false,
     enumerable: true,
     configurable: true

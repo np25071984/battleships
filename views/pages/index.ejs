@@ -6,8 +6,18 @@
     <script type="text/javascript" src="/script.js"></script>
 </head>
 <body>
+    <h1>GameId: <%- gameId %></h1>
     <canvas style="background-color: azure;" id="my-ships" width="500" height="500"></canvas>
     <canvas style="background-color: beige;" id="action-board" width="500" height="500"></canvas>
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const gameId = '<%= gameId %>';
+        window.gameId = gameId;
+        const d = new Date();
+        d.setTime(d.getTime() + (1*24*60*60*1000));
+        let expires = "expires="+ d.toUTCString();
+        document.cookie = "gameId=" + gameId + ";" + expires + ";path=/";
+
+     </script>
 </body>
 </html>
