@@ -13,7 +13,7 @@
 | Submarine | 3 |
 | Patrol Boat | 2 |
 
-[//]: # (do we need mine?)
+[//]: # (do we need mine? the lucky may unveil 8 cells at once)
 [//]: # (why Destroyer and Submarine simultaneously?)
 
 ## The game types
@@ -32,23 +32,13 @@
 
 [//]: # (is there "first" and "last"? if both lost their fleet last round, who wins? Draw?)
 
-## How it works
+## Workflow
 
-### Game settings page
-Set game settins or chose from existing preset.
-Got to Create game page
-
-Create game request
-
-### Board set up page
-Get player ID (player1 or player2)
-Get the link to share with the friend if "Play with a friend" was chosen
-Wait for player2, place ships and push Ready button
-
-### Game page
-Make shots
-Win
+1. Select the game type
+2. Set up game. Choose from predefined modes or create your own (board size, ships configuration, timeout, etc). If if is "Play with a friend" game type, share the link with your fiend. Wait for partner to be joined
+3. Make a shot each round. Destroy all enemy ships.
 
 ## TODO
 1. Announce the results only when both players have made shots
-
+2. Don't let game begin unless both players are connected
+3. Unveil enemy ships on Lost event

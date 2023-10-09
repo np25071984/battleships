@@ -1,21 +1,22 @@
-/**
- * Message: 
- *  types: 
- *      - system (connected, timeout)
- *      - game (joined, left, ready, round, shot, hit, announce, win, lost)
- */
-
 window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerId = urlParams.get('playerId');
+
+    const d = new Date();
+    d.setTime(d.getTime() + (1*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = "playerId=" + playerId + ";" + expires + ";path=/";
+
     window.socket = io();
     window.socketId = undefined;
-    window.socket.on('system', function(event) {
+    window.socket.on(Event.EVENT_CHANNEL_NAME_SYSTEM, function(event) {
         switch (event.type) {
-            case 'connected':
+            case Event.EVENT_TYPE_CONNECTED:
                 console.log(`We are connected to the server (socketId: ${event.socketId})`);
                 window.socketId = event.socketId;
                 break;
             default:
-                throw new Error('Unknown system event type');
+                throw new Error(`Unknown system event type(${event.type})`);
         }
     });
 
@@ -23,30 +24,34 @@ window.onload = function() {
     const actionCanvas = document.getElementById("action-board");
     const sheepsCanvas = document.getElementById("my-ships");
 
-    const ships = shuffleShips();
-
     const startPoint = new Point(40, 40);
     const actionBoard = Board.initBoard(startPoint, 40, 1, 10, 10, [], true);
     window.render.drawBoard(actionCanvas, actionBoard);
 
-    const shipsBoard = Board.initBoard(startPoint, 40, 1, 10, 10, ships, true);
+    const shipsBoard = Board.initBoard(startPoint, 40, 1, 10, 10, true);
+    const ships = shuffleShips();
     shipsBoard.placeShips(ships);
     window.render.drawBoard(sheepsCanvas, shipsBoard);
 
-    window.socket.on('game', function(event) {
+    window.socket.on(Event.EVENT_CHANNEL_NAME_GAME, function(event) {
         switch (event.type) {
-            case 'joined':
+            case Event.EVENT_TYPE_WAITING:
+                console.log(`Waiting for the second player`);
+                break;
+            case Event.EVENT_TYPE_JOINED:
                 console.log(`Player ${event.socketId} has joined the game`);
                 break;
-            case 'left':
+            case Event.EVENT_TYPE_LEFT:
                 console.log(`Player ${event.socketId} has left the game`);
                 break;
-            case 'hit':
+            case Event.EVENT_TYPE_HIT:
+                console.log(`Hit at ${event.col} x ${event.row}`);
                 var pos = new Position(event.col, event.row);
                 shipsBoard.hit(pos);
                 window.render.refreshGrid(sheepsCanvas, shipsBoard);
                 break;
-            case 'announce':
+            case Event.EVENT_TYPE_ANNOUNCE:
+                console.log(`Announce about ${event.col} x ${event.row}; there is ${event.result}`);
                 var pos = new Position(event.col, event.row);
                 switch (event.result) {
                     case HitResult.HIT_RESULT_MISS:
@@ -62,23 +67,25 @@ window.onload = function() {
                         });
                         break;
                     default:
-                        throw new Error('Unknown hit result');
+                        throw new Error(`Unknown hit result(${event.result})`);
                 }
                 window.render.refreshGrid(actionCanvas, actionBoard);
                 break;
-            case 'round':
+            case Event.EVENT_TYPE_ROUND:
                 console.log("Round");
-                actionBoard.setClickable();
+                actionBoard.roundStart(event.number);
                 break;
-            case 'win':
+            case Event.EVENT_TYPE_WIN:
                 console.log("Win");
+                actionBoard.setActive(false);
                 break;
-            case 'lost':
+            case Event.EVENT_TYPE_LOST:
                 console.log("Lost");
+                actionBoard.setActive(false);
                 break;
             default:
                 console.dir(event);
-                throw new Error('Unknown game event type');
+                throw new Error(`Unknown game event type(${event.type})`);
         }
     });
 
@@ -101,13 +108,6 @@ window.onload = function() {
         board.mouseClick(mousePoint);
         window.render.refreshGrid(this, board);
     }.bind(actionCanvas, actionBoard));
-
-    // setTimeout(() => {
-    //     window.socket.emit('game', {
-    //         'type': 'ready',
-    //         "socketId": window.socketId
-    //     });
-    // }, 4000);
 };
 
 function shuffleShips() {
@@ -124,9 +124,9 @@ function shuffleShips() {
     // var c = new Position(2, 0);
     // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, battleShipType);
     // ships.push(s);
-    // var c = new Position(4, 0);
-    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, destroyerShipType);
-    // ships.push(s);
+    var c = new Position(4, 0);
+    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, destroyerShipType);
+    ships.push(s);
     // var c = new Position(6, 0);
     // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, submarineShipType);
     // ships.push(s);
@@ -213,11 +213,12 @@ class Position
 
 class Board
 {
-    constructor(outerRect, grid, ships, showAgenda) {
-        this.clickable = true;
+    constructor(outerRect, grid, showAgenda) {
+        this.round = undefined;
+        this.active = false;
         this.rect = outerRect;
         this.grid = grid;
-        this.ships = ships;
+        this.ships = [];
         this.showAgenda = showAgenda;
     }
 
@@ -268,12 +269,13 @@ class Board
             'row': position.row,
             'result': hitResult,
             'surround': sunkShipSurround,
-            'moreShips': moreShips ? 1 : 0
+            'moreShips': moreShips
         });
     }
 
     placeShips(ships) {
-        ships.forEach(function(ship) {
+        this.ships = ships;
+        this.ships.forEach(function(ship) {
             ship.sections.forEach(function(section) {
                 const key = `${section.position.col}_${section.position.row}`;
                 if (!(key in this.grid.cells)) {
@@ -287,27 +289,32 @@ class Board
     }
 
     mouseMove(point) {
-        if (this.clickable) {
+        if (this.active) {
             this.grid.mouseMove(point);
         }
     }
 
     mouseClick(point) {
-        if (this.clickable) {
+        if (this.active) {
             this.grid.mouseClick(point);
-            this.clickable = false;
+            this.active = false;
         }
     }
 
-    setClickable(number) {
-        this.clickable = true;
+    roundStart(number) {
+        this.active = true;
+        this.round = number;
     }
 
     setCellType(position, cellType) {
         this.grid.setCellType(position, cellType)
     }
 
-    static initBoard(ltPoint, width, gap, col, row, ships, showAgenda) {
+    setActive(isActive) {
+        this.active = isActive;
+    }
+
+    static initBoard(ltPoint, width, gap, col, row, showAgenda) {
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;
@@ -334,7 +341,7 @@ class Board
         const grid = new Grid(cells, col, row);
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
         const boardOuterRect = new Rect(ltPoint, rbPoint);
-        const board = new Board(boardOuterRect, grid, ships, showAgenda);
+        const board = new Board(boardOuterRect, grid, showAgenda);
     
         return board;
     }
@@ -369,8 +376,10 @@ class Grid
 
     setCellType(position, cellType) {
         const key = position.generateKey();
-        this.cells[key].type = cellType;
-        this.cells[key].changed = true;
+        if (this.cells[key].type !== cellType) {
+            this.cells[key].type = cellType;
+            this.cells[key].changed = true;
+        }
     }
 
     cellExists(position) {
@@ -540,7 +549,7 @@ class Ship
                     var c = new Position(position.col + i, position.row);
                     break;
                 default:
-                    throw new Error("Unknown ship orientation");
+                    throw new Error(`Unknown ship orientation(${orientation})`);
             }
             const s = new ShipSection(c, true);
             this.sections.push(s);
@@ -782,6 +791,85 @@ Object.defineProperty(HitResult, "HIT_RESULT_DAMAGE", {
 
 Object.defineProperty(HitResult, "HIT_RESULT_SUNK", {
     value: 3,
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+class Event {}
+
+Object.defineProperty(Event, "EVENT_CHANNEL_NAME_SYSTEM", {
+    value: 'system',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_CHANNEL_NAME_GAME", {
+    value: 'game',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_CONNECTED", {
+    value: 'connected',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_WAITING", {
+    value: 'waiting',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_JOINED", {
+    value: 'joined',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_LEFT", {
+    value: 'left',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_HIT", {
+    value: 'hit',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_ANNOUNCE", {
+    value: 'announce',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_ROUND", {
+    value: 'round',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_WIN", {
+    value: 'win',
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(Event, "EVENT_TYPE_LOST", {
+    value: 'lost',
     writable: false,
     enumerable: true,
     configurable: true
