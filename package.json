@@ -1,7 +1,7 @@
 {
-    "name": "battleship-server",
+    "name": "battleships",
     "version": "0.0.1",
-    "description": "Server for battleship game",
+    "description": "Battleships game",
     "dependencies": {
         "ejs": "^3.1.9",
         "express": "^4.18.2",

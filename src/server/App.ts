@@ -42,12 +42,10 @@ class App {
             res.render('pages/index.ejs', {'gameId': req.params.gameId});  
         })
         this.express.use('/', router)
-        this.express.use('/static', express.static('public'))
-        this.express.use('/static', express.static('dist/client'))
-        this.express.use('/static', express.static('build'))
+        this.express.use('/static', express.static('build/client'))
     }
 
-    public makeId(length) {
+    public makeId(length: number) {
         let result = ''
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
         const charactersLength = characters.length
@@ -74,35 +72,36 @@ class App {
         return this.games[gameId]['players']
     }
 
-    public joinPlayer(gameId, playerId, socketId) {
+    public joinPlayer(gameId: string, playerId: string, socketId: string) {
         this.games[gameId]['players'][playerId] = socketId
     }
 
-    public resetShots(gameId) {
+    public resetShots(gameId: string) {
         this.games[gameId]['shots'] = {}
     }
 
-    public getShots(gameId) {
+    public getShots(gameId: string) {
         return this.games[gameId]['shots']
     }
 
-    public makeShot(gameId, event) {
+    // TODO: bad naming
+    public makeShot(gameId: string, event: any) {
         this.games[gameId]['shots'][event.playerId] = event
     }
 
-    public doesPlayerMadeShot(gameId, playerId) {
-        return (playerId in this.games[gameId]['shots'])
+    public doesPlayerMadeShot(gameId: string, playerId: string) {
+        return (playerId in this.getShots(gameId))
     }
 
-    public getCounterpartSocketId(gameId, playerId) {
-        for (var pId in this.games[gameId]['players']) {
+    public getCounterpartSocketId(gameId: string, playerId: string) {
+        for (var pId in this.getPlayers(gameId)) {
             if (pId !== playerId) {
                 return this.games[gameId]['players'][pId]
             }
         }
     }
 
-    public getPlayerSocketId(gameId, playerId) {
+    public getPlayerSocketId(gameId: string, playerId: string) {
         return this.games[gameId]['players'][playerId]
     }
 }

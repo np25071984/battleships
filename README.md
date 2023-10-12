@@ -67,3 +67,4 @@ sequenceDiagram
 1. Announce the results only when both players have made shots
 2. Don't let game begin unless both players are connected
 3. Unveil enemy ships on Defeat event
+4. One session only

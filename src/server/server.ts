@@ -13,7 +13,7 @@ const server = app.express.listen(port, (err) => {
 })
 
 const io = new Server(server, {cookie: true})
-io.on("connection", (socket) => {
+io.on("connect", (socket) => {
     const cookies = cookie.parse(socket.handshake.headers.cookie)
     if (!('gameId' in cookies)) {
         console.log("gameId is missing; exit")
@@ -22,7 +22,7 @@ io.on("connection", (socket) => {
     }
 
     // TODO: validate gameId value
-    const gameId = cookie.gameId
+    const gameId = cookies.gameId
     if (!app.isGameExists(gameId)) {
         app.createGame(gameId)
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Battleships</title>
-    <script type="text/javascript" src="/script.js"></script>
+    <script type="text/javascript" src="/static/client.js"></script>
 </head>
 <body>
     <h1>GameId: <%- gameId %></h1>
@@ -11,6 +11,7 @@
     <canvas style="background-color: beige;" id="action-board" width="500" height="500"></canvas>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        var exports = {};
         const gameId = '<%= gameId %>';
         window.gameId = gameId;
         const d = new Date();
