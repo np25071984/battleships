@@ -10,12 +10,14 @@
     "devDependencies": {
         "@types/mocha": "^10.0.2",
         "@types/node": "^20.8.4",
+        "rimraf": "^5.0.5",
         "ts-loader": "^9.5.0",
         "typescript": "^5.2.2",
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4"
     },
     "scripts": {
-        "build": "tsc"
+        "build": "rimraf ./build && tsc && node_modules/.bin/webpack",
+        "start": "npm run build && node build/server/server.js"
     }
 }

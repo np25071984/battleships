@@ -65,6 +65,6 @@ sequenceDiagram
 
 ## TODO
 1. Announce the results only when both players have made shots
-2. Don't let game begin unless both players are connected
-3. Unveil enemy ships on Defeat event
-4. One session only
+2. Unveil enemy ships on Defeat event
+3. One session only (check if socketId is the expected one)
+4. GAME_IS_FULL event
