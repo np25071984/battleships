@@ -69,3 +69,4 @@ sequenceDiagram
 3. One session only (check if socketId is the expected one)
 4. GAME_IS_FULL event
 5. Keep game settings on server
+6. Bad domain models (mixed data and representation)

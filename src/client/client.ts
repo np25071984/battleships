@@ -1,5 +1,5 @@
 import BattleshipsEvent from './BattleshipsEvent'
-import HitResult from './HitResult'
+import HitResult from '../common/HitResult'
 import Render from './Render'
 import Cell from './Cell'
 import Ship from './Ship'
@@ -15,11 +15,46 @@ import type Window from '../types/index.d.ts'
 
 window.onload = function() {
     console.log("gameId: " + window.gameId);
+    const actionCanvas = document.getElementById("action-board");
+    if (actionCanvas == null) {
+        throw Error("Can't find Action board");
+    }
+    const sheepsCanvas = document.getElementById("my-ships");
+    if (actionCanvas == null) {
+        throw Error("Can't find Sheeps board");
+    }
 
     window.socket = window.io()
     window.socket.on(BattleshipsEvent.EVENT_CHANNEL_NAME_SYSTEM, function(event) {
         switch (event.type) {
             case BattleshipsEvent.EVENT_TYPE_CONNECTED:
+                const startPoint = new Point(40, 40);
+                window.actionBoard = Board.initFromServerData(startPoint, 40, 1, event.grid, true);
+                window.render.drawBoard(actionCanvas, window.actionBoard);
+                window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.grid, true);
+                const ships: Ship[] = []
+                event.ships.forEach((shipData) => {
+                    const p = new Position(shipData.position.col, shipData.position.row)
+                    var type;
+                    switch (shipData.type.SHIP_SIZE) {
+                        case 5:
+                            type = new ShipTypeCarrier()
+                            break
+                        case 4:
+                            type = new ShipTypeBattleShip()
+                            break
+                        case 3:
+                            type = new ShipTypeDestroyer()
+                            break
+                        case 2:
+                            type = new ShipTypePatrolBoat()
+                            break
+                    }
+                    const s = new Ship(p, shipData.orientation, type)
+                    ships.push(s)
+                })
+                window.shipsBoard.placeShips(ships);
+                window.render.drawBoard(sheepsCanvas, window.shipsBoard);
                 console.log(`We are connected to the server (playerId: ${event.playerId})`);
                 window.playerId = event.playerId;
                 const d = new Date();
@@ -30,26 +65,28 @@ window.onload = function() {
             default:
                 throw new Error(`Unknown system event type(${event.type})`);
         }
+
+        function getMousePoint(canvasRect, clientX, clientY) {
+            const x = clientX - canvasRect.left;
+            const y = clientY - canvasRect.top;
+            return new Point(x, y);
+        }
+
+        actionCanvas.addEventListener('mousemove', function(board, e) {
+            const rect = this.getBoundingClientRect();
+            const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
+            board.mouseMove(mousePoint);
+            window.render.refreshGrid(this, board);
+        }.bind(actionCanvas, window.actionBoard));
+
+        actionCanvas.addEventListener('click', function(board, e) {
+            const rect = this.getBoundingClientRect();
+            const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
+            board.mouseClick(mousePoint);
+            window.render.refreshGrid(this, board);
+        }.bind(actionCanvas, window.actionBoard));
     });
-
     window.render = new Render();
-    const actionCanvas = document.getElementById("action-board");
-    if (actionCanvas == null) {
-        throw Error("Can't find Action board");
-    }
-    const sheepsCanvas = document.getElementById("my-ships");
-    if (actionCanvas == null) {
-        throw Error("Can't find Sheeps board");
-    }
-
-    const startPoint = new Point(40, 40);
-    const actionBoard = Board.initBoard(startPoint, 40, 1, 10, 10, true);
-    window.render.drawBoard(actionCanvas, actionBoard);
-
-    const shipsBoard = Board.initBoard(startPoint, 40, 1, 10, 10, true);
-    const ships = shuffleShips();
-    shipsBoard.placeShips(ships);
-    window.render.drawBoard(sheepsCanvas, shipsBoard);
 
     window.socket.on(BattleshipsEvent.EVENT_CHANNEL_NAME_GAME, function(event) {
         switch (event.type) {
@@ -65,8 +102,8 @@ window.onload = function() {
             case BattleshipsEvent.EVENT_TYPE_HIT:
                 console.log(`Hit at ${event.col} x ${event.row}`)
                 var pos = new Position(event.col, event.row)
-                shipsBoard.hit(pos)
-                window.render.refreshGrid(sheepsCanvas, shipsBoard)
+                window.shipsBoard.hit(pos)
+                window.render.refreshGrid(sheepsCanvas, window.shipsBoard)
                 break
             case BattleshipsEvent.EVENT_TYPE_ANNOUNCE:
                 console.log(`Got announce about ${event.col} x ${event.row}; there is ${event.result}`)
@@ -74,28 +111,28 @@ window.onload = function() {
                 switch (event.result) {
                     case HitResult.HIT_RESULT_MISS:
                         console.log("miss")
-                        actionBoard.setCellType(pos, Cell.CELL_TYPE_WATER)
+                        window.actionBoard.setCellType(pos, Cell.CELL_TYPE_WATER)
                         break
                     case HitResult.HIT_RESULT_DAMAGE:
                         console.log("damage")
-                        actionBoard.setCellType(pos, Cell.CELL_TYPE_WRACKAGE)
+                        window.actionBoard.setCellType(pos, Cell.CELL_TYPE_WRACKAGE)
                         break
                     case HitResult.HIT_RESULT_SUNK:
                         console.log("sunk")
-                        actionBoard.setCellType(pos, Cell.CELL_TYPE_WRACKAGE)
+                        window.actionBoard.setCellType(pos, Cell.CELL_TYPE_WRACKAGE)
                         event.surround.forEach((pos) => {
-                            actionBoard.setCellType(new Position(pos.col, pos.row), Cell.CELL_TYPE_WATER)
+                            window.actionBoard.setCellType(new Position(pos.col, pos.row), Cell.CELL_TYPE_WATER)
                         });
                         break
                     default:
                         throw new Error(`Unknown hit result(${event.result})`)
                 }
                 console.log("refresh")
-                window.render.refreshGrid(actionCanvas, actionBoard)
+                window.render.refreshGrid(actionCanvas, window.actionBoard)
                 break
             case BattleshipsEvent.EVENT_TYPE_ROUND:
                 console.log("Round")
-                actionBoard.roundStart(event.number)
+                window.actionBoard.roundStart(event.number)
                 break
             case BattleshipsEvent.EVENT_TYPE_WIN:
                 console.log("Win")
@@ -109,58 +146,5 @@ window.onload = function() {
             default:
                 throw new Error(`Unknown game event type(${event.type})`)
         }
-    });
-
-    function getMousePoint(canvasRect, clientX, clientY) {
-        const x = clientX - canvasRect.left;
-        const y = clientY - canvasRect.top;
-        return new Point(x, y);
-    }
-
-    actionCanvas.addEventListener('mousemove', function(board, e) {
-        const rect = this.getBoundingClientRect();
-        const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
-        board.mouseMove(mousePoint);
-        window.render.refreshGrid(this, board);
-    }.bind(actionCanvas, actionBoard));
-
-    actionCanvas.addEventListener('click', function(board, e) {
-        const rect = this.getBoundingClientRect();
-        const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
-        board.mouseClick(mousePoint);
-        window.render.refreshGrid(this, board);
-    }.bind(actionCanvas, actionBoard));
-};
-
-function shuffleShips() {
-    const carrierShipType = new ShipTypeCarrier();
-    const battleShipType = new ShipTypeBattleShip();
-    const destroyerShipType = new ShipTypeDestroyer();
-    const submarineShipType = new ShipTypeSubmarine();
-    const patrolBoatShipType = new ShipTypePatrolBoat();
-    
-    const ships: Ship[] = [];
-    // var c = new Position(0, 0);
-    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, carrierShipType);
-    // ships.push(s);
-    var c = new Position(2, 0);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, battleShipType);
-    ships.push(s);
-    var c = new Position(4, 0);
-    var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, destroyerShipType);
-    ships.push(s);
-    // var c = new Position(6, 0);
-    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, submarineShipType);
-    // ships.push(s);
-    // var c = new Position(8, 0);
-    // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, patrolBoatShipType);
-    // ships.push(s);
-    // // var c = new Position(0, 6);
-    // var s = new Ship(c, Ship.SHIP_ORIENTATION_HORIZONTAL, patrolBoatShipType);
-    // ships.push(s);
-    // var c = new Position(3, 6);
-    // var s = new Ship(c, Ship.SHIP_ORIENTATION_HORIZONTAL, battleShipType);
-    // ships.push(s);
-
-    return ships;
+    })
 }

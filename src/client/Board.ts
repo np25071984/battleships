@@ -1,6 +1,6 @@
 import Position from './Position'
 import Point from './Point'
-import HitResult from './HitResult'
+import HitResult from '../common/HitResult'
 import Cell from './Cell'
 import BattleshipsEvent from './BattleshipsEvent'
 import Rect from './Rect'
@@ -67,7 +67,7 @@ class Board
                         break;
                     }
                 }
-                moreShips = isAlive;        
+                moreShips = isAlive;
             }
         } else {
             throw new Error(`Unexpected cell type ${cell.type}`)
@@ -121,14 +121,16 @@ class Board
         this.grid.setCellType(position, cellType)
     }
 
-    static initBoard(ltPoint: Point, width: number, gap: number, col: number, row: number, showAgenda: boolean) {
+    static initFromServerData(ltPoint: Point, width: number, gap: number, data: any, showAgenda: boolean) {
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;
+        const col = data.cells[0].length
+        const row = data.cells.length
         const step = width + gap;
         const totalWidth = gap + (step * col);
         const totalHeight = gap + (step * row);
-    
+
         const cells = {};
         var positionY = 0;
         for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
@@ -152,6 +154,7 @@ class Board
     
         return board;
     }
+
 }
 
 export default Board

@@ -1,6 +1,7 @@
-import HitResult from '../common/HitResult'
 import ShipSection from './ShipSection'
 import Position from './Position'
+import ShipTypeAbstract from './ShipTypeAbstract'
+import HitResult from '../common/HitResult'
 
 class Ship 
 {
@@ -9,17 +10,19 @@ class Ship
 
     public liveSectionCount: number
     public position: Position
-    public orientation: string
+    public orientation: number
+    public type: ShipTypeAbstract
     public alive: boolean
     public sections: ShipSection[]
 
-    constructor(position, orientation, type) {
-        this.liveSectionCount = type.getSize();
-        this.position = position;
-        this.orientation = orientation;
-        this.alive = true;
-        this.sections = []; // TODO: hashed array
-        for (var i = 0; i < type.getSize(); i++) {
+    constructor(position: Position, orientation: number, type: ShipTypeAbstract) {
+        this.liveSectionCount = type.getSize()
+        this.position = position
+        this.orientation = orientation
+        this.alive = true
+        this.type = type
+        this.sections = [] // TODO: hashed array
+        for (var i = 0; i < this.type.getSize(); i++) {
             switch (orientation) {
                 case Ship.SHIP_ORIENTATION_VERTICAL:
                     var c = new Position(position.col, position.row + i);
@@ -34,6 +37,10 @@ class Ship
             this.sections.push(s);
         }
     }
+
+    // public toString = () : string => {
+    //     return `Foo (id: ${this.id})`;
+    // }
 
     isLocatedAt(position: Position) {
         for (var i = 0; i < this.sections.length; i++) {

@@ -24,6 +24,7 @@ io.on("connect", (socket) => {
     // TODO: validate gameId value
     const gameId = cookies.gameId
     if (!app.isGameExists(gameId)) {
+        // TODO: has to be already created by this time
         app.createGame(gameId)
     }
 
@@ -44,16 +45,19 @@ io.on("connect", (socket) => {
     }
     app.joinPlayer(gameId, playerId, socket.id)
 
+    const player = app.getPlayers(gameId)[playerId]
     io.sockets.to(socket.id).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
         'type': App.EVENT_TYPE_CONNECTED,
         'gameId': gameId,
-        'playerId': playerId
+        'playerId': playerId,
+        'grid': player['grid'],
+        'ships': player['ships'],
     })
 
     if (Object.keys(app.getPlayers(gameId)).length === 1) {
         io.sockets.to(socket.id).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_WAITING,
-            'socketId': socket.id
+            'socketId': socket.id,
         })
     } else {
         socket.broadcast.emit(App.EVENT_CHANNEL_NAME_GAME, {
@@ -114,11 +118,12 @@ io.on("connect", (socket) => {
                             'number': 1
                         })
                     } else if (losers.length === 1) {
-                        const socketId = app.getPlayerSocketId(gameId, losers.pop())
+                        const loserId = losers.pop()
+                        const socketId = app.getPlayerSocketId(gameId, loserId)
                         io.sockets.to(socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
                             'type': App.EVENT_TYPE_DEFEAT
                         })
-                        const conterpartSocketId = app.getCounterpartSocketId(gameId, losers.pop())
+                        const conterpartSocketId = app.getCounterpartSocketId(gameId, loserId)
                         io.sockets.to(conterpartSocketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
                             'type': App.EVENT_TYPE_WIN
                         })

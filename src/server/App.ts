@@ -1,4 +1,9 @@
 import * as express from 'express'
+import Grid from './Grid'
+import Ship from './Ship'
+import Position from './Position'
+import ShipTypeDestroyer from './ShipTypeDestroyer'
+import ShipTypePatrolBoat from './ShipTypePatrolBoat'
 
 class App {
     public static readonly EVENT_CHANNEL_NAME_SYSTEM: string = 'system';
@@ -62,18 +67,38 @@ class App {
     }
 
     public createGame(gameId) {
+        const grid = Grid.initGrid(10, 10)
+        const ships1: Ship[] = [];
+        ships1.push(new Ship(new Position(1, 2), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
+        ships1.push(new Ship(new Position(7, 8), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
+
+        const ships2: Ship[] = [];
+        ships2.push(new Ship(new Position(5, 7), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypeDestroyer()))
+        ships2.push(new Ship(new Position(3, 1), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypePatrolBoat()))
+
         this.games[gameId] = {
-            'players': {},
+            'players': {
+                'b2uJJM': {
+                    'ships': ships1,
+                    'grid': grid,
+                    'socketId': ''
+                },
+                'kH7YzI': {
+                    'ships': ships2,
+                    'grid': grid,
+                    'socketId': ''
+                }
+            },
             'shots': {}
         }
     }
 
-    public getPlayers(gameId) {
+    public getPlayers(gameId: string) {
         return this.games[gameId]['players']
     }
 
     public joinPlayer(gameId: string, playerId: string, socketId: string) {
-        this.games[gameId]['players'][playerId] = socketId
+        this.games[gameId]['players'][playerId]['socketId'] = socketId
     }
 
     public resetShots(gameId: string) {
@@ -96,18 +121,18 @@ class App {
     public getCounterpartSocketId(gameId: string, playerId: string) {
         for (var pId in this.getPlayers(gameId)) {
             if (pId !== playerId) {
-                return this.games[gameId]['players'][pId]
+                return this.games[gameId]['players'][pId]['socketId']
             }
         }
     }
 
     public getPlayerSocketId(gameId: string, playerId: string) {
-        return this.games[gameId]['players'][playerId]
+        return this.games[gameId]['players'][playerId]['socketId']
     }
 
     public isValidSocketId(gameId: string, targetSocketId: string): boolean {
         for (const playerId in this.games[gameId]['players']) {
-            const socketId = this.games[gameId]['players'][playerId]
+            const socketId = this.games[gameId]['players'][playerId]['socketId']
             if (socketId === targetSocketId) {
                 return true
             }
