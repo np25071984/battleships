@@ -104,6 +104,17 @@ class App {
     public getPlayerSocketId(gameId: string, playerId: string) {
         return this.games[gameId]['players'][playerId]
     }
+
+    public isValidSocketId(gameId: string, targetSocketId: string): boolean {
+        for (const playerId in this.games[gameId]['players']) {
+            const socketId = this.games[gameId]['players'][playerId]
+            if (socketId === targetSocketId) {
+                return true
+            }
+        }
+
+        return false
+    }
 }
 
 export default App

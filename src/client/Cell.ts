@@ -1,4 +1,7 @@
 import BattleshipsEvent from './BattleshipsEvent'
+import Point from './Point'
+import Rect from './Rect'
+import Position from './Position'
 
 class Cell
 {
@@ -8,14 +11,13 @@ class Cell
     public static readonly CELL_TYPE_WRACKAGE: number = 4;
     public static readonly CELL_TYPE_CLICKED: number = 5;
 
-    public rect
-    public position
-    public isHover
-    public type
-    public changed
-    public cells
+    public rect: Rect
+    public position: Position
+    public isHover: boolean
+    public type: number
+    public changed: boolean
 
-    constructor(outerRect, position, isHover, type, changed) {
+    constructor(outerRect: Rect, position: Position, isHover: boolean, type: number, changed: boolean) {
         this.rect = outerRect;
         this.position = position;
         this.isHover = isHover;
@@ -43,7 +45,7 @@ class Cell
         return true;
     }
 
-    mouseMove(point) {
+    mouseMove(point: Point) {
         if (this.isInside(point)) {
             if (!this.isHover) {
                 this.isHover = true;
@@ -78,18 +80,19 @@ class Cell
         });
     }
 
-    hit(position) {
-        const key = position.generateKey();
-        const cell = this.cells[key];
-        switch (cell.type) {
+    hit(): void {
+        var newType: number
+        switch (this.type) {
             case Cell.CELL_TYPE_SHIP:
-                cell.type = Cell.CELL_TYPE_WRACKAGE;
+                newType = Cell.CELL_TYPE_WRACKAGE;
                 break;
             case Cell.CELL_TYPE_FOG_OF_WAR:
-                cell.type = Cell.CELL_TYPE_WATER;
+                newType = Cell.CELL_TYPE_WATER;
+            default:
+                throw new Error("Unexpected hit target")
         }
-        cell.changed = true;
-        this.cells[key] = cell;
+        this.type = newType
+        this.changed = true
     }
 }
 

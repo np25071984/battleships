@@ -11,17 +11,7 @@ import ShipTypeBattleShip from './ShipTypeBattleShip'
 import ShipTypeDestroyer from './ShipTypeDestroyer'
 import ShipTypeSubmarine from './ShipTypeSubmarine'
 import ShipTypePatrolBoat from './ShipTypePatrolBoat'
-
-// TODO: move it into types declaration directory
-declare global {
-    interface Window {
-      gameId: string
-      playerId: string
-      socket: any
-      render: any
-      io: any
-    }
-}
+import type Window from '../types/index.d.ts'
 
 window.onload = function() {
     console.log("gameId: " + window.gameId);
@@ -44,7 +34,13 @@ window.onload = function() {
 
     window.render = new Render();
     const actionCanvas = document.getElementById("action-board");
+    if (actionCanvas == null) {
+        throw Error("Can't find Action board");
+    }
     const sheepsCanvas = document.getElementById("my-ships");
+    if (actionCanvas == null) {
+        throw Error("Can't find Sheeps board");
+    }
 
     const startPoint = new Point(40, 40);
     const actionBoard = Board.initBoard(startPoint, 40, 1, 10, 10, true);
@@ -69,7 +65,6 @@ window.onload = function() {
             case BattleshipsEvent.EVENT_TYPE_HIT:
                 console.log(`Hit at ${event.col} x ${event.row}`)
                 var pos = new Position(event.col, event.row)
-                console.log("dont react on this")
                 shipsBoard.hit(pos)
                 window.render.refreshGrid(sheepsCanvas, shipsBoard)
                 break
@@ -144,7 +139,7 @@ function shuffleShips() {
     const submarineShipType = new ShipTypeSubmarine();
     const patrolBoatShipType = new ShipTypePatrolBoat();
     
-    const ships = [];
+    const ships: Ship[] = [];
     // var c = new Position(0, 0);
     // var s = new Ship(c, Ship.SHIP_ORIENTATION_VERTICAL, carrierShipType);
     // ships.push(s);

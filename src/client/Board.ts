@@ -5,17 +5,19 @@ import Cell from './Cell'
 import BattleshipsEvent from './BattleshipsEvent'
 import Rect from './Rect'
 import Grid from './Grid'
+import Ship from './Ship'
+import ShipSection from './ShipSection'
 
 class Board
 {
-    public round
-    public active
-    public rect
-    public grid
-    public ships
-    public showAgenda
+    public round: number|undefined
+    public active: boolean
+    public rect: Rect
+    public grid: Grid
+    public ships: Ship[]
+    public showAgenda: boolean
 
-    constructor(outerRect, grid, showAgenda) {
+    constructor(outerRect: Rect, grid: Grid, showAgenda: boolean) {
         this.round = undefined;
         this.active = false;
         this.rect = outerRect;
@@ -24,25 +26,29 @@ class Board
         this.showAgenda = showAgenda;
     }
 
-    hit(position) {
-        var moreShips = true;
-        var ship = undefined;
-        for (var i = 0; i < this.ships.length; i++) {
-            const s = this.ships[i];
-            if (s.isLocatedAt(position)) {
-                ship = s
-                break;
-            }
-        }
+    hit(position: Position) {
+        const cell = this.grid.getCell(position)
+        cell.hit()
 
-        var hitResult = undefined;
-        var sunkShipSurround = [];
-        if (ship === undefined) {
+        var moreShips: boolean = true;
+        var hitResult: HitResult;
+        const sunkShipSurround: Position[] = [];
+        if (cell.type === Cell.CELL_TYPE_WATER) {
             hitResult = HitResult.HIT_RESULT_MISS;
-            this.setCellType(position, Cell.CELL_TYPE_WATER);    
-        } else {
+        } else if (cell.type === Cell.CELL_TYPE_WRACKAGE) {
+            var ship: Ship|undefined;
+            for (var i = 0; i < this.ships.length; i++) {
+                const s = this.ships[i];
+                if (s.isLocatedAt(position)) {
+                    ship = s
+                    break
+                }
+            }
+            if (ship === undefined) {
+                throw new Error(`Couldn't find Ship at ${position.col}x${position.row}`)
+            }
+
             hitResult = ship.hit(position);
-            this.setCellType(position, Cell.CELL_TYPE_WRACKAGE);
             if (hitResult === HitResult.HIT_RESULT_SUNK) {
                 const surround = ship.getSurraund();
                 for (const key in surround) {
@@ -63,6 +69,8 @@ class Board
                 }
                 moreShips = isAlive;        
             }
+        } else {
+            throw new Error(`Unexpected cell type ${cell.type}`)
         }
 
         window.socket.emit('game', {
@@ -76,10 +84,10 @@ class Board
         });
     }
 
-    placeShips(ships) {
+    placeShips(ships: Ship[]) {
         this.ships = ships;
-        this.ships.forEach(function(ship) {
-            ship.sections.forEach(function(section) {
+        this.ships.forEach(function(ship: Ship) {
+            ship.sections.forEach(function(section: ShipSection) {
                 const key = `${section.position.col}_${section.position.row}`;
                 if (!(key in this.grid.cells)) {
                     return;
@@ -91,29 +99,29 @@ class Board
         }, this);
     }
 
-    mouseMove(point) {
+    mouseMove(point: Point) {
         if (this.active) {
             this.grid.mouseMove(point);
         }
     }
 
-    mouseClick(point) {
+    mouseClick(point: Point) {
         if (this.active) {
             this.grid.mouseClick(point);
             this.active = false;
         }
     }
 
-    roundStart(number) {
+    roundStart(number: number) {
         this.active = true;
         this.round = number;
     }
 
-    setCellType(position, cellType) {
+    setCellType(position: Position, cellType) {
         this.grid.setCellType(position, cellType)
     }
 
-    static initBoard(ltPoint, width, gap, col, row, showAgenda) {
+    static initBoard(ltPoint: Point, width: number, gap: number, col: number, row: number, showAgenda: boolean) {
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;

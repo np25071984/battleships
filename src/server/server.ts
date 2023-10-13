@@ -27,11 +27,11 @@ io.on("connect", (socket) => {
         app.createGame(gameId)
     }
 
-    var playerId = undefined
+    var playerId: string
     if ('playerId' in cookies) {
         // TODO: validate playerId value
         playerId = cookies.playerId
-        console.log('existing player reconnected: ' + playerId)
+        console.log(`existing player reconnected; playerId: ${playerId}; socketId: ${socket.id}`)
     } else {
         const players = app.getPlayers(gameId)
         if (Object.keys(players).length === 2) {
@@ -75,6 +75,15 @@ io.on("connect", (socket) => {
     })
 
     socket.on(App.EVENT_CHANNEL_NAME_GAME, (event) => {
+        const eventSocketId = socket.id;
+        if (!app.isValidSocketId(gameId, eventSocketId)) {
+            /**
+             * client with valid gameId and playerId but different socket.io connection
+             * possible new browser tab
+             * TODO: send DISABLE_CLIENT system event
+             */
+            return
+        }
         switch (event.type) {
             case App.EVENT_TYPE_SHOT:
                 event.type = App.EVENT_TYPE_HIT
@@ -116,7 +125,7 @@ io.on("connect", (socket) => {
                     } else {
                         const players = app.getPlayers(gameId)
                         for (var pId in players) {
-                            const socketId = app.getPlayerSocketId(gameId, pId)
+                            var socketId = app.getPlayerSocketId(gameId, pId)
                             io.sockets.to(socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
                                 'type': App.EVENT_TYPE_DRAW
                             })

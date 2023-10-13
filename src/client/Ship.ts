@@ -7,11 +7,11 @@ class Ship
     public static readonly SHIP_ORIENTATION_VERTICAL: number = 1;
     public static readonly SHIP_ORIENTATION_HORIZONTAL: number = 2;
 
-    public liveSectionCount
-    public position
-    public orientation
-    public alive
-    public sections
+    public liveSectionCount: number
+    public position: Position
+    public orientation: string
+    public alive: boolean
+    public sections: ShipSection[]
 
     constructor(position, orientation, type) {
         this.liveSectionCount = type.getSize();
@@ -35,31 +35,33 @@ class Ship
         }
     }
 
-    isLocatedAt(position) {
+    isLocatedAt(position: Position) {
         for (var i = 0; i < this.sections.length; i++) {
-            const section = this.sections[i];
+            const section = this.sections[i]
             if (section.isLocatedAt(position)) {
-                return true;
-            };
+                return true
+            }
         }
 
-        return false;
+        return false
     }
 
-    hit(position) {
+    hit(position: Position): HitResult {
         for (var i = 0; i < this.sections.length; i++) {
-            const section = this.sections[i];
+            const section = this.sections[i]
             if (section.isLocatedAt(position)) {
-                this.sections[i].isAlive = false;
-                this.liveSectionCount--;
+                this.sections[i].isAlive = false
+                this.liveSectionCount--
                 if (this.liveSectionCount === 0) {
-                    this.alive = false;
-                    return HitResult.HIT_RESULT_SUNK;
+                    this.alive = false
+                    return HitResult.HIT_RESULT_SUNK
                 } else {
-                    return HitResult.HIT_RESULT_DAMAGE;
+                    return HitResult.HIT_RESULT_DAMAGE
                 }
-            };
+            }
         }
+
+        return HitResult.HIT_RESULT_MISS;
     }
 
     getSurraund() {
