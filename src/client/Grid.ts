@@ -1,3 +1,5 @@
+import Point from './Point'
+
 class Grid
 {
     public cells
@@ -17,7 +19,7 @@ class Grid
         }
     }
 
-    mouseClick(point) {
+    mouseClick(point: Point) {
         for (const key in this.cells) {
             const cell = this.cells[key];
             cell.mouseClick(point);

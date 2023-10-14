@@ -68,7 +68,7 @@ class Ship
             }
         }
 
-        return HitResult.HIT_RESULT_MISS;
+        throw new Error(`Couldn't hit the ship at ${position.col}x${position.row}`)
     }
 
     getSurraund() {

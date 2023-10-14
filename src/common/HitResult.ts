@@ -1,3 +1,4 @@
+// TODO: raneme to ShotResult
 class HitResult {
     public static readonly HIT_RESULT_MISS: number = 1;
     public static readonly HIT_RESULT_DAMAGE: number = 2;

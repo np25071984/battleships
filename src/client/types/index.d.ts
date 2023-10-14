@@ -6,6 +6,7 @@ declare global {
         render: any
         io: any
         actionBoard: any
+        actionCanvas: any
         shipsBoard: any
     }
 }

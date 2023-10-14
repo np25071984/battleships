@@ -4,7 +4,11 @@
         "module": "commonjs",
         "outDir": "build",
         "sourceMap": true,
-        "typeRoots": ["./node_modules/@types", "./src/types"]
+        "typeRoots": [
+            "./node_modules/@types",
+            "src/client/types",
+            "./src/server/types"
+        ]
     },
     "include": [
         "src/server/**/*.ts"

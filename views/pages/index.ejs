@@ -19,6 +19,9 @@
         let expires = "expires="+ d.toUTCString();
         document.cookie = "gameId=" + gameId + ";" + expires + ";path=/";
 
+        const urlParams = new URLSearchParams(window.location.search);
+        window.playerId = urlParams.get('playerId');
+        document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/";
      </script>
 </body>
 </html>

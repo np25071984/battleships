@@ -6,7 +6,6 @@ class BattleshipsEvent {
     public static readonly EVENT_TYPE_JOINED: string = 'joined';
     public static readonly EVENT_TYPE_LEFT: string = 'left';
     public static readonly EVENT_TYPE_SHOT: string = 'shot';
-    public static readonly EVENT_TYPE_HIT: string = 'hit';
     public static readonly EVENT_TYPE_ANNOUNCE: string = 'announce';
     public static readonly EVENT_TYPE_ROUND: string = 'round';
     public static readonly EVENT_TYPE_WIN: string = 'win';

@@ -59,7 +59,7 @@ class Cell
         }
     }
 
-    mouseClick(point) {
+    mouseClick(point: Point) {
         if (!this.isInside(point)) {
             return;
         }
@@ -71,12 +71,12 @@ class Cell
         this.type = Cell.CELL_TYPE_CLICKED;
         this.changed = true;
 
-
         window.socket.emit('game', {
             'type': BattleshipsEvent.EVENT_TYPE_SHOT,
             'col': this.position.col,
             'row': this.position.row,
-            'playerId': window.playerId
+            'playerId': window.playerId,
+            'gameId': window.gameId,
         });
     }
 

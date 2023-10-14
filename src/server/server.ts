@@ -1,9 +1,36 @@
 const cookie = require("cookie")
 import App from './App'
 import { Server } from "socket.io"
+import Position from './Position'
+import Player from './Player'
+import Game from './Game'
+import Grid from './Grid'
+import Ship from './Ship'
+import ShipTypeDestroyer from './ShipTypeDestroyer'
+import ShipTypePatrolBoat from './ShipTypePatrolBoat'
+import HitResult from '../common/HitResult'
+
 const port = process.env.PORT || 3000
 
 const app = new App()
+
+// TODO: create hardcoded games
+const grid1 = Grid.initGrid(10, 10)
+const ships1: Ship[] = [];
+ships1.push(new Ship(new Position(1, 2), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
+ships1.push(new Ship(new Position(7, 8), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
+const player1 = new Player('playerID1', grid1, ships1)
+
+const grid2 = Grid.initGrid(10, 10)
+const ships2: Ship[] = [];
+ships2.push(new Ship(new Position(5, 5), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
+ships2.push(new Ship(new Position(2, 3), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
+const player2 = new Player('playerID2', grid2, ships2)
+
+const gameA: Game = new Game('gameA', 1, player1, player2)
+
+app.addGame(gameA)
+
 const server = app.express.listen(port, (err) => {
     if (err) {
         return console.log(err)
@@ -12,75 +39,97 @@ const server = app.express.listen(port, (err) => {
     return console.log(`Server is listening on ${port}`)
 })
 
-const io = new Server(server, {cookie: true})
-io.on("connect", (socket) => {
+global.io = new Server(server, {cookie: true})
+
+global.io.on("connect", (socket) => {
     const cookies = cookie.parse(socket.handshake.headers.cookie)
     if (!('gameId' in cookies)) {
-        console.log("gameId is missing; exit")
+        console.log("gameId parameter is missing")
         socket.disconnect()
         return
     }
 
     // TODO: validate gameId value
     const gameId = cookies.gameId
-    if (!app.isGameExists(gameId)) {
-        // TODO: has to be already created by this time
-        app.createGame(gameId)
+    var game: Game
+    if (app.doesGameExist(gameId)) {
+        game = app.getGame(gameId)
+    } else {
+        console.log(`Game ${gameId} doesn't exists`)
+        socket.disconnect()
+        return
     }
 
     var playerId: string
     if ('playerId' in cookies) {
         // TODO: validate playerId value
         playerId = cookies.playerId
-        console.log(`existing player reconnected; playerId: ${playerId}; socketId: ${socket.id}`)
+        console.log(`player connected; playerId: ${playerId}; socketId: ${socket.id}`)
     } else {
-        const players = app.getPlayers(gameId)
-        if (Object.keys(players).length === 2) {
-            console.log("Too many players for the game!")
-            throw new Error("Too many players")
-        }
-
-        playerId = app.makeId(6)
-        console.log('new player connected; playerId=' + playerId)
+        console.log("Wrong request; playerId hasn't been specified")
+        socket.disconnect()
+        return
     }
-    app.joinPlayer(gameId, playerId, socket.id)
 
-    const player = app.getPlayers(gameId)[playerId]
-    io.sockets.to(socket.id).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
-        'type': App.EVENT_TYPE_CONNECTED,
-        'gameId': gameId,
-        'playerId': playerId,
-        'grid': player['grid'],
-        'ships': player['ships'],
-    })
+    if (!game.doesPlayerExist(playerId)) {
+        console.log(`Unknown player '${playerId}' for game ${gameId}`)
+        socket.disconnect()
+        return
+    }
 
-    if (Object.keys(app.getPlayers(gameId)).length === 1) {
-        io.sockets.to(socket.id).emit(App.EVENT_CHANNEL_NAME_GAME, {
+    const player = game.getPlayer(playerId)
+    player.updateSocketId(socket.id)
+
+    const opponent: Player = game.getOpponent(playerId)
+    game.initClient(playerId)
+    // global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
+    //     'type': App.EVENT_TYPE_CONNECTED,
+    //     'playerId': playerId,
+    //     'grid': player.getGridWithShips(),
+    //     'opponent_grid': opponent.grid,
+    // })
+
+    if (opponent.socketId === '') {
+        // the opponent isn't there yet; let's wait for they
+        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_WAITING,
-            'socketId': socket.id,
         })
     } else {
-        socket.broadcast.emit(App.EVENT_CHANNEL_NAME_GAME, {
+        // all players are in place; let's start the game
+        global.io.sockets.to(opponent.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_JOINED,
-            'socketId': socket.id
+            'playerId': player.id,
         })
-
-        io.emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_ROUND,
-            'number': 1
-        })
+        game.startRound()
     }
 
     socket.on('disconnect', () => {
+        const game: Game = app.getGame(gameId)
+        var playerId: string
+
+        for (const p of game.players) {
+            if (p.socketId === socket.id) {
+                playerId = p.id
+                p.updateSocketId('')
+                break
+            }
+        }
+
         socket.broadcast.emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_LEFT,
-            'socketId': socket.id
+            'socketId': socket.id,
+            'playerId': playerId,
         })
     })
 
     socket.on(App.EVENT_CHANNEL_NAME_GAME, (event) => {
-        const eventSocketId = socket.id;
-        if (!app.isValidSocketId(gameId, eventSocketId)) {
+        const socketId = socket.id;
+        const gameId = event.gameId
+        const playerId = event.playerId
+
+        const game = app.getGame(gameId)
+        if (!game.isValidSocketId(socketId)) {
+            console.log('Invalid SocketId');
             /**
              * client with valid gameId and playerId but different socket.io connection
              * possible new browser tab
@@ -88,54 +137,55 @@ io.on("connect", (socket) => {
              */
             return
         }
+
         switch (event.type) {
             case App.EVENT_TYPE_SHOT:
-                event.type = App.EVENT_TYPE_HIT
-                socket.broadcast.emit(App.EVENT_CHANNEL_NAME_GAME, event)
-                break
-            case App.EVENT_TYPE_ANNOUNCE:
-                if (!app.doesPlayerMadeShot(gameId, event.playerId)) {
-                    app.makeShot(gameId, event)
+                const position = new Position(event.col, event.row)
+                game.shot(position, playerId)
+
+                if (game.roundShotsCounter !== 2) {
+                    // wait for the second player
+                    return
                 }
 
-                var losers = []
-                const shots = app.getShots(gameId)
-                if (Object.keys(shots).length === 2) {
-                    for (const p in shots) {
-                        const e = shots[p]
-                        const conterpartSocketId = app.getCounterpartSocketId(gameId, p)
-                        io.sockets.to(conterpartSocketId).emit(App.EVENT_CHANNEL_NAME_GAME, e)
+                const losers = []
+                game.players.forEach((player: Player) => {
+                    const shotRes: HitResult = game.getShotResult(player.id)
+                    const opponent: Player = game.getOpponent(player.id)
 
-                        if (!e.moreShips) {
-                            losers.push(p)
-                        }
+                    if (shotRes === HitResult.HIT_RESULT_SUNK && opponent.shipsCount === 0) {
+                        console.log("Found loser")
+                        losers.push(opponent.id)
                     }
 
-                    app.resetShots(gameId)
-                    if (losers.length === 0) {
-                        io.emit(App.EVENT_CHANNEL_NAME_GAME, {
-                            'type': App.EVENT_TYPE_ROUND,
-                            'number': 1
+                    global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                        'type': App.EVENT_TYPE_ANNOUNCE,
+                        'playerId': player.id,
+                        'result': shotRes
+                    })
+                })
+
+                if (losers.length === 0) {
+                    game.nextRound()
+                } else if (losers.length === 1) {
+                    const loserId: string = losers[0]
+                    const l = game.getPlayer(loserId)
+                    global.io.sockets.to(l.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                        'type': App.EVENT_TYPE_DEFEAT,
+                        'playerId': l.id,
+                    })
+
+                    const o = game.getOpponent(loserId)
+                    global.io.sockets.to(o.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                        'type': App.EVENT_TYPE_WIN,
+                        'playerId': o.id,
+                    })
+                } else {
+                    game.players.forEach((player: Player) => {
+                        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                            'type': App.EVENT_TYPE_DRAW,
                         })
-                    } else if (losers.length === 1) {
-                        const loserId = losers.pop()
-                        const socketId = app.getPlayerSocketId(gameId, loserId)
-                        io.sockets.to(socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                            'type': App.EVENT_TYPE_DEFEAT
-                        })
-                        const conterpartSocketId = app.getCounterpartSocketId(gameId, loserId)
-                        io.sockets.to(conterpartSocketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                            'type': App.EVENT_TYPE_WIN
-                        })
-                    } else {
-                        const players = app.getPlayers(gameId)
-                        for (var pId in players) {
-                            var socketId = app.getPlayerSocketId(gameId, pId)
-                            io.sockets.to(socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                                'type': App.EVENT_TYPE_DRAW
-                            })
-                        }
-                    }
+                    })
                 }
                 break
             default:

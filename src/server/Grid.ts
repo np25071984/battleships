@@ -21,6 +21,10 @@ class Grid {
 
         return new Grid(grid)
     }
+
+    getCell(position: Position): Cell {
+        return this.cells[position.col][position.row]
+    }
 }
 
 export default Grid
