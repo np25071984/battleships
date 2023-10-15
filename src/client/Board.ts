@@ -46,8 +46,8 @@ class Board
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;
-        const col = data.cells[0].length
-        const row = data.cells.length
+        const col = data[0].length
+        const row = data.length
         const step = width + gap;
         const totalWidth = gap + (step * col);
         const totalHeight = gap + (step * row);
@@ -62,7 +62,7 @@ class Board
                 const key = `${positionX}_${positionY}`;
                 const rbP = new Point(x + width, y + width);
                 const outerRect = new Rect(ltP, rbP);
-                cells[key] = new Cell(outerRect, pos, false, data.cells[positionX][positionY].type, false);
+                cells[key] = new Cell(outerRect, pos, false, data[positionX][positionY], false);
                 positionX++;
             }
             positionY++;

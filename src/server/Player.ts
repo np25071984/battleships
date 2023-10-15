@@ -31,6 +31,26 @@ class Player {
 
         this.socketId = socketId
     }
+
+    getUpdates(): object[] {
+        const updates = []
+        for (var r = 0; r < this.grid.cells.length; r++) {
+            for (var c = 0; c < this.grid.cells[0].length; c++) {
+                const p: Position = new Position(c, r)
+                const cell = this.grid.getCell(p)
+                if (cell.isChanged()) {
+                    updates.push({
+                        'col': p.col,
+                        'row': p.row,
+                        'type': cell.getType(),
+                    })
+                    cell.safe()
+                }
+            }
+        }
+
+        return updates
+    }
 }
 
 export default Player

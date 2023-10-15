@@ -79,22 +79,6 @@ class Cell
             'gameId': window.gameId,
         });
     }
-
-    hit(): void {
-        var newType: number
-        switch (this.type) {
-            case Cell.CELL_TYPE_SHIP:
-                newType = Cell.CELL_TYPE_WRACKAGE;
-                break
-            case Cell.CELL_TYPE_FOG_OF_WAR:
-                newType = Cell.CELL_TYPE_WATER;
-                break
-            default:
-                throw new Error(`Unexpected hit target ${this.type}`)
-        }
-        this.type = newType
-        this.changed = true
-    }
 }
 
 export default Cell

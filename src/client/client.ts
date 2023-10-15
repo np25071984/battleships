@@ -1,5 +1,5 @@
 import BattleshipsEvent from './BattleshipsEvent'
-import HitResult from '../common/HitResult'
+import ShotResult from '../common/ShotResult'
 import Render from './Render'
 import Position from './Position'
 import Point from './Point'
@@ -75,25 +75,10 @@ window.onload = function() {
                 console.log(`Player ${event.playerId} has left the game`)
                 break
             case BattleshipsEvent.EVENT_TYPE_ANNOUNCE:
-                switch (event.result) {
-                    case HitResult.HIT_RESULT_MISS:
-                        console.log("miss")
-                        break
-                    case HitResult.HIT_RESULT_DAMAGE:
-                        console.log("damage")
-                        break
-                    case HitResult.HIT_RESULT_SUNK:
-                        console.log("sunk")
-                        break
-                    default:
-                        throw new Error(`Unknown hit result(${event.result})`)
-                }
-                break
-            case BattleshipsEvent.EVENT_TYPE_ROUND:
                 for (const u in event.opponent_updates) {
                     const upd =  event.opponent_updates[u]
                     window.shipsBoard.setCellType(
-                        new Position(upd.position.col, upd.position.row),
+                        new Position(upd.col, upd.row),
                         upd.type
                     )
                 }
@@ -102,22 +87,43 @@ window.onload = function() {
                 for (const u in event.player_updates) {
                     const upd =  event.player_updates[u]
                     window.actionBoard.setCellType(
-                        new Position(upd.position.col, upd.position.row),
+                        new Position(upd.col, upd.row),
                         upd.type
                     )
                 }
                 window.render.refreshGrid(document.getElementById("action-board"), window.actionBoard)
 
+                switch (event.result) {
+                    case ShotResult.HIT_RESULT_MISS:
+                        console.log("miss")
+                        break
+                    case ShotResult.HIT_RESULT_DAMAGE:
+                        console.log("damage")
+                        break
+                    case ShotResult.HIT_RESULT_SUNK:
+                        console.log("sunk")
+                        break
+                    default:
+                        throw new Error(`Unknown hit result(${event.result})`)
+                }
+                break
+            case BattleshipsEvent.EVENT_TYPE_ROUND:
                 window.actionBoard.roundStart(event.number)
                 break
-            case BattleshipsEvent.EVENT_TYPE_WIN:
-                console.log("Win")
-                break
-            case BattleshipsEvent.EVENT_TYPE_DEFEAT:
-                console.log("Defeat")
-                break
-            case BattleshipsEvent.EVENT_TYPE_DRAW:
-                console.log("Draw")
+            case BattleshipsEvent.EVENT_TYPE_GAME_RESULT:
+                switch (event.result) {
+                    case BattleshipsEvent.GAME_RESULT_WIN:
+                        console.log("Win")
+                        break
+                    case BattleshipsEvent.GAME_RESULT_DEFEAT:
+                        console.log("Defaat")
+                        break
+                    case BattleshipsEvent.GAME_RESULT_DRAW:
+                        console.log("Draw")
+                        break
+                    default:
+                        throw new Error(`Unknown game result '${event.result}'`)
+                }
                 break
             default:
                 throw new Error(`Unknown game event type(${event.type})`)

@@ -25,6 +25,19 @@ class Grid {
     getCell(position: Position): Cell {
         return this.cells[position.col][position.row]
     }
+
+    typesOnly(): number[][] {
+        const grid: number[][] = [];
+        for (var r = 0; r < this.cells.length; r++) {
+            const row: number[] = [];
+            for (var c = 0; c < this.cells[r].length; c++) {
+                row[c] = this.cells[r][c].getType()
+            }
+            grid[r] = row
+        }
+
+        return grid
+    }
 }
 
 export default Grid

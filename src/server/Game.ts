@@ -3,7 +3,7 @@ import Player from './Player'
 import Grid from './Grid'
 import Position from './Position'
 import Ship from './Ship'
-import HitResult from '../common/HitResult'
+import ShotResult from '../common/ShotResult'
 import Cell from './Cell'
 import ShipSection from './ShipSection'
 
@@ -44,8 +44,8 @@ class Game {
             'type': App.EVENT_TYPE_CONNECTED,
             'playerId': playerId,
             'round': this.round,
-            'ships_grid': this.getGridWithOpponentShips(opponent),
-            'shots_grid': player.grid,
+            'ships_grid': this.getGridWithOpponentShips(opponent).typesOnly(),
+            'shots_grid': player.grid.typesOnly(),
         })
     }
 
@@ -55,7 +55,7 @@ class Game {
             const rowItems: Cell[] = [];
             for (var c: number = 0; c < player.grid.cells[0].length; c++) {
                 const p = new Position(c, r)
-                rowItems[c] = new Cell(p, player.grid.cells[r][c].type);
+                rowItems[c] = new Cell(p, player.grid.cells[r][c].getType());
             }
             cells[r] = rowItems
         }
@@ -98,48 +98,14 @@ class Game {
         const player1: Player = this.players[0]
         const player2: Player = this.players[1]
 
-        const player1Updates = []
-        for (var r = 0; r < player1.grid.cells.length; r++) {
-            for (var c = 0; c < player1.grid.cells[0].length; c++) {
-                const p: Position = new Position(c, r)
-                const cell = player1.grid.getCell(p)
-                if (cell.changed) {
-                    player1Updates.push({
-                        'position': p,
-                        'type': cell.type,
-                    })
-                    cell.changed = false
-                }
-            }
-        }
-
-        const player2Updates = []
-        for (var r = 0; r < player2.grid.cells.length; r++) {
-            for (var c = 0; c < player2.grid.cells[0].length; c++) {
-                const p: Position = new Position(c, r)
-                const cell = player2.grid.getCell(p)
-                if (cell.changed) {
-                    player2Updates.push({
-                        'position': p,
-                        'type': cell.type,
-                    })
-                    cell.changed = false
-                }
-            }
-        }
-
         global.io.sockets.to(player1.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_ROUND,
             'number': this.round,
-            'player_updates': player1Updates,
-            'opponent_updates': player2Updates
         })
 
         global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_ROUND,
             'number': this.round,
-            'player_updates': player2Updates,
-            'opponent_updates': player1Updates
         })
     }
 
@@ -190,18 +156,18 @@ class Game {
         }
     }
 
-    getShotResult(playerId: string): HitResult {
+    getShotResult(playerId: string): ShotResult {
         const player: Player = this.getPlayer(playerId)
         const shotPosition = player.shots[this.round]
         
         const opponent: Player = this.getOpponent(playerId)
-        var hitResult: HitResult = HitResult.HIT_RESULT_MISS
+        var shotResult: ShotResult = ShotResult.HIT_RESULT_MISS
         let surrounding = {}
         for (const s in opponent.ships) {
             const ship: Ship = opponent.ships[s]
             if (ship.isLocatedAt(shotPosition)) {
-                hitResult = ship.hit(shotPosition)
-                if (hitResult === HitResult.HIT_RESULT_SUNK) {
+                shotResult = ship.hit(shotPosition)
+                if (shotResult === ShotResult.HIT_RESULT_SUNK) {
                     opponent.shipsCount--
                     surrounding = ship.getSurraund()
                 }
@@ -210,22 +176,96 @@ class Game {
         }
 
         const cell = player.grid.getCell(shotPosition)
-        switch (hitResult) {
-            case HitResult.HIT_RESULT_MISS:
+        switch (shotResult) {
+            case ShotResult.HIT_RESULT_MISS:
                 cell.setType(Cell.CELL_TYPE_WATER)
                 break
-            case HitResult.HIT_RESULT_SUNK:
+            case ShotResult.HIT_RESULT_SUNK:
                 for (const key in surrounding) {
                     const p = surrounding[key]
                     const c = player.grid.getCell(p)
                     c.setType(Cell.CELL_TYPE_WATER)
                 }
-            case HitResult.HIT_RESULT_DAMAGE:
+            case ShotResult.HIT_RESULT_DAMAGE:
                 cell.setType(Cell.CELL_TYPE_WRACKAGE)
                 break
         }
 
-        return hitResult
+        return shotResult
+    }
+
+    announceShotResults() {
+        this.roundShotsCounter = 0
+        const player1: Player = this.players[0]
+        const player2: Player = this.players[1]
+
+        const player1ShotRes: ShotResult = this.getShotResult(player1.id)
+        const player2ShotRes: ShotResult = this.getShotResult(player2.id)
+
+        const player1Updates = player1.getUpdates()
+        const player2Updates = player2.getUpdates()
+
+        global.io.sockets.to(player1.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+            'type': App.EVENT_TYPE_ANNOUNCE,
+            'playerId': player1.id,
+            'result': player1ShotRes,
+            'player_updates': player1Updates,
+            'opponent_updates': player2Updates
+        })
+
+        global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+            'type': App.EVENT_TYPE_ANNOUNCE,
+            'playerId': player2.id,
+            'result': player2ShotRes,
+            'player_updates': player2Updates,
+            'opponent_updates': player1Updates
+        })
+    }
+
+    isOver(): boolean {
+        for (const p of this.players) {
+            if (p.shipsCount === 0) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    announceGameResults() {
+        const losers = []
+        for (const p of this.players) {
+            if (p.shipsCount === 0) {
+                losers.push(p.id)
+            }
+        }
+
+        if (losers.length === 1) {
+            const loserId: string = losers[0]
+            const l = this.getPlayer(loserId)
+            global.io.sockets.to(l.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                'type': App.EVENT_TYPE_GAME_RESULT,
+                'result': App.GAME_RESULT_DEFEAT,
+                'playerId': l.id,
+            })
+
+            const o = this.getOpponent(loserId)
+            global.io.sockets.to(o.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                'type': App.EVENT_TYPE_GAME_RESULT,
+                'result': App.GAME_RESULT_WIN,
+                'playerId': o.id,
+            })
+        } else if (losers.length == 2) {
+            this.players.forEach((player: Player) => {
+                global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                    'type': App.EVENT_TYPE_GAME_RESULT,
+                    'result': App.GAME_RESULT_DRAW,
+                    'playerId': player.id,
+                })
+            })
+        } else {
+            throw new Error(`Game ${this.id} doesn't look like it is over`)
+        }
     }
 }
 

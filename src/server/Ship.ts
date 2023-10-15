@@ -1,7 +1,7 @@
 import ShipSection from './ShipSection'
 import Position from './Position'
 import ShipTypeAbstract from './ShipTypeAbstract'
-import HitResult from '../common/HitResult'
+import ShotResult from '../common/ShotResult'
 
 class Ship 
 {
@@ -38,10 +38,6 @@ class Ship
         }
     }
 
-    // public toString = () : string => {
-    //     return `Foo (id: ${this.id})`;
-    // }
-
     isLocatedAt(position: Position) {
         for (var i = 0; i < this.sections.length; i++) {
             const section = this.sections[i]
@@ -53,7 +49,7 @@ class Ship
         return false
     }
 
-    hit(position: Position): HitResult {
+    hit(position: Position): ShotResult {
         for (var i = 0; i < this.sections.length; i++) {
             const section = this.sections[i]
             if (section.isLocatedAt(position)) {
@@ -61,9 +57,9 @@ class Ship
                 this.liveSectionCount--
                 if (this.liveSectionCount === 0) {
                     this.alive = false
-                    return HitResult.HIT_RESULT_SUNK
+                    return ShotResult.HIT_RESULT_SUNK
                 } else {
-                    return HitResult.HIT_RESULT_DAMAGE
+                    return ShotResult.HIT_RESULT_DAMAGE
                 }
             }
         }

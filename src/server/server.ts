@@ -8,7 +8,7 @@ import Grid from './Grid'
 import Ship from './Ship'
 import ShipTypeDestroyer from './ShipTypeDestroyer'
 import ShipTypePatrolBoat from './ShipTypePatrolBoat'
-import HitResult from '../common/HitResult'
+import ShotResult from '../common/ShotResult'
 
 const port = process.env.PORT || 3000
 
@@ -82,12 +82,6 @@ global.io.on("connect", (socket) => {
 
     const opponent: Player = game.getOpponent(playerId)
     game.initClient(playerId)
-    // global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
-    //     'type': App.EVENT_TYPE_CONNECTED,
-    //     'playerId': playerId,
-    //     'grid': player.getGridWithShips(),
-    //     'opponent_grid': opponent.grid,
-    // })
 
     if (opponent.socketId === '') {
         // the opponent isn't there yet; let's wait for they
@@ -115,7 +109,8 @@ global.io.on("connect", (socket) => {
             }
         }
 
-        socket.broadcast.emit(App.EVENT_CHANNEL_NAME_GAME, {
+        const opponnet = game.getOpponent(playerId)
+        socket.to(opponnet.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_LEFT,
             'socketId': socket.id,
             'playerId': playerId,
@@ -148,44 +143,11 @@ global.io.on("connect", (socket) => {
                     return
                 }
 
-                const losers = []
-                game.players.forEach((player: Player) => {
-                    const shotRes: HitResult = game.getShotResult(player.id)
-                    const opponent: Player = game.getOpponent(player.id)
-
-                    if (shotRes === HitResult.HIT_RESULT_SUNK && opponent.shipsCount === 0) {
-                        console.log("Found loser")
-                        losers.push(opponent.id)
-                    }
-
-                    global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                        'type': App.EVENT_TYPE_ANNOUNCE,
-                        'playerId': player.id,
-                        'result': shotRes
-                    })
-                })
-
-                if (losers.length === 0) {
-                    game.nextRound()
-                } else if (losers.length === 1) {
-                    const loserId: string = losers[0]
-                    const l = game.getPlayer(loserId)
-                    global.io.sockets.to(l.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                        'type': App.EVENT_TYPE_DEFEAT,
-                        'playerId': l.id,
-                    })
-
-                    const o = game.getOpponent(loserId)
-                    global.io.sockets.to(o.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                        'type': App.EVENT_TYPE_WIN,
-                        'playerId': o.id,
-                    })
+                game.announceShotResults()
+                if (game.isOver()) {
+                    game.announceGameResults()
                 } else {
-                    game.players.forEach((player: Player) => {
-                        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                            'type': App.EVENT_TYPE_DRAW,
-                        })
-                    })
+                    game.nextRound()
                 }
                 break
             default:
