@@ -97,7 +97,7 @@ global.io.on("connect", (socket) => {
         game.startRound()
     }
 
-    socket.on('disconnect', () => {
+    socket.on(App.EVENT_TYPE_DISCONNECT, () => {
         const game: Game = app.getGame(gameId)
         var playerId: string
 

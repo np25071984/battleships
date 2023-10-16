@@ -19,6 +19,10 @@ class Position
 
         return true;
     }
+
+    generateKey() {
+        return `${this.col}_${this.row}`;
+    }
 }
 
 export default Position

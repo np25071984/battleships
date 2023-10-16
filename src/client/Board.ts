@@ -4,9 +4,8 @@ import Cell from './Cell'
 import Rect from './Rect'
 import Grid from './Grid'
 
-class Board
-{
-    public round: number|undefined
+class Board {
+    public round: number | undefined
     public active: boolean
     public rect: Rect
     public grid: Grid
@@ -72,7 +71,7 @@ class Board
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
         const boardOuterRect = new Rect(ltPoint, rbPoint);
         const board = new Board(boardOuterRect, grid, showAgenda);
-    
+
         return board;
     }
 

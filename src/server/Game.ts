@@ -72,7 +72,6 @@ class Game {
                     if (section.isAlive) {
                         type = Cell.CELL_TYPE_SHIP
                     } else {
-                        // TODO: add sunk ships
                         type = Cell.CELL_TYPE_WRACKAGE
                     }
                     const cell = grid.getCell(p)
@@ -243,17 +242,18 @@ class Game {
         if (losers.length === 1) {
             const loserId: string = losers[0]
             const l = this.getPlayer(loserId)
+            const winner = this.getOpponent(loserId)
             global.io.sockets.to(l.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
                 'type': App.EVENT_TYPE_GAME_RESULT,
                 'result': App.GAME_RESULT_DEFEAT,
                 'playerId': l.id,
+                'opponent_ships': winner.getAliveShips()
             })
 
-            const o = this.getOpponent(loserId)
-            global.io.sockets.to(o.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+            global.io.sockets.to(winner.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
                 'type': App.EVENT_TYPE_GAME_RESULT,
                 'result': App.GAME_RESULT_WIN,
-                'playerId': o.id,
+                'playerId': winner.id,
             })
         } else if (losers.length == 2) {
             this.players.forEach((player: Player) => {

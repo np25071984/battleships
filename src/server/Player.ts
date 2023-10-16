@@ -1,8 +1,6 @@
-import App from './App'
 import Ship from './Ship'
 import Grid from './Grid'
 import Position from './Position'
-import Cell from './Cell'
 import ShipSection from './ShipSection'
 
 interface Shots {
@@ -50,6 +48,26 @@ class Player {
         }
 
         return updates
+    }
+
+    getAliveShips(): object[] {
+        const aliveSections: object[] = []
+        for (const s in this.ships) {
+            const ship: Ship = this.ships[s]
+            if (ship.alive) {
+                for (const secId in ship.sections) {
+                    const section: ShipSection = ship.sections[secId]
+                    if (section.isAlive) {
+                        aliveSections.push({
+                            'col': section.position.col,
+                            'row': section.position.row,
+                        })
+                    }
+                }
+            }
+        }
+
+        return aliveSections
     }
 }
 

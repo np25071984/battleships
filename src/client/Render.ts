@@ -3,7 +3,7 @@ import Cell from './Cell'
 class Render {
     public static readonly COLOR_FOG_OF_WAR: string = '#ffffff';
     public static readonly COLOR_HOVER: string = '#90d3de';
-    public static readonly COLOR_SHIP: string = '#ffffff';
+    public static readonly COLOR_SHIP: string = 'green';
     public static readonly COLOR_WRACKAGE: string = 'red';
     public static readonly COLOR_CLICKED: string = 'blue';
     public static readonly COLOR_WATER: string = 'yellow';

@@ -5,8 +5,8 @@ declare global {
         socket: any
         render: any
         io: any
-        actionBoard: any
-        actionCanvas: any
+        shotsBoard: any
+        shotsCanvas: any
         shipsBoard: any
     }
 }

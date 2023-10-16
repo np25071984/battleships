@@ -4,6 +4,7 @@ import Render from './Render'
 import Position from './Position'
 import Point from './Point'
 import Board from './Board'
+import Cell from './Cell'
 import type Window from './types/index.d.ts'
 
 window.onload = function() {
@@ -15,51 +16,51 @@ window.onload = function() {
     window.socket.on(BattleshipsEvent.EVENT_CHANNEL_NAME_SYSTEM, function(event) {
         switch (event.type) {
             case BattleshipsEvent.EVENT_TYPE_CONNECTED:
-                window.playerId = event.playerId;
-                const d = new Date();
-                d.setTime(d.getTime() + (1*24*60*60*1000));
-                let expires = "expires="+ d.toUTCString();
-                document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/";
+                window.playerId = event.playerId
+                const d = new Date()
+                d.setTime(d.getTime() + (1*24*60*60*1000))
+                let expires = "expires="+ d.toUTCString()
+                document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/"
 
                 console.dir("connected to the server")
 
-                const actionCanvas = document.getElementById("action-board");
-                if (actionCanvas == null) {
-                    throw Error("Can't find Action board");
+                const shotsCanvas = document.getElementById("shots-board")
+                if (shotsCanvas == null) {
+                    throw Error("Can't find Shots board")
                 }
-                const sheepsCanvas = document.getElementById("my-ships");
-                if (actionCanvas == null) {
-                    throw Error("Can't find Sheeps board");
+                const shipsCanvas = document.getElementById("ships-board")
+                if (shotsCanvas == null) {
+                    throw Error("Can't find Ships board")
                 }
 
-                const startPoint = new Point(40, 40);
-                window.actionBoard = Board.initFromServerData(startPoint, 40, 1, event.shots_grid, true);
-                window.render.drawBoard(actionCanvas, window.actionBoard);
-                window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.ships_grid, true);
-                window.render.drawBoard(sheepsCanvas, window.shipsBoard);
+                const startPoint = new Point(40, 40)
+                window.shotsBoard = Board.initFromServerData(startPoint, 40, 1, event.shots_grid, true)
+                window.render.drawBoard(shotsCanvas, window.shotsBoard)
+                window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.ships_grid, true)
+                window.render.drawBoard(shipsCanvas, window.shipsBoard)
 
                 function getMousePoint(canvasRect, clientX, clientY) {
-                    const x = clientX - canvasRect.left;
-                    const y = clientY - canvasRect.top;
-                    return new Point(x, y);
+                    const x = clientX - canvasRect.left
+                    const y = clientY - canvasRect.top
+                    return new Point(x, y)
                 }
 
-                actionCanvas.addEventListener('mousemove', function(board, e) {
-                    const rect = this.getBoundingClientRect();
-                    const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
-                    board.mouseMove(mousePoint);
-                    window.render.refreshGrid(this, board);
-                }.bind(actionCanvas, window.actionBoard));
+                shotsCanvas.addEventListener('mousemove', function(board, e) {
+                    const rect = this.getBoundingClientRect()
+                    const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+                    board.mouseMove(mousePoint)
+                    window.render.refreshGrid(this, board)
+                }.bind(shotsCanvas, window.shotsBoard))
 
-                actionCanvas.addEventListener('click', function(board, e) {
-                    const rect = this.getBoundingClientRect();
-                    const mousePoint = getMousePoint(rect, e.clientX, e.clientY);
-                    board.mouseClick(mousePoint);
-                    window.render.refreshGrid(this, board);
-                }.bind(actionCanvas, window.actionBoard));
+                shotsCanvas.addEventListener('click', function(board, e) {
+                    const rect = this.getBoundingClientRect()
+                    const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+                    board.mouseClick(mousePoint)
+                    window.render.refreshGrid(this, board)
+                }.bind(shotsCanvas, window.shotsBoard))
                 break;
             default:
-                throw new Error(`Unknown system event type(${event.type})`);
+                throw new Error(`Unknown system event type(${event.type})`)
         }
     });
 
@@ -82,16 +83,16 @@ window.onload = function() {
                         upd.type
                     )
                 }
-                window.render.refreshGrid(document.getElementById("my-ships"), window.shipsBoard)
+                window.render.refreshGrid(document.getElementById("ships-board"), window.shipsBoard)
 
                 for (const u in event.player_updates) {
                     const upd =  event.player_updates[u]
-                    window.actionBoard.setCellType(
+                    window.shotsBoard.setCellType(
                         new Position(upd.col, upd.row),
                         upd.type
                     )
                 }
-                window.render.refreshGrid(document.getElementById("action-board"), window.actionBoard)
+                window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
 
                 switch (event.result) {
                     case ShotResult.HIT_RESULT_MISS:
@@ -108,7 +109,7 @@ window.onload = function() {
                 }
                 break
             case BattleshipsEvent.EVENT_TYPE_ROUND:
-                window.actionBoard.roundStart(event.number)
+                window.shotsBoard.roundStart(event.number)
                 break
             case BattleshipsEvent.EVENT_TYPE_GAME_RESULT:
                 switch (event.result) {
@@ -116,6 +117,14 @@ window.onload = function() {
                         console.log("Win")
                         break
                     case BattleshipsEvent.GAME_RESULT_DEFEAT:
+                        for (const u in event.opponent_ships) {
+                            const upd =  event.opponent_ships[u]
+                            window.shotsBoard.setCellType(
+                                new Position(upd.col, upd.row),
+                                Cell.CELL_TYPE_SHIP
+                            )
+                        }
+                        window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
                         console.log("Defaat")
                         break
                     case BattleshipsEvent.GAME_RESULT_DRAW:

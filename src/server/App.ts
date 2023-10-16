@@ -5,6 +5,7 @@ class App {
     public static readonly EVENT_CHANNEL_NAME_SYSTEM: string = 'system'
     public static readonly EVENT_CHANNEL_NAME_GAME: string = 'game'
     public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
+    public static readonly EVENT_TYPE_DISCONNECT: string = 'disconnect'
     public static readonly EVENT_TYPE_WAITING: string = 'waiting'
     public static readonly EVENT_TYPE_JOINED: string = 'joined'
     public static readonly EVENT_TYPE_LEFT: string = 'left'
