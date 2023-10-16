@@ -13,14 +13,12 @@ class Game {
     public players: Player[]
     public grid: Grid[]
     public roundShotsCounter: number
+    public started: boolean
 
-    constructor(gameId: string, round: number, player1: Player, player2: Player) {
+    constructor(gameId: string, round: number) {
         this.id = gameId
         this.round = round
-        this.players = [
-            player1,
-            player2
-        ]
+        this.players = []
         // TODO: calculate playes shots in current round
         this.roundShotsCounter = 0
     }
@@ -36,17 +34,36 @@ class Game {
         return false
     }
 
-    initClient(playerId: string) {
-        const player: Player = this.getPlayer(playerId)
-        const opponent: Player = this.getOpponent(playerId)
+    joinPlayer(player: Player): void {
+        // TODO: two players only
+        this.players.push(player)
+    }
 
-        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
-            'type': App.EVENT_TYPE_CONNECTED,
-            'playerId': playerId,
-            'round': this.round,
-            'ships_grid': this.getGridWithOpponentShips(opponent).typesOnly(),
-            'shots_grid': player.grid.typesOnly(),
-        })
+    initClients() {
+        const player1: Player = this.players[0]
+        const player2: Player = this.players[1]
+
+        if (!player1.isInitialized) {
+            global.io.sockets.to(player1.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                'type': App.EVENT_TYPE_INIT,
+                'playerId': player1.id,
+                'round': this.round,
+                'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
+                'shots_grid': player1.grid.typesOnly(),
+            })
+            player1.isInitialized = true
+        }
+
+        if (!player2.isInitialized) {
+            global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                'type': App.EVENT_TYPE_INIT,
+                'playerId': player2.id,
+                'round': this.round,
+                'ships_grid': this.getGridWithOpponentShips(player1).typesOnly(),
+                'shots_grid': player2.grid.typesOnly(),
+            })
+            player2.isInitialized = true
+        }
     }
 
     getGridWithOpponentShips(player: Player): Grid {
@@ -145,6 +162,17 @@ class Game {
         }
 
         throw new Error(`Couldn't find the opponent for '${playerId}' in game '${this.id}'`)
+    }
+
+    doesOpponentExist(playerId: string): boolean {
+        for (const p in this.players) {
+            const pl: Player = this.players[p]
+            if (pl.id !== playerId && pl.socketId !== '') {
+                return true
+            }
+        }
+
+        return false
     }
 
     shot(position: Position, playerId: string): void {

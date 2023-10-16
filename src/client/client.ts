@@ -23,6 +23,16 @@ window.onload = function() {
                 document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/"
 
                 console.dir("connected to the server")
+                break;
+            default:
+                throw new Error(`Unknown system event type(${event.type})`)
+        }
+    });
+
+    window.socket.on(BattleshipsEvent.EVENT_CHANNEL_NAME_GAME, function(event) {
+        switch (event.type) {
+            case BattleshipsEvent.EVENT_TYPE_INIT:
+                console.dir("init client")
 
                 const shotsCanvas = document.getElementById("shots-board")
                 if (shotsCanvas == null) {
@@ -59,13 +69,6 @@ window.onload = function() {
                     window.render.refreshGrid(this, board)
                 }.bind(shotsCanvas, window.shotsBoard))
                 break;
-            default:
-                throw new Error(`Unknown system event type(${event.type})`)
-        }
-    });
-
-    window.socket.on(BattleshipsEvent.EVENT_CHANNEL_NAME_GAME, function(event) {
-        switch (event.type) {
             case BattleshipsEvent.EVENT_TYPE_WAITING:
                 console.log(`Waiting for the second player`)
                 break

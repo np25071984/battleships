@@ -12,11 +12,32 @@
 * both players make a shot each round; there isn't first or last shot; there is only round shot
 * if a player run out of time they skip the round
 
-## The game types
+## Game navigation
 
-1. Single player
-2. Play with a stranger
-3. Play with a friend
+```mermaid
+---
+title: Game navigation
+---
+flowchart LR
+    menu{Game menu} -->|Create game| create[Create page]
+    menu{Game menu} -->|Join game| select[Select page]
+    create -->|gameId| join
+    select -->|gameId| join
+    join[Join page]
+    join -->|gameId, playerId| game
+
+```
+
+Main menu offers two options:
+* Create game - create new game with desirable settings
+* Join game - join an existing game
+
+## Game setting
+
+* visibility (public/private)
+* board size
+* ships configuration
+* round timeout
 
 ## Ship types
 
@@ -34,32 +55,34 @@
 ## Gameflow
 
 
-### Play sequence diagram
-
-
 ```mermaid
 sequenceDiagram
     actor Client1
     participant Server
     actor Client2
-    Client1->>Server: The game type and settings
-    Server-->>Client1: gameId, playerId
-    Client1->>Server: Join the game (gameId, playerId)
-    Server-->>Client1: EVENT_TYPE_CONNECTED (game settings, board configuration)
+    Client1->>Server: Open up the game page (gameId, playerId)
+    Server-->>Client1: EVENT_TYPE_CONNECTED
     Server-->>Client1: EVENT_TYPE_WAITING
-    Client2->>Server: Join the game (gameId, playerId)
-    Server-->>Client2: EVENT_TYPE_CONNECTED (game settings, board configuration)
+    Client2->>Server: Open up the game page (gameId, playerId)
+    Server-->>Client2: EVENT_TYPE_CONNECTED
     Server->>Client1: EVENT_TYPE_JOINED (playerId)
+    par
+        Server->>Client1: EVENT_TYPE_INIT (game data)
+        Server->>Client2: EVENT_TYPE_INIT (game data)
+    end
     Note over Client1, Client2: both players are connected and set up
-    Server->>Client1: EVENT_TYPE_ROUND (number)
-    Server->>Client2: EVENT_TYPE_ROUND (number)
+    par
+        Server->>Client1: EVENT_TYPE_ROUND (number)
+        Server->>Client2: EVENT_TYPE_ROUND (number)
+    end
     opt Lost connection (any player)
         Server->>Client2: ping
         Client2-->>Server: no response
         Server->>Client1: EVENT_TYPE_LEFT
-        Client2->>Server: The game type and settings
-        Server-->>Client2: EVENT_TYPE_CONNECTED (game settings, board configuration)
+        Client2->>Server: Open up the game page (gameId, playerId)
+        Server-->>Client2: EVENT_TYPE_CONNECTED
         Server->>Client1: EVENT_TYPE_JOINED (playerId)
+        Server-->Client2: EVENT_TYPE_INIT (game data)
     end
     par Client shots
         Client1->>Server: EVENT_TYPE_SHOT
@@ -85,6 +108,7 @@ sequenceDiagram
 
 ## TODO
 1. Implement round timer
+2. Implement game configuration page
 
 ## Terms
 

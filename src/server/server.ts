@@ -8,7 +8,6 @@ import Grid from './Grid'
 import Ship from './Ship'
 import ShipTypeDestroyer from './ShipTypeDestroyer'
 import ShipTypePatrolBoat from './ShipTypePatrolBoat'
-import ShotResult from '../common/ShotResult'
 
 const port = process.env.PORT || 3000
 
@@ -27,7 +26,9 @@ ships2.push(new Ship(new Position(5, 5), Ship.SHIP_ORIENTATION_VERTICAL, new Shi
 ships2.push(new Ship(new Position(2, 3), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
 const player2 = new Player('playerID2', grid2, ships2)
 
-const gameA: Game = new Game('gameA', 1, player1, player2)
+const gameA: Game = new Game('gameA', 1)
+gameA.joinPlayer(player1)
+gameA.joinPlayer(player2)
 
 app.addGame(gameA)
 
@@ -77,44 +78,52 @@ global.io.on("connect", (socket) => {
         return
     }
 
-    const player = game.getPlayer(playerId)
+    global.io.sockets.to(socket.id).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
+        'type': App.EVENT_TYPE_CONNECTED,
+        'playerId': playerId,
+    })
+
+    const player: Player = game.getPlayer(playerId)
     player.updateSocketId(socket.id)
 
-    const opponent: Player = game.getOpponent(playerId)
-    game.initClient(playerId)
-
-    if (opponent.socketId === '') {
-        // the opponent isn't there yet; let's wait for they
-        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_WAITING,
-        })
-    } else {
-        // all players are in place; let's start the game
+    if (game.doesOpponentExist(playerId)) {
+        const opponent: Player = game.getOpponent(playerId)
         global.io.sockets.to(opponent.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_JOINED,
             'playerId': player.id,
         })
+
+        // all players are in place; let's start the game
+        game.initClients()
         game.startRound()
+    } else {
+        // the opponent isn't there yet; let's wait for they
+        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+            'type': App.EVENT_TYPE_WAITING,
+        })
     }
+
 
     socket.on(App.EVENT_TYPE_DISCONNECT, () => {
         const game: Game = app.getGame(gameId)
-        var playerId: string
 
+        var playerId: string
         for (const p of game.players) {
             if (p.socketId === socket.id) {
                 playerId = p.id
                 p.updateSocketId('')
+                p.isInitialized = false
                 break
             }
         }
 
-        const opponnet = game.getOpponent(playerId)
-        socket.to(opponnet.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_LEFT,
-            'socketId': socket.id,
-            'playerId': playerId,
-        })
+        if (playerId && game.doesOpponentExist(playerId)) {
+            const opponnet = game.getOpponent(playerId)
+            socket.to(opponnet.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
+                'type': App.EVENT_TYPE_LEFT,
+                'playerId': playerId,
+            })
+        }
     })
 
     socket.on(App.EVENT_CHANNEL_NAME_GAME, (event) => {
