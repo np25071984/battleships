@@ -10,9 +10,10 @@
     <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
 
     <form action="/join/<%= gameId %>" method="post">
-        <p>Here will be the game board where you will be able to place your ships</p>
-        <label for="fname">First name:</label><br>
         <input type="submit" id="submit-ships" value="Submit">
     </form>
+    <script>
+        window.initShips = JSON.parse('<%- shipsCombination %>')
+    </script>
 </body>
 </html>

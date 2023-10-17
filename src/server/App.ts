@@ -7,6 +7,8 @@ import Position from '../common/Position'
 import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
 import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
+import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
+import ShipTypeCarrier from '../common/ShipTypeCarrier'
 
 class App {
     public static readonly EVENT_CHANNEL_NAME_SYSTEM: string = 'system'
@@ -60,7 +62,21 @@ class App {
                 res.send(`Game '${gameId}' not found`)
                 return
             }
-            res.render('pages/join.ejs', {'gameId': req.params.gameId})
+
+            // const shipTypeCarrier = new ShipTypeCarrier()
+            // const shipTypeBattleShip = new ShipTypeBattleShip()
+            // const shipDestroyerType = new ShipTypeDestroyer()
+            // const shipPatrolBoatType = new ShipTypePatrolBoat()
+            // const shipTypes = [shipTypeCarrier, shipTypeBattleShip, shipTypeBattleShip, shipDestroyerType, shipDestroyerType, shipDestroyerType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType]
+
+            // const shipsCombinations = Grid.arrangeShips(10, 10, [], shipTypes)
+            // const randomCombination = shipsCombinations[Math.floor(Math.random() * shipsCombinations.length)]
+            var ships: Object[] = randomShipsCombination()
+
+            res.render('pages/join.ejs', {
+                'gameId': req.params.gameId,
+                'shipsCombination': JSON.stringify(ships),
+            })
         })
         router.post('/join/:gameId', (req, res) => {
             const gameId: string = req.params.gameId
@@ -71,6 +87,12 @@ class App {
             const game = this.getGame(gameId)
             const playerId: string = this.makeId(6)
             const grid = Grid.initGrid(10, 10)
+
+            const shipTypeCarrier = new ShipTypeCarrier()
+            const shipTypeBattleShip = new ShipTypeBattleShip()
+            const shipTypeDestroyer = new ShipTypeDestroyer()
+            const shipTypePatrolBoat = new ShipTypePatrolBoat()
+
             const ships: Ship[] = [];
             // TODO: validate input
             for (const rawShip of req.body.ships) {
@@ -78,11 +100,17 @@ class App {
                 const p = new Position(raw.col, raw.row)
                 var type: ShipTypeAbstract
                 switch (raw.type) {
+                    case 5:
+                        type = shipTypeCarrier
+                        break
+                    case 4:
+                        type = shipTypeBattleShip
+                        break
                     case 3:
-                        type = new ShipTypeDestroyer()
+                        type = shipTypeDestroyer
                         break
                     case 2:
-                        type = new ShipTypePatrolBoat()
+                        type = shipTypePatrolBoat
                         break
                     default:
                         throw new Error(`Unknown ship type '${raw.type}'`)
@@ -140,6 +168,199 @@ class App {
     getGame(gameId: string): Game {
         return this.games[gameId]
     }
+}
+
+function randomShipsCombination(): Object[] {
+    var ships: Object[] = []
+    switch(Math.floor(Math.random()*3)) {
+        case 0:
+            ships.push({
+                'col': 1,
+                'row': 0,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 5,
+            })
+            ships.push({
+                'col': 3,
+                'row': 1,
+                'orientation':Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 4,
+            })
+            ships.push({
+                'col': 0,
+                'row': 8,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 4,
+            })
+            ships.push({
+                'col': 4,
+                'row': 3,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 5,
+                'row': 9,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 9,
+                'row': 6,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 6,
+                'row': 6,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 8,
+                'row': 2,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 1,
+                'row': 6,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 8,
+                'row': 0,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            break
+        case 1:
+            ships.push({
+                'col': 1,
+                'row': 9,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 5,
+            })
+            ships.push({
+                'col': 0,
+                'row': 7,
+                'orientation':Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 4,
+            })
+            ships.push({
+                'col': 9,
+                'row': 2,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 4,
+            })
+            ships.push({
+                'col': 6,
+                'row': 0,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 6,
+                'row': 5,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 0,
+                'row': 0,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 1,
+                'row': 2,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 2,
+                'row': 4,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 4,
+                'row': 3,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 8,
+                'row': 7,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            break
+        case 2:
+            ships.push({
+                'col': 4,
+                'row': 3,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 5,
+            })
+            ships.push({
+                'col': 6,
+                'row': 6,
+                'orientation':Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 4,
+            })
+            ships.push({
+                'col': 0,
+                'row': 1,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 4,
+            })
+            ships.push({
+                'col': 6,
+                'row': 0,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 8,
+                'row': 2,
+                'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 0,
+                'row': 3,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 3,
+            })
+            ships.push({
+                'col': 0,
+                'row': 8,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 3,
+                'row': 9,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 1,
+                'row': 5,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            ships.push({
+                'col': 6,
+                'row': 8,
+                'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+                'size': 2,
+            })
+            break
+    }
+    return ships
 }
 
 export default App

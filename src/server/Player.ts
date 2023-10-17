@@ -34,8 +34,8 @@ class Player {
 
     getUpdates(): object[] {
         const updates = []
-        for (var r = 0; r < this.grid.cells.length; r++) {
-            for (var c = 0; c < this.grid.cells[0].length; c++) {
+        for (var r = 0; r < this.grid.rows; r++) {
+            for (var c = 0; c < this.grid.cols; c++) {
                 const p: Position = new Position(c, r)
                 const cell = this.grid.getCell(p)
                 if (cell.isChanged()) {
@@ -44,7 +44,7 @@ class Player {
                         'row': p.row,
                         'type': cell.getType(),
                     })
-                    cell.safe()
+                    cell.save()
                 }
             }
         }

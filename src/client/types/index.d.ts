@@ -8,6 +8,7 @@ declare global {
         shotsBoard: any
         shotsCanvas: any
         shipsBoard: any
+        initShips: any
     }
 }
 

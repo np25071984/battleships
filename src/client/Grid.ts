@@ -1,47 +1,49 @@
 import Point from './Point'
+import Cell from './Cell'
+import Position from '../common/Position'
 
 class Grid
 {
     public cells
-    public rows
-    public cols
+    public rows: number
+    public cols: number
 
-    constructor(cells, cols, rows) {
-        this.cells = cells;
-        this.rows = rows;
-        this.cols = cols;
+    constructor(cells, cols: number, rows: number) {
+        this.cells = cells
+        this.rows = rows
+        this.cols = cols
     }
 
-    mouseMove(point) {
+    mouseMove(point: Point): void {
         for (const key in this.cells) {
-            const cell = this.cells[key];
-            cell.mouseMove(point);
+            const cell = this.cells[key]
+            cell.mouseMove(point)
         }
     }
 
-    mouseClick(point: Point) {
+    mouseClick(point: Point): void {
         for (const key in this.cells) {
-            const cell = this.cells[key];
-            cell.mouseClick(point);
+            const cell = this.cells[key]
+            cell.mouseClick(point)
         }
     }
 
-    getCell(position) {
-        const key = position.generateKey();
-        return this.cells[key];
+    getCell(position: Position): Cell {
+        const key = position.generateKey()
+        return this.cells[key]
     }
 
-    setCellType(position, cellType) {
-        const key = position.generateKey();
+    setCellType(position: Position, cellType: number): void {
+        const key = position.generateKey()
         if (this.cells[key].type !== cellType) {
-            this.cells[key].type = cellType;
-            this.cells[key].changed = true;
+            this.cells[key].type = cellType
+            this.cells[key].changed = true
         }
     }
 
-    cellExists(position) {
-        const key = position.generateKey();
-        return key in this.cells;
+    cellExists(position: Position): boolean {
+        const key = position.generateKey()
+        return key in this.cells
     }
 }
 

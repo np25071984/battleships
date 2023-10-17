@@ -68,11 +68,11 @@ class Game {
 
     getGridWithOpponentShips(player: Player): Grid {
         const cells: Cell[][] = [];
-        for (var r: number = 0; r < player.grid.cells.length; r++) {
+        for (var r: number = 0; r < player.grid.rows; r++) {
             const rowItems: Cell[] = [];
-            for (var c: number = 0; c < player.grid.cells[0].length; c++) {
+            for (var c: number = 0; c < player.grid.cols; c++) {
                 const p = new Position(c, r)
-                rowItems[c] = new Cell(p, player.grid.cells[r][c].getType());
+                rowItems[c] = new Cell(p, player.grid.getCell(p).getType());
             }
             cells[r] = rowItems
         }
@@ -177,7 +177,7 @@ class Game {
 
     shot(position: Position, playerId: string): void {
         const player = this.getPlayer(playerId)
-        if (!(this.round in player.shots)) { 
+        if (!(this.round in player.shots)) {
             player.shots[this.round] = position
             this.roundShotsCounter++
         }
@@ -186,7 +186,7 @@ class Game {
     getShotResult(playerId: string): ShotResult {
         const player: Player = this.getPlayer(playerId)
         const shotPosition = player.shots[this.round]
-        
+
         const opponent: Player = this.getOpponent(playerId)
         var shotResult: ShotResult = ShotResult.HIT_RESULT_MISS
         let surrounding = {}
@@ -210,8 +210,10 @@ class Game {
             case ShotResult.HIT_RESULT_SUNK:
                 for (const key in surrounding) {
                     const p = surrounding[key]
-                    const c = player.grid.getCell(p)
-                    c.setType(Cell.CELL_TYPE_WATER)
+                    if (player.grid.doesCellExist(p)) {
+                        const c = player.grid.getCell(p)
+                        c.setType(Cell.CELL_TYPE_WATER)
+                    }
                 }
             case ShotResult.HIT_RESULT_DAMAGE:
                 cell.setType(Cell.CELL_TYPE_WRACKAGE)

@@ -25,7 +25,7 @@ class Cell {
         return this.type
     }
 
-    safe(): void {
+    save(): void {
         this.changed = false
     }
 
