@@ -2,10 +2,11 @@ import * as express from 'express'
 import Game from './Game'
 import Grid from './Grid'
 import Player from './Player'
-import Ship from './Ship'
-import Position from './Position'
-import ShipTypeDestroyer from './ShipTypeDestroyer'
-import ShipTypePatrolBoat from './ShipTypePatrolBoat'
+import Ship from '../common/Ship'
+import Position from '../common/Position'
+import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
+import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
+import ShipTypeAbstract from '../common/ShipTypeAbstract'
 
 class App {
     public static readonly EVENT_CHANNEL_NAME_SYSTEM: string = 'system'
@@ -68,12 +69,27 @@ class App {
                 return
             }
             const game = this.getGame(gameId)
-
             const playerId: string = this.makeId(6)
             const grid = Grid.initGrid(10, 10)
             const ships: Ship[] = [];
-            ships.push(new Ship(new Position(1, 2), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
-            ships.push(new Ship(new Position(7, 8), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
+            // TODO: validate input
+            for (const rawShip of req.body.ships) {
+                const raw = JSON.parse(rawShip)
+                const p = new Position(raw.col, raw.row)
+                var type: ShipTypeAbstract
+                switch (raw.type) {
+                    case 3:
+                        type = new ShipTypeDestroyer()
+                        break
+                    case 2:
+                        type = new ShipTypePatrolBoat()
+                        break
+                    default:
+                        throw new Error(`Unknown ship type '${raw.type}'`)
+                }
+                const ship = new Ship(p, raw.orientation,type)
+                ships.push(ship)
+            }
             const player = new Player(playerId, grid, ships)
 
             game.joinPlayer(player)
@@ -89,13 +105,15 @@ class App {
                 return
             }
 
-            // TODO: redirect on placement
+            // TODO: redirect on Join page
 
             // TODO: how to handle this in a proper way
             res.render('pages/game.ejs', {'gameId': req.params.gameId})
         })
-        this.express.use('/', router)
+        this.express.use(express.urlencoded({extended: true}));
+        this.express.use(express.json()) // To parse the incoming requests with JSON payloads
         this.express.use('/static', express.static('build/client'))
+        this.express.use('/', router)
     }
 
     public makeId(length: number) {

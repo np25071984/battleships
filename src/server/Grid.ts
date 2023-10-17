@@ -1,5 +1,5 @@
 import Cell from './Cell'
-import Position from './Position'
+import Position from '../common/Position'
 
 class Grid {
     public cells: Cell[][]

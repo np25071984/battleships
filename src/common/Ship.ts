@@ -1,7 +1,7 @@
 import ShipSection from './ShipSection'
 import Position from './Position'
 import ShipTypeAbstract from './ShipTypeAbstract'
-import ShotResult from '../common/ShotResult'
+import ShotResult from './ShotResult'
 
 class Ship 
 {

@@ -1,13 +1,13 @@
 const cookie = require("cookie")
 import App from './App'
 import { Server } from "socket.io"
-import Position from './Position'
+import Position from '../common/Position'
 import Player from './Player'
 import Game from './Game'
 import Grid from './Grid'
-import Ship from './Ship'
-import ShipTypeDestroyer from './ShipTypeDestroyer'
-import ShipTypePatrolBoat from './ShipTypePatrolBoat'
+import Ship from '../common/Ship'
+import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
+import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
 
 const port = process.env.PORT || 3000
 

@@ -1,4 +1,4 @@
-import Position from './Position'
+import Position from '../common/Position'
 
 class Cell {
     public static readonly CELL_TYPE_FOG_OF_WAR: number = 1;

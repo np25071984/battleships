@@ -12,7 +12,7 @@
     },
     "include": [
         "src/server/**/*.ts"
-    ],
+, "src/common/Position.ts", "src/common/Ship.ts", "src/common/ShipTypeAbstract.ts", "src/common/ShipTypeBattleShip.ts", "src/common/ShipTypeCarrier.ts", "src/common/ShipTypeDestroyer.ts", "src/common/ShipTypePatrolBoat.ts", "src/common/ShipTypeSubmarine.ts", "src/common/ShipSection.ts"    ],
     "exclude": [
         "node_modules"
     ]

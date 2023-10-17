@@ -3,12 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>Battleships</title>
+    <script type="text/javascript" src="/static/ships.js"></script>
 </head>
 <body>
-    <h1>Join game</h1>
+    <h1>Join '<%- gameId %>' game</h1>
+    <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
+
     <form action="/join/<%= gameId %>" method="post">
         <p>Here will be the game board where you will be able to place your ships</p>
-        <input type="submit" value="Submit">
+        <label for="fname">First name:</label><br>
+        <input type="submit" id="submit-ships" value="Submit">
     </form>
 </body>
 </html>

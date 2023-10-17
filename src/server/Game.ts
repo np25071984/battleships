@@ -1,11 +1,11 @@
 import App from './App'
 import Player from './Player'
 import Grid from './Grid'
-import Position from './Position'
-import Ship from './Ship'
+import Position from '../common/Position'
+import Ship from '../common/Ship'
 import ShotResult from '../common/ShotResult'
 import Cell from './Cell'
-import ShipSection from './ShipSection'
+import ShipSection from '../common/ShipSection'
 
 class Game {
     public id: string

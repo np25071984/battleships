@@ -75,7 +75,6 @@ class Render {
 
     refreshGrid(canvas, board) {
         const context = canvas.getContext("2d");
-    
         for (const key in board.grid.cells) {
             const cell = board.grid.cells[key];
             if (!cell.changed) {
@@ -86,7 +85,7 @@ class Render {
             context.fillStyle = this.getCellColor(cell);
             context.fill();
             context.closePath();
-            cell.change = false;
+            cell.changed = false;
             board.grid.cells[key] = cell;
         };
     }

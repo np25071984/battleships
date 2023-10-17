@@ -108,7 +108,10 @@ sequenceDiagram
 
 ## TODO
 1. Implement round timer
-2. Implement game configuration page
+2. Implement "Join game" page
+3. Implament restart game feature
+4. Apply a permanent storage
+5. Simplify event configuration (no system/game division)
 
 ## Terms
 

@@ -5,21 +5,22 @@ module.exports = {
     mode: "development",
     devtool: "inline-source-map",
     entry: {
-        main: "./src/client/client.ts",
+        game: "./src/client/client.ts",
+        ships: "./src/client/ships-placement.ts",
     },
-        output: {
-            path: path.resolve(__dirname, './build/client'),
-            filename: "client.js"
-        },
-        resolve: {
-            extensions: [".ts", ".tsx", ".js"],
-        },
-        module: {
-            rules: [
-            { 
-                test: /\.tsx?$/,
-                loader: "ts-loader"
-            }
-        ]
+    output: {
+        path: path.resolve(__dirname, './build/client'),
+        filename: "[name].js"
+    },
+    resolve: {
+        extensions: [".ts", ".tsx", ".js"],
+    },
+    module: {
+        rules: [
+        {
+            test: /\.tsx?$/,
+            loader: "ts-loader"
+        }
+    ]
     }
 };

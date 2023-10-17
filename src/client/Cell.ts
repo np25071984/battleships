@@ -1,7 +1,7 @@
 import BattleshipsEvent from './BattleshipsEvent'
 import Point from './Point'
 import Rect from './Rect'
-import Position from './Position'
+import Position from '../common/Position'
 
 class Cell
 {

@@ -1,8 +1,10 @@
-import Position from './Position'
+import Position from '../common/Position'
 import Point from './Point'
 import Cell from './Cell'
 import Rect from './Rect'
 import Grid from './Grid'
+import Ship from '../common/Ship'
+import ShipSection from '../common/ShipSection'
 
 class Board {
     public round: number | undefined
@@ -41,6 +43,12 @@ class Board {
         this.grid.setCellType(position, cellType)
     }
 
+    loadShip(ship: Ship): void {
+        ship.sections.forEach((section: ShipSection) => {
+            this.grid.setCellType(section.position, section.isAlive ? Cell.CELL_TYPE_WRACKAGE : Cell.CELL_TYPE_SHIP)
+        }, this)
+    }
+
     static initFromServerData(ltPoint: Point, width: number, gap: number, data: any, showAgenda: boolean) {
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
@@ -75,6 +83,37 @@ class Board {
         return board;
     }
 
+    static initFrom(ltPoint: Point, width: number, gap: number, row: number, col: number, showAgenda: boolean) {
+        // TODO: col,row max value
+        const xSt = ltPoint.x + gap;
+        const ySt = ltPoint.y + gap;
+        const step = width + gap;
+        const totalWidth = gap + (step * col);
+        const totalHeight = gap + (step * row);
+
+        const cells = {};
+        var positionY = 0;
+        for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
+            var positionX = 0;
+            for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
+                const ltP = new Point(x, y);
+                const pos = new Position(positionX, positionY);
+                const key = `${positionX}_${positionY}`;
+                const rbP = new Point(x + width, y + width);
+                const outerRect = new Rect(ltP, rbP);
+                cells[key] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false);
+                positionX++;
+            }
+            positionY++;
+        }
+
+        const grid = new Grid(cells, col, row);
+        const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
+        const boardOuterRect = new Rect(ltPoint, rbPoint);
+        const board = new Board(boardOuterRect, grid, showAgenda);
+
+        return board;
+    }
 }
 
 export default Board

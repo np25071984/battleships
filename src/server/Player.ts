@@ -1,7 +1,7 @@
-import Ship from './Ship'
+import Ship from '../common/Ship'
 import Grid from './Grid'
-import Position from './Position'
-import ShipSection from './ShipSection'
+import Position from '../common/Position'
+import ShipSection from '../common/ShipSection'
 
 interface Shots {
     [round: string]: Position

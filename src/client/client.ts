@@ -1,7 +1,7 @@
 import BattleshipsEvent from './BattleshipsEvent'
 import ShotResult from '../common/ShotResult'
 import Render from './Render'
-import Position from './Position'
+import Position from '../common/Position'
 import Point from './Point'
 import Board from './Board'
 import Cell from './Cell'
@@ -39,7 +39,7 @@ window.onload = function() {
                     throw Error("Can't find Shots board")
                 }
                 const shipsCanvas = document.getElementById("ships-board")
-                if (shotsCanvas == null) {
+                if (shipsCanvas == null) {
                     throw Error("Can't find Ships board")
                 }
 
