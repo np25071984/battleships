@@ -3,6 +3,7 @@ import Position from '../common/Position'
 import Ship from '../common/Ship'
 import ShipSection from '../common/ShipSection'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
+import PlacedShips from './PlacedShips'
 
 class Grid {
     private cells: Cell[][]
@@ -87,11 +88,29 @@ class Grid {
 
     static memo = {}
 
+    // const shipTypeCarrier = new ShipTypeCarrier()
+    // const shipTypeBattleShip = new ShipTypeBattleShip()
+    // const shipDestroyerType = new ShipTypeDestroyer()
+    // const shipPatrolBoatType = new ShipTypePatrolBoat()
+    // const shipTypes = [shipTypeCarrier, shipTypeBattleShip, shipTypeBattleShip, shipDestroyerType, shipDestroyerType, shipDestroyerType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType]
+
+    // const res = Grid.arrangeShips(10, 10, [], shipTypes)
+    // console.log(res)
+    // for (const key in res) {
+    //     console.log("Set:")
+    //     const ships: Ship[] = res[key]
+    //     ships.forEach((ship: Ship) => {
+    //         const orientation: string = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? 'hr' : 'vr'
+    //         console.log(`${ship.position.col}x${ship.position.row}: ${orientation} ${ship.type.getSize()}`)
+    //     })
+    // }
+    // process.exit()
+
     /**
      * Dinamic programming + memorization approach to find all possible ships combinations for a given grid dimension
      * TODO: doesn't look like it is efficient...
      */
-    static arrangeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]): Ship[][] {
+    static arrangeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]) {
         const shipKeys: string[] = [];
         placedShips.forEach((ship: Ship) => {
             shipKeys.push(`${ship.position.col}x${ship.position.row}x${ship.orientation}x${ship.type.getSize()}`)
@@ -105,13 +124,14 @@ class Grid {
         const cacheKey: string = shipKeys.join("|") + '|' + typeKeys.join("|")
 
         if (cacheKey in Grid.memo) {
+            console.log(cacheKey)
             return Grid.memo[cacheKey]
         }
 
-        const res: Ship[][] = []
+        const res: PlacedShips = {}
 
         if (shipsToPlace.length === 0) {
-            res.push(placedShips)
+            res[shipKeys.join("|")] = placedShips
         } else {
             const grid = Grid.initGrid(col, row)
             placedShips.forEach((ship: Ship) => {
@@ -129,10 +149,10 @@ class Grid {
                         if (grid.canPlaceShip(ship) === true) {
                             const pl = [...placedShips]
                             pl.push(ship)
-                            const r: Ship[][] = Grid.arrangeShips(col, row, pl, [...shipsToPlace])
-                            r.forEach((shipSet: Ship[]) => {
-                                res.push(shipSet)
-                            })
+                            const r = Grid.arrangeShips(col, row, pl, [...shipsToPlace])
+                            for (const k in r) {
+                                res[k] = r[k]
+                            }
                         }
                     }
                 }

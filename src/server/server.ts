@@ -4,52 +4,9 @@ import { Server } from "socket.io"
 import Position from '../common/Position'
 import Player from './Player'
 import Game from './Game'
-import Cell from './Cell'
-import Grid from './Grid'
-import Ship from '../common/Ship'
-import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
-import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
-import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
-import ShipTypeCarrier from '../common/ShipTypeCarrier'
 
 const port = process.env.PORT || 3000
 const app = new App()
-
-// const shipTypeCarrier = new ShipTypeCarrier()
-// const shipTypeBattleShip = new ShipTypeBattleShip()
-// const shipDestroyerType = new ShipTypeDestroyer()
-// const shipPatrolBoatType = new ShipTypePatrolBoat()
-// // const shipTypes = [shipTypeCarrier, shipTypeBattleShip, shipTypeBattleShip, shipDestroyerType, shipDestroyerType, shipDestroyerType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType]
-// const shipTypes = [shipTypeCarrier, shipTypeBattleShip, shipTypeBattleShip, shipDestroyerType, shipDestroyerType, shipDestroyerType, shipPatrolBoatType]
-
-// const res = Grid.arrangeShips(7, 7, [], shipTypes)
-// res.forEach((shipSet: Ship[]) => {
-//     console.log("Set:")
-//     shipSet.forEach((ship: Ship) => {
-//         const orientation: string = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? 'hr' : 'vr'
-//         console.log(`${ship.position.col}x${ship.position.row}: ${orientation} ${ship.type.getSize()}`)
-//     })
-// })
-
-
-// TODO: create hardcoded games
-// const grid1 = Grid.initGrid(10, 10)
-// const ships1: Ship[] = [];
-// ships1.push(new Ship(new Position(1, 2), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
-// ships1.push(new Ship(new Position(7, 8), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
-// const player1 = new Player('playerID1', grid1, ships1)
-
-// const grid2 = Grid.initGrid(10, 10)
-// const ships2: Ship[] = [];
-// ships2.push(new Ship(new Position(5, 5), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
-// ships2.push(new Ship(new Position(2, 3), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
-// const player2 = new Player('playerID2', grid2, ships2)
-
-// const gameA: Game = new Game('gameA', 1)
-// gameA.joinPlayer(player1)
-// gameA.joinPlayer(player2)
-
-// app.addGame(gameA)
 
 const server = app.express.listen(port, (err) => {
     if (err) {
