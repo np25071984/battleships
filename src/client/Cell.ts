@@ -1,75 +1,67 @@
-import BattleshipsEvent from './BattleshipsEvent'
 import Point from './Point'
 import Rect from './Rect'
 import Position from '../common/Position'
+import BaseCell from '../common/Cell'
+import BattleshipsEvent from './BattleshipsEvent'
 
-class Cell
+class Cell extends BaseCell
 {
-    public static readonly CELL_TYPE_FOG_OF_WAR: number = 1;
-    public static readonly CELL_TYPE_WATER: number = 2;
-    public static readonly CELL_TYPE_SHIP: number = 3;
-    public static readonly CELL_TYPE_WRACKAGE: number = 4;
     public static readonly CELL_TYPE_CLICKED: number = 5;
+    public static readonly CELL_TYPE_SHIP_SELECTED: number = 6;
 
     public rect: Rect
-    public position: Position
     public isHover: boolean
-    public type: number
-    public changed: boolean
 
     constructor(outerRect: Rect, position: Position, isHover: boolean, type: number, changed: boolean) {
-        this.rect = outerRect;
-        this.position = position;
-        this.isHover = isHover;
-        this.type = type;
-        this.changed = changed;
+        super(position, type, changed)
+        this.rect = outerRect
+        this.isHover = isHover
     }
 
-    isInside(point) {
+    isInside(point: Point): boolean {
         if (point.x < this.rect.ltPoint.x) {
             return false;
         }
-    
+
         if (point.x > this.rect.rbPoint.x) {
             return false;
         }
-    
+
         if (point.y < this.rect.ltPoint.y) {
             return false;
         }
-    
+
         if (point.y > this.rect.rbPoint.y) {
             return false;
         }
-    
+
         return true;
     }
 
-    mouseMove(point: Point) {
+    mouseMove(point: Point): void {
         if (this.isInside(point)) {
             if (!this.isHover) {
                 this.isHover = true;
-                this.changed = true;
+                this.setChanged()
             }
         } else {
             if (this.isHover) {
                 this.isHover = false;
-                this.changed = true;
+                this.setChanged()
             }
         }
     }
 
-    mouseClick(point: Point) {
+    mouseClick(point: Point): void {
         if (!this.isInside(point)) {
             return;
         }
 
-        if (this.type === Cell.CELL_TYPE_CLICKED) {
+        if (this.getType() === Cell.CELL_TYPE_CLICKED) {
             return;
         }
 
-        this.type = Cell.CELL_TYPE_CLICKED;
-        this.changed = true;
+        this.setType(Cell.CELL_TYPE_CLICKED);
 
         window.socket.emit('game', {
             'type': BattleshipsEvent.EVENT_TYPE_SHOT,
@@ -79,6 +71,22 @@ class Cell
             'gameId': window.gameId,
         });
     }
+
+    // mouseDown(point: Point) {
+    //     if (!this.isInside(point)) {
+    //         return;
+    //     }
+
+    //     window.mouseDownEvent(this.position)
+    // }
+
+    // mouseUp(point: Point) {
+    //     if (!this.isInside(point)) {
+    //         return;
+    //     }
+
+    //     window.mouseUpEvent(this.position)
+    // }
 }
 
 export default Cell

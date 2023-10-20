@@ -3,10 +3,11 @@ import Point from './Point'
 import Cell from './Cell'
 import Rect from './Rect'
 import Grid from './Grid'
-import Ship from '../common/Ship'
+import Ship from './Ship'
 import ShipSection from '../common/ShipSection'
 
-class Board {
+class Board
+{
     public round: number | undefined
     public active: boolean
     public rect: Rect
@@ -34,6 +35,18 @@ class Board {
         }
     }
 
+    mouseDown(point: Point) {
+        if (this.active) {
+            this.grid.mouseDown(point);
+        }
+    }
+
+    mouseUp(point: Point) {
+        if (this.active) {
+            this.grid.mouseUp(point);
+        }
+    }
+
     roundStart(number: number) {
         this.active = true;
         this.round = number;
@@ -43,10 +56,22 @@ class Board {
         this.grid.setCellType(position, cellType)
     }
 
-    loadShip(ship: Ship): void {
+    loadShip(ship: Ship, surround: boolean = false): void {
         ship.sections.forEach((section: ShipSection) => {
-            this.grid.setCellType(section.position, section.isAlive ? Cell.CELL_TYPE_WRACKAGE : Cell.CELL_TYPE_SHIP)
+            const type = ship.isSelected() ? Cell.CELL_TYPE_SHIP_SELECTED : (section.isAlive ? Cell.CELL_TYPE_WRACKAGE : Cell.CELL_TYPE_SHIP)
+            this.grid.setCellType(section.position, type)
         }, this)
+
+        if (surround) {
+            const s = ship.getSurraund()
+            for (const k in s) {
+                const p = s[k]
+                const c = this.grid.getCell(p)
+                if (c) {
+                    c.setType(Cell.CELL_TYPE_WATER)
+                }
+            }
+        }
     }
 
     static initFromServerData(ltPoint: Point, width: number, gap: number, data: any, showAgenda: boolean) {
@@ -59,23 +84,24 @@ class Board {
         const totalWidth = gap + (step * col);
         const totalHeight = gap + (step * row);
 
-        const cells = {};
+        const cells: Cell[][] = []
         var positionY = 0;
         for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
             var positionX = 0;
+            const gridRow: Cell[] = []
             for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
                 const ltP = new Point(x, y);
                 const pos = new Position(positionX, positionY);
-                const key = `${positionX}_${positionY}`;
                 const rbP = new Point(x + width, y + width);
                 const outerRect = new Rect(ltP, rbP);
-                cells[key] = new Cell(outerRect, pos, false, data[positionX][positionY], false);
+                gridRow[positionX] = new Cell(outerRect, pos, false, data[positionX][positionY], false);
                 positionX++;
             }
+            cells[positionY] = gridRow
             positionY++;
         }
 
-        const grid = new Grid(cells, col, row);
+        const grid = new Grid(cells);
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
         const boardOuterRect = new Rect(ltPoint, rbPoint);
         const board = new Board(boardOuterRect, grid, showAgenda);
@@ -91,23 +117,40 @@ class Board {
         const totalWidth = gap + (step * col);
         const totalHeight = gap + (step * row);
 
-        const cells = {};
+        const cells: Cell[][] = []
         var positionY = 0;
         for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
             var positionX = 0;
+            const gridRow: Cell[] = []
             for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
                 const ltP = new Point(x, y);
                 const pos = new Position(positionX, positionY);
-                const key = `${positionX}_${positionY}`;
                 const rbP = new Point(x + width, y + width);
                 const outerRect = new Rect(ltP, rbP);
-                cells[key] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false);
+                gridRow[positionX] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false);
                 positionX++;
             }
+            cells[positionY] = gridRow
             positionY++;
         }
 
-        const grid = new Grid(cells, col, row);
+        // const cells = {};
+        // var positionY = 0;
+        // for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
+        //     var positionX = 0;
+        //     for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
+        //         const ltP = new Point(x, y);
+        //         const pos = new Position(positionX, positionY);
+        //         const key = `${positionX}_${positionY}`;
+        //         const rbP = new Point(x + width, y + width);
+        //         const outerRect = new Rect(ltP, rbP);
+        //         cells[key] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false);
+        //         positionX++;
+        //     }
+        //     positionY++;
+        // }
+
+        const grid = new Grid(cells);
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
         const boardOuterRect = new Rect(ltPoint, rbPoint);
         const board = new Board(boardOuterRect, grid, showAgenda);

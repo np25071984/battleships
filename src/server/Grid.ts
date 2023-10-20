@@ -1,4 +1,4 @@
-import Cell from './Cell'
+import Cell from '../common/Cell'
 import Position from '../common/Position'
 import Ship from '../common/Ship'
 import ShipSection from '../common/ShipSection'

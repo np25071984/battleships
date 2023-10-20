@@ -108,12 +108,11 @@ sequenceDiagram
 
 ## TODO
 1. Implement round timer
-2. Implement "Join game" page
-3. Implament restart game feature
-4. Apply a permanent storage
-5. Simplify event configuration (no system/game division)
+2. Implament restart game feature
+3. Implement a permanent storage
+4. Simplify event configuration (no system/game division)
 
-## Terms
+## Terminology
 
 * ships board - board where player's ships and opponent's shots are shown
 * shots board - board where a player makes shots on

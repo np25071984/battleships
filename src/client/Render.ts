@@ -1,9 +1,11 @@
 import Cell from './Cell'
+import Position from '../common/Position'
 
 class Render {
     public static readonly COLOR_FOG_OF_WAR: string = '#ffffff';
     public static readonly COLOR_HOVER: string = '#90d3de';
     public static readonly COLOR_SHIP: string = 'green';
+    public static readonly COLOR_SHIP_SELECTED: string = 'orange';
     public static readonly COLOR_WRACKAGE: string = 'red';
     public static readonly COLOR_CLICKED: string = 'blue';
     public static readonly COLOR_WATER: string = 'yellow';
@@ -11,45 +13,32 @@ class Render {
     drawBoard(canvas, board) {
         const context = canvas.getContext("2d");
         context.clearRect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight());
-        
+
         // substrate
         context.beginPath();
         context.rect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight());
         context.fillStyle = '#90d3de';
         context.fill();
         context.closePath();
-    
+
         // grid
-        for (const key in board.grid.cells) {
-            const cell = board.grid.cells[key];
-            context.beginPath();
-            context.rect(cell.rect.ltPoint.x, cell.rect.ltPoint.y, cell.rect.getWidth(), cell.rect.getHeight());
-            switch (cell.type) {
-                case Cell.CELL_TYPE_FOG_OF_WAR:
-                    context.fillStyle = cell.isHover ? '#90d3de' : '#ffffff';
-                    break;
-                case Cell.CELL_TYPE_SHIP:
-                    context.fillStyle = '#7b99d1';
-                    break;
-                case Cell.CELL_TYPE_WRACKAGE:
-                    context.fillStyle = 'red';
-                    break;
-                case Cell.CELL_TYPE_CLICKED:
-                    context.fillStyle = 'blue';
-                    break;
-                case Cell.CELL_TYPE_WATER:
-                    context.fillStyle = 'yellow';
-                    break;
-                }
-            context.fill();
-            context.closePath();
-        };
-    
+        for (var r = 0; r < board.grid.rows; r++) {
+            for (var c = 0; c < board.grid.cols; c++) {
+                const pos = new Position(c, r)
+                const cell = board.grid.getCell(pos);
+                context.beginPath();
+                context.rect(cell.rect.ltPoint.x, cell.rect.ltPoint.y, cell.rect.getWidth(), cell.rect.getHeight());
+                context.fillStyle = this.getCellColor(cell)
+                context.fill();
+                context.closePath();
+            }
+        }
+
         // agenda
         if (board.showAgenda) {
             const cellWidth = board.rect.getWidth() / board.grid.cols;
             const fontWidth = Math.round(cellWidth / 3);
-    
+
             context.beginPath();
             context.fillStyle = '#000000';
             context.font = `${fontWidth}px serif`;
@@ -61,7 +50,7 @@ class Render {
                 context.fillText(label, board.rect.ltPoint.x - fontWidth/2 - 2, curShift);
             }
             context.closePath();
-    
+
             context.beginPath();
             context.textAlign = 'middle';
             context.textBaseline = 'bottom';
@@ -75,19 +64,21 @@ class Render {
 
     refreshGrid(canvas, board) {
         const context = canvas.getContext("2d");
-        for (const key in board.grid.cells) {
-            const cell = board.grid.cells[key];
-            if (!cell.changed) {
-                continue;
+        for (var r = 0; r < board.grid.rows; r++) {
+            for (var c = 0; c < board.grid.cols; c++) {
+                const pos = new Position(c, r)
+                const cell = board.grid.getCell(pos)
+                if (!cell.changed) {
+                    continue
+                }
+                context.beginPath()
+                context.rect(cell.rect.ltPoint.x, cell.rect.ltPoint.y, cell.rect.getWidth(), cell.rect.getHeight())
+                context.fillStyle = this.getCellColor(cell)
+                context.fill()
+                context.closePath()
+                cell.save()
             }
-            context.beginPath();
-            context.rect(cell.rect.ltPoint.x, cell.rect.ltPoint.y, cell.rect.getWidth(), cell.rect.getHeight());
-            context.fillStyle = this.getCellColor(cell);
-            context.fill();
-            context.closePath();
-            cell.changed = false;
-            board.grid.cells[key] = cell;
-        };
+        }
     }
 
     getCellColor(cell) {
@@ -96,6 +87,8 @@ class Render {
                 return cell.isHover ? Render.COLOR_HOVER : Render.COLOR_FOG_OF_WAR;
             case Cell.CELL_TYPE_SHIP:
                 return Render.COLOR_SHIP;
+            case Cell.CELL_TYPE_SHIP_SELECTED:
+                return Render.COLOR_SHIP_SELECTED
             case Cell.CELL_TYPE_WRACKAGE:
                 return Render.COLOR_WRACKAGE;
             case Cell.CELL_TYPE_CLICKED:

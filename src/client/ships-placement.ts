@@ -4,17 +4,117 @@ import Point from './Point'
 import Board from './Board'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
-import Ship from '../common/Ship'
+import Ship from './Ship'
 import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
 import ShipTypeCarrier from '../common/ShipTypeCarrier'
 import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
 
-window.onload = function() {
-    console.log("Ships placement");
-    console.log(window.initShips)
 
+const ships: Ship[] = []
+window.mouseDownEvent = (position: Position) => {
+    console.log(`Down: ${position.col}x${position.row}`)
+    for (const ship of ships) {
+        if (ship.isLocatedAt(position)) {
+            console.log("Ship was selected")
+            ship.select()
+        } else {
+            ship.deselect()
+        }
+        window.shipsBoard.loadShip(ship)
+    }
+    const shipsCanvas = document.getElementById("ships-board")
+    if (shipsCanvas == null) {
+        throw Error("Can't find Ships board")
+    }
+
+    window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+}
+
+window.mouseUpEvent = (position: Position) => {
+    console.log(`Up: ${position.col}x${position.row}`)
+    for (const ship of ships) {
+        ship.deselect()
+        window.shipsBoard.loadShip(ship)
+    }
+    const shipsCanvas = document.getElementById("ships-board")
+    if (shipsCanvas == null) {
+        throw Error("Can't find Ships board")
+    }
+
+    window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+}
+
+window.mouseMoveEvent = (position: Position) => {
+    console.log(`Mouse move event: ${position.col}x${position.row}`)
+    const shipTypeCarrier: ShipTypeAbstract = new ShipTypeCarrier()
+    const shipTypeBattleShip: ShipTypeAbstract = new ShipTypeBattleShip()
+    const shipTypeDestroyer: ShipTypeAbstract = new ShipTypeDestroyer()
+    const shipTypePatrolBoat: ShipTypeAbstract = new ShipTypePatrolBoat()
+
+    for (const index in ships) {
+        const ship = ships[index]
+        if (ship.isSelected()) {
+            var t: ShipTypeAbstract
+            switch (ship.type.getSize()) {
+                case 5:
+                    t = shipTypeCarrier
+                    break
+                case 4:
+                    t = shipTypeBattleShip
+                    break
+                case 3:
+                    t = shipTypeDestroyer
+                    break
+                case 2:
+                    t = shipTypePatrolBoat
+                    break
+                default:
+                    throw new Error(`Unknown ship type ${ship.type.getSize()}`)
+            }
+            const s = new Ship(new Position(position.col, position.row), ship.orientation, t)
+            const startPoint = new Point(40, 40)
+            const b = Board.initFrom(startPoint, 40, 1, 10, 10, true)
+            for (const ship of ships) {
+                if (!ship.isSelected()) {
+                    b.loadShip(ship, true)
+                }
+            }
+
+            if (b.grid.canPlaceShip(s)) {
+                console.log(`Ship moved to ${position.col}x${position.row}`)
+                // clear old ship position
+                for (const k in ship.sections) {
+                    const sec = ship.sections[k]
+                    window.shipsBoard.grid.setCellType(sec.position, Cell.CELL_TYPE_WATER)
+                }
+                ships[index] = s
+                window.shipsBoard.loadShip(s)
+            } else {
+                console.log("The ship can't move")
+                window.shipsBoard.loadShip(ship)
+            }
+
+        }
+
+        const shipsCanvas = document.getElementById("ships-board")
+        if (shipsCanvas == null) {
+            throw Error("Can't find Ships board")
+        }
+
+        window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+    }
+
+    const shipsCanvas = document.getElementById("ships-board")
+    if (shipsCanvas == null) {
+        throw Error("Can't find Ships board")
+    }
+
+    window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+}
+
+window.onload = function() {
     window.render = new Render();
 
     const shipsCanvas = document.getElementById("ships-board")
@@ -23,10 +123,9 @@ window.onload = function() {
     }
 
     const startPoint = new Point(40, 40)
-    const shipsBoard = Board.initFrom(startPoint, 40, 1, 10, 10, true)
-    shipsBoard.active = true
+    window.shipsBoard = Board.initFrom(startPoint, 40, 1, 10, 10, true)
+    window.shipsBoard.active = true
 
-    const ships: Ship[] = []
     const shipTypeCarrier: ShipTypeAbstract = new ShipTypeCarrier()
     const shipTypeBattleShip: ShipTypeAbstract = new ShipTypeBattleShip()
     const shipTypeDestroyer: ShipTypeAbstract = new ShipTypeDestroyer()
@@ -53,10 +152,10 @@ window.onload = function() {
         }
         const s = new Ship(p, shipData.orientation, t)
         ships.push(s)
-        shipsBoard.loadShip(s)
+        window.shipsBoard.loadShip(s)
     })
 
-    window.render.drawBoard(shipsCanvas, shipsBoard)
+    window.render.drawBoard(shipsCanvas, window.shipsBoard)
 
     function getMousePoint(canvasRect, clientX, clientY) {
         const x = clientX - canvasRect.left
@@ -69,7 +168,7 @@ window.onload = function() {
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseMove(mousePoint)
         window.render.refreshGrid(this, board)
-    }.bind(shipsCanvas, shipsBoard))
+    }.bind(shipsCanvas, window.shipsBoard))
 
     const submitButton = document.getElementById("submit-ships")
     if (submitButton == null) {
@@ -92,27 +191,29 @@ window.onload = function() {
         }, this)
     })
 
-    // shipsCanvas.addEventListener('click', function(board, e) {
-    //     const rect = this.getBoundingClientRect()
-    //     const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
-    //     board.mouseClick(mousePoint)
-    //     window.render.refreshGrid(this, board)
-    // }.bind(shipsCanvas, shipsBoard))
-}
+    shipsCanvas.addEventListener('click', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseClick(mousePoint)
+    }.bind(shipsCanvas, window.shipsBoard))
 
-function placeShips(col: number, row: number, types: ShipTypeAbstract[]): Ship[] {
-    /**
-     * Return random ships positions for given parameters
-     * Two question to answer:
-     * 1. is it possible to place that many ships on the given board
-     * 2. place the sips randomly
-     *
-     * For now it is hardcode
-     */
-    const ships: Ship[] = [];
-    ships.push(new Ship(new Position(1, 2), Ship.SHIP_ORIENTATION_VERTICAL, new ShipTypeDestroyer()))
-    ships.push(new Ship(new Position(7, 8), Ship.SHIP_ORIENTATION_HORIZONTAL, new ShipTypePatrolBoat()))
-    return ships
+    shipsCanvas.addEventListener('mousedown', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseDown(mousePoint)
+    }.bind(shipsCanvas, window.shipsBoard))
+
+    shipsCanvas.addEventListener('mouseup', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseUp(mousePoint)
+    }.bind(shipsCanvas, window.shipsBoard))
+
+    shipsCanvas.addEventListener('mousemove', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseMove(mousePoint)
+    }.bind(shipsCanvas, window.shipsBoard))
 }
 
 function initGrid(col: number, row: number): object[][] {

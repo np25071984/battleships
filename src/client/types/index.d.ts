@@ -9,6 +9,9 @@ declare global {
         shotsCanvas: any
         shipsBoard: any
         initShips: any
+        mouseDownEvent: any
+        mouseUpEvent: any
+        mouseMoveEvent: any
     }
 }
 

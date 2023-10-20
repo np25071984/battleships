@@ -15,7 +15,7 @@ class Player {
     id: string
     shipsCount: number
     isInitialized: boolean
-    
+
     constructor(id: string, grid: Grid, ships: Ship[]) {
         this.id = id
         this.socketId = ''

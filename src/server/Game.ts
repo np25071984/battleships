@@ -4,7 +4,7 @@ import Grid from './Grid'
 import Position from '../common/Position'
 import Ship from '../common/Ship'
 import ShotResult from '../common/ShotResult'
-import Cell from './Cell'
+import Cell from '../common/Cell'
 import ShipSection from '../common/ShipSection'
 
 class Game {

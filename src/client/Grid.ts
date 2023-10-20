@@ -1,50 +1,92 @@
 import Point from './Point'
 import Cell from './Cell'
 import Position from '../common/Position'
+import Ship from './Ship'
 
 class Grid
 {
-    public cells
-    public rows: number
-    public cols: number
+    private cells: Cell[][]
+    readonly cols: number
+    readonly rows: number
 
-    constructor(cells, cols: number, rows: number) {
+    constructor(cells: Cell[][]) {
         this.cells = cells
-        this.rows = rows
-        this.cols = cols
+        this.cols = cells[0].length
+        this.rows = cells.length
+    }
+
+    doesCellExist(position: Position): boolean {
+        if (!(position.col in this.cells)) {
+            return false
+        }
+
+        if (!(position.row in this.cells[position.col])) {
+            return false
+        }
+
+        return true
+    }
+
+    getCell(position: Position): Cell {
+        return this.cells[position.col][position.row]
     }
 
     mouseMove(point: Point): void {
-        for (const key in this.cells) {
-            const cell = this.cells[key]
-            cell.mouseMove(point)
+        for (var r = 0; r < this.rows; r++) {
+            for (var c = 0; c < this.cols; c++) {
+                const p = new Position(c, r)
+                const cell = this.getCell(p)
+                cell.mouseMove(point)
+            }
         }
     }
 
     mouseClick(point: Point): void {
-        for (const key in this.cells) {
-            const cell = this.cells[key]
-            cell.mouseClick(point)
+        for (var r = 0; r < this.rows; r++) {
+            for (var c = 0; c < this.cols; c++) {
+                const p = new Position(c, r)
+                const cell = this.getCell(p)
+                cell.mouseClick(point)
+            }
         }
     }
 
-    getCell(position: Position): Cell {
-        const key = position.generateKey()
-        return this.cells[key]
+    mouseDown(point: Point) {
+        // for (var r = 0; r < this.rows; r++) {
+        //     for (var c = 0; c < this.cols; c++) {
+        //         const p = new Position(c, r)
+        //         const cell = this.getCell(p)
+        //         cell.mouseDown(point)
+        //     }
+        // }
+    }
+
+    mouseUp(point: Point) {
+        // for (var r = 0; r < this.rows; r++) {
+        //     for (var c = 0; c < this.cols; c++) {
+        //         const p = new Position(c, r)
+        //         const cell = this.getCell(p)
+        //         cell.mouseUp(point)
+        //     }
+        // }
     }
 
     setCellType(position: Position, cellType: number): void {
-        const key = position.generateKey()
-        if (this.cells[key].type !== cellType) {
-            this.cells[key].type = cellType
-            this.cells[key].changed = true
-        }
+        const cell = this.getCell(position)
+        cell.setType(cellType)
     }
 
-    cellExists(position: Position): boolean {
-        const key = position.generateKey()
-        return key in this.cells
+    canPlaceShip(ship: Ship): boolean {
+        for (const section of ship.sections) {
+            const cell = this.getCell(section.position)
+            if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
+                return false
+            }
+        }
+
+        return true
     }
+
 }
 
 export default Grid

@@ -1,4 +1,4 @@
-import Position from '../common/Position'
+import Position from './Position'
 
 class Cell {
     public static readonly CELL_TYPE_FOG_OF_WAR: number = 1;
@@ -31,6 +31,10 @@ class Cell {
 
     isChanged(): boolean {
         return this.changed
+    }
+
+    setChanged(): void {
+        this.changed = true
     }
 }
 
