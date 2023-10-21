@@ -31,7 +31,7 @@ class Board
     mouseClick(point: Point) {
         if (this.active) {
             this.grid.mouseClick(point);
-            this.active = false;
+            this.active = false; // TODO: there is a bug; you can click outside a cell as a result - no cell clicked, no board active
         }
     }
 
@@ -133,22 +133,6 @@ class Board
             cells[positionY] = gridRow
             positionY++;
         }
-
-        // const cells = {};
-        // var positionY = 0;
-        // for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
-        //     var positionX = 0;
-        //     for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
-        //         const ltP = new Point(x, y);
-        //         const pos = new Position(positionX, positionY);
-        //         const key = `${positionX}_${positionY}`;
-        //         const rbP = new Point(x + width, y + width);
-        //         const outerRect = new Rect(ltP, rbP);
-        //         cells[key] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false);
-        //         positionX++;
-        //     }
-        //     positionY++;
-        // }
 
         const grid = new Grid(cells);
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);

@@ -72,21 +72,21 @@ class Cell extends BaseCell
         });
     }
 
-    // mouseDown(point: Point) {
-    //     if (!this.isInside(point)) {
-    //         return;
-    //     }
+    mouseDown(point: Point) {
+        if (!this.isInside(point)) {
+            return;
+        }
 
-    //     window.mouseDownEvent(this.position)
-    // }
+        window.mouseDownEvent(this.position)
+    }
 
-    // mouseUp(point: Point) {
-    //     if (!this.isInside(point)) {
-    //         return;
-    //     }
+    mouseUp(point: Point) {
+        if (!this.isInside(point)) {
+            return;
+        }
 
-    //     window.mouseUpEvent(this.position)
-    // }
+        window.mouseUpEvent(this.position)
+    }
 }
 
 export default Cell

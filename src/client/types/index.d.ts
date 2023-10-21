@@ -12,6 +12,7 @@ declare global {
         mouseDownEvent: any
         mouseUpEvent: any
         mouseMoveEvent: any
+        offset: any
     }
 }
 

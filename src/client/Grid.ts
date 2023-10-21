@@ -3,8 +3,7 @@ import Cell from './Cell'
 import Position from '../common/Position'
 import Ship from './Ship'
 
-class Grid
-{
+class Grid {
     private cells: Cell[][]
     readonly cols: number
     readonly rows: number
@@ -28,7 +27,7 @@ class Grid
     }
 
     getCell(position: Position): Cell {
-        return this.cells[position.col][position.row]
+        return this.cells[position.row][position.col]
     }
 
     mouseMove(point: Point): void {
@@ -52,40 +51,44 @@ class Grid
     }
 
     mouseDown(point: Point) {
-        // for (var r = 0; r < this.rows; r++) {
-        //     for (var c = 0; c < this.cols; c++) {
-        //         const p = new Position(c, r)
-        //         const cell = this.getCell(p)
-        //         cell.mouseDown(point)
-        //     }
-        // }
+        for (var r = 0; r < this.rows; r++) {
+            for (var c = 0; c < this.cols; c++) {
+                const p = new Position(c, r)
+                const cell = this.getCell(p)
+                cell.mouseDown(point)
+            }
+        }
     }
 
     mouseUp(point: Point) {
-        // for (var r = 0; r < this.rows; r++) {
-        //     for (var c = 0; c < this.cols; c++) {
-        //         const p = new Position(c, r)
-        //         const cell = this.getCell(p)
-        //         cell.mouseUp(point)
-        //     }
-        // }
+        for (var r = 0; r < this.rows; r++) {
+            for (var c = 0; c < this.cols; c++) {
+                const p = new Position(c, r)
+                const cell = this.getCell(p)
+                cell.mouseUp(point)
+            }
+        }
     }
 
+    /**
+     * TODO: get rid of it
+     * @deprecated use getCell().setType() instead
+     */
     setCellType(position: Position, cellType: number): void {
         const cell = this.getCell(position)
         cell.setType(cellType)
     }
 
-    canPlaceShip(ship: Ship): boolean {
-        for (const section of ship.sections) {
-            const cell = this.getCell(section.position)
-            if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
-                return false
-            }
-        }
+    // canPlaceShip(ship: Ship): boolean {
+    //     for (const section of ship.sections) {
+    //         const cell = this.getCell(section.position)
+    //         if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
+    //             return false
+    //         }
+    //     }
 
-        return true
-    }
+    //     return true
+    // }
 
 }
 

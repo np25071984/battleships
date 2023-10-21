@@ -1,7 +1,7 @@
-import Render from './Render'
+import PlacementRender from './PlacementRender'
 import Position from '../common/Position'
 import Point from './Point'
-import Board from './Board'
+import PlacementBoard from './PlacementBoard'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
 import Ship from './Ship'
@@ -10,121 +10,134 @@ import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
 import ShipTypeCarrier from '../common/ShipTypeCarrier'
 import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
+import ShipSection from '../common/ShipSection'
 
-
-const ships: Ship[] = []
 window.mouseDownEvent = (position: Position) => {
     console.log(`Down: ${position.col}x${position.row}`)
-    for (const ship of ships) {
+    for (const ship of window.shipsBoard.ships) {
         if (ship.isLocatedAt(position)) {
-            console.log("Ship was selected")
             ship.select()
+            window.offset = {
+                col: position.col - ship.position.col,
+                row: position.row - ship.position.row,
+            }
+            console.log(window.offset)
         } else {
             ship.deselect()
         }
-        window.shipsBoard.loadShip(ship)
     }
-    const shipsCanvas = document.getElementById("ships-board")
+    const shipsCanvas = document.getElementById("placement-board")
     if (shipsCanvas == null) {
-        throw Error("Can't find Ships board")
+        throw Error("Can't find PlacementBboard")
     }
 
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 }
 
-window.mouseUpEvent = (position: Position) => {
-    console.log(`Up: ${position.col}x${position.row}`)
-    for (const ship of ships) {
-        ship.deselect()
-        window.shipsBoard.loadShip(ship)
-    }
-    const shipsCanvas = document.getElementById("ships-board")
-    if (shipsCanvas == null) {
-        throw Error("Can't find Ships board")
-    }
-
-    window.render.refreshGrid(shipsCanvas, window.shipsBoard)
-}
-
-window.mouseMoveEvent = (position: Position) => {
-    console.log(`Mouse move event: ${position.col}x${position.row}`)
+function canPlace(ship: Ship, position: Position): boolean {
+    // TODO: check if the ship is out of the grid
     const shipTypeCarrier: ShipTypeAbstract = new ShipTypeCarrier()
     const shipTypeBattleShip: ShipTypeAbstract = new ShipTypeBattleShip()
     const shipTypeDestroyer: ShipTypeAbstract = new ShipTypeDestroyer()
     const shipTypePatrolBoat: ShipTypeAbstract = new ShipTypePatrolBoat()
 
-    for (const index in ships) {
-        const ship = ships[index]
-        if (ship.isSelected()) {
-            var t: ShipTypeAbstract
-            switch (ship.type.getSize()) {
-                case 5:
-                    t = shipTypeCarrier
-                    break
-                case 4:
-                    t = shipTypeBattleShip
-                    break
-                case 3:
-                    t = shipTypeDestroyer
-                    break
-                case 2:
-                    t = shipTypePatrolBoat
-                    break
-                default:
-                    throw new Error(`Unknown ship type ${ship.type.getSize()}`)
-            }
-            const s = new Ship(new Position(position.col, position.row), ship.orientation, t)
-            const startPoint = new Point(40, 40)
-            const b = Board.initFrom(startPoint, 40, 1, 10, 10, true)
-            for (const ship of ships) {
-                if (!ship.isSelected()) {
-                    b.loadShip(ship, true)
-                }
-            }
+    var t: ShipTypeAbstract
+    switch (ship.type.getSize()) {
+        case 5:
+            t = shipTypeCarrier
+            break
+        case 4:
+            t = shipTypeBattleShip
+            break
+        case 3:
+            t = shipTypeDestroyer
+            break
+        case 2:
+            t = shipTypePatrolBoat
+            break
+        default:
+            throw new Error(`Unknown ship type ${ship.type.getSize()}`)
+    }
+    const tmpShip = new Ship(position, ship.orientation, t)
 
-            if (b.grid.canPlaceShip(s)) {
-                console.log(`Ship moved to ${position.col}x${position.row}`)
-                // clear old ship position
-                for (const k in ship.sections) {
-                    const sec = ship.sections[k]
-                    window.shipsBoard.grid.setCellType(sec.position, Cell.CELL_TYPE_WATER)
-                }
-                ships[index] = s
-                window.shipsBoard.loadShip(s)
-            } else {
-                console.log("The ship can't move")
-                window.shipsBoard.loadShip(ship)
-            }
-
+    if (ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL) {
+        const rightSectionCol: number = tmpShip.position.col + tmpShip.type.getSize()
+        console.log(rightSectionCol)
+        console.log(window.shipsBoard.grid.cols)
+        if (rightSectionCol > window.shipsBoard.grid.cols) {
+            return false
         }
-
-        const shipsCanvas = document.getElementById("ships-board")
-        if (shipsCanvas == null) {
-            throw Error("Can't find Ships board")
-        }
-
-        window.render.refreshGrid(shipsCanvas, window.shipsBoard)
     }
 
-    const shipsCanvas = document.getElementById("ships-board")
+    if (ship.orientation === Ship.SHIP_ORIENTATION_VERTICAL) {
+        const bottomSectionRow: number = tmpShip.position.row + tmpShip.type.getSize()
+        if (bottomSectionRow > window.shipsBoard.grid.rows) {
+            return false
+        }
+    }
+
+    for (const placedShip of window.shipsBoard.ships) {
+        if (!placedShip.isSelected()) {
+            for (const key in tmpShip.sections) {
+                const section: ShipSection = tmpShip.sections[key]
+                if (placedShip.occupies(section.position)) {
+                    return false
+                }
+            }
+        }
+    }
+
+    return true
+}
+
+window.mouseUpEvent = (position: Position) => {
+    console.log(`Up: ${position.col}x${position.row}`)
+    for (const ship of window.shipsBoard.ships) {
+        if (ship.isSelected()) {
+
+            const actualPosition = new Position(
+                position.col - window.offset.col,
+                position.row - window.offset.row
+            )
+
+            if (canPlace(ship, actualPosition)) {
+                ship.sections.forEach((section: ShipSection) => {
+                    console.log(`Position ${section.position.col}x${section.position.row} has been changed`)
+                    window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
+                }, this)
+
+                ship.move(actualPosition)
+                ship.deselect()
+            } else {
+                console.log(`Ship can't be placed at ${position.col}x${position.row}`)
+                ship.deselect()
+            }
+        }
+    }
+
+    const shipsCanvas = document.getElementById("placement-board")
     if (shipsCanvas == null) {
-        throw Error("Can't find Ships board")
+        throw Error("Can't find PlacementBboard")
     }
 
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 }
 
-window.onload = function() {
-    window.render = new Render();
+// window.mouseMoveEvent = (position: Position) => {
+//     console.log(`Mouse move event: ${position.col}x${position.row}`)
+//     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+// }
 
-    const shipsCanvas = document.getElementById("ships-board")
-    if (shipsCanvas == null) {
-        throw Error("Can't find Ships board")
+window.onload = function() {
+    window.render = new PlacementRender();
+
+    const placementCanvas = document.getElementById("placement-board")
+    if (placementCanvas == null) {
+        throw Error("Can't find PlacementBoard")
     }
 
     const startPoint = new Point(40, 40)
-    window.shipsBoard = Board.initFrom(startPoint, 40, 1, 10, 10, true)
-    window.shipsBoard.active = true
+    window.shipsBoard = PlacementBoard.getInstance(startPoint, 40, 1, 10, 10, true)
 
     const shipTypeCarrier: ShipTypeAbstract = new ShipTypeCarrier()
     const shipTypeBattleShip: ShipTypeAbstract = new ShipTypeBattleShip()
@@ -133,6 +146,7 @@ window.onload = function() {
 
     window.initShips.forEach((shipData) => {
         const p = new Position(shipData.col, shipData.row)
+        console.log(p)
         var t: ShipTypeAbstract
         switch (shipData.size) {
             case 5:
@@ -151,11 +165,10 @@ window.onload = function() {
                 throw new Error(`Unknown ship type ${shipData.type}`)
         }
         const s = new Ship(p, shipData.orientation, t)
-        ships.push(s)
         window.shipsBoard.loadShip(s)
     })
 
-    window.render.drawBoard(shipsCanvas, window.shipsBoard)
+    window.render.drawBoard(placementCanvas, window.shipsBoard)
 
     function getMousePoint(canvasRect, clientX, clientY) {
         const x = clientX - canvasRect.left
@@ -163,12 +176,30 @@ window.onload = function() {
         return new Point(x, y)
     }
 
-    shipsCanvas.addEventListener('mousemove', function(board, e) {
+    placementCanvas.addEventListener('mousemove', function(board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseMove(mousePoint)
         window.render.refreshGrid(this, board)
-    }.bind(shipsCanvas, window.shipsBoard))
+    }.bind(placementCanvas, window.shipsBoard))
+
+    // placementCanvas.addEventListener('click', function(board, e) {
+    //     const rect = this.getBoundingClientRect()
+    //     const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+    //     board.mouseClick(mousePoint)
+    // }.bind(placementCanvas, window.shipsBoard))
+
+    placementCanvas.addEventListener('mousedown', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseDown(mousePoint)
+    }.bind(placementCanvas, window.shipsBoard))
+
+    placementCanvas.addEventListener('mouseup', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseUp(mousePoint)
+    }.bind(placementCanvas, window.shipsBoard))
 
     const submitButton = document.getElementById("submit-ships")
     if (submitButton == null) {
@@ -176,7 +207,7 @@ window.onload = function() {
     }
 
     submitButton.addEventListener('click', function(event) {
-        ships.forEach((ship: Ship) => {
+        window.shipsBoard.ships.forEach((ship: Ship) => {
             const sh: string = JSON.stringify({
                 'col': ship.position.col,
                 'row': ship.position.row,
@@ -190,45 +221,4 @@ window.onload = function() {
             this.appendChild(input);
         }, this)
     })
-
-    shipsCanvas.addEventListener('click', function(board, e) {
-        const rect = this.getBoundingClientRect()
-        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
-        board.mouseClick(mousePoint)
-    }.bind(shipsCanvas, window.shipsBoard))
-
-    shipsCanvas.addEventListener('mousedown', function(board, e) {
-        const rect = this.getBoundingClientRect()
-        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
-        board.mouseDown(mousePoint)
-    }.bind(shipsCanvas, window.shipsBoard))
-
-    shipsCanvas.addEventListener('mouseup', function(board, e) {
-        const rect = this.getBoundingClientRect()
-        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
-        board.mouseUp(mousePoint)
-    }.bind(shipsCanvas, window.shipsBoard))
-
-    shipsCanvas.addEventListener('mousemove', function(board, e) {
-        const rect = this.getBoundingClientRect()
-        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
-        board.mouseMove(mousePoint)
-    }.bind(shipsCanvas, window.shipsBoard))
-}
-
-function initGrid(col: number, row: number): object[][] {
-    const grid: Object[][] = [];
-    for (var r = 0; r < row; r++) {
-        const rowData: Object[] = []
-        for (var c = 0; c < col; c++) {
-            rowData[c] = {
-                'col': c,
-                'row': r,
-                'type': Cell.CELL_TYPE_FOG_OF_WAR
-            }
-        }
-        grid[r] = rowData
-    }
-    return grid
-
 }

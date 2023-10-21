@@ -97,8 +97,11 @@ class Game {
             } else {
                 const surround = ship.getSurraund()
                 for (const key in surround) {
-                    const cell = grid.getCell(surround[key])
-                    cell.setType(Cell.CELL_TYPE_WATER)
+                    const p: Position = surround[key]
+                    if (grid.doesCellExist(p)) {
+                        const cell = grid.getCell(p)
+                        cell.setType(Cell.CELL_TYPE_WATER)
+                    }
                 }
                 for (const s of ship.sections) {
                     const cell = grid.getCell(new Position(s.position.col, s.position.row))

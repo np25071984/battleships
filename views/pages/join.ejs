@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Join '<%- gameId %>' game</h1>
-    <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
+    <canvas style="background-color: azure;" id="placement-board" width="500" height="500"></canvas>
 
     <form action="/join/<%= gameId %>" method="post">
         <input type="submit" id="submit-ships" value="Submit">

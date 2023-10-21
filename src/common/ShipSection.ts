@@ -2,10 +2,10 @@ import Position from './Position'
 
 class ShipSection
 {
-    public position
-    public isAlive
+    public position: Position
+    public isAlive: boolean
 
-    constructor(position, isAlive) {
+    constructor(position: Position, isAlive: boolean) {
         this.position = position;
         this.isAlive = isAlive;
     }
