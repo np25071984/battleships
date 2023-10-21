@@ -115,7 +115,6 @@ sequenceDiagram
 6. Implament ship rotation (placement stage)
 7. Add endpoint which returns random ships configuration (placement stage)
 8. `ShipTypeAbstract` implementation is awful. Should prowide short identifier for each tipe
-9. `Ship@getSurround()` should return iterable collection of `Position` objects (not an object with keys)
 
 ## Terminology
 

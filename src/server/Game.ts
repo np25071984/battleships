@@ -95,9 +95,7 @@ class Game {
                     cell.setType(type)
                 }
             } else {
-                const surround = ship.getSurraund()
-                for (const key in surround) {
-                    const p: Position = surround[key]
+                for (const p of ship.getSurraund()) {
                     if (grid.doesCellExist(p)) {
                         const cell = grid.getCell(p)
                         cell.setType(Cell.CELL_TYPE_WATER)

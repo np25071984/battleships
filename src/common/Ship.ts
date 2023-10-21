@@ -3,7 +3,7 @@ import Position from './Position'
 import ShipTypeAbstract from './ShipTypeAbstract'
 import ShotResult from './ShotResult'
 
-class Ship 
+class Ship
 {
     public static readonly SHIP_ORIENTATION_VERTICAL: number = 1;
     public static readonly SHIP_ORIENTATION_HORIZONTAL: number = 2;
@@ -67,19 +67,19 @@ class Ship
         throw new Error(`Couldn't hit the ship at ${position.col}x${position.row}`)
     }
 
-    getSurraund() {
-        const res = {};
+    getSurraund(): Position[] {
+        const intermediateRes = {};
         for (var i = 0; i < this.sections.length; i++) {
             const section = this.sections[i];
             const surround = section.position.getSurraund();
-            for (const key in surround) {
-                const s = surround[key];
-                if(!(key in res) && !this.isLocatedAt(s)) {
-                    res[key] = s;
+            for (const position of surround) {
+                const key = position.generateKey()
+                if(!(key in intermediateRes) && !this.isLocatedAt(position)) {
+                    intermediateRes[key] = position;
                 }
             }
         }
-        return res;
+        return Object.values(intermediateRes);
     }
 }
 

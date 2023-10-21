@@ -24,30 +24,30 @@ class Position
         return `${this.col}_${this.row}`;
     }
 
-    getSurraund() {
-        const res = {};
+    getSurraund(): Position[] {
+        const res = [];
         if (this.row > 0) {
-            var p = new Position(this.col, this.row - 1);
-            res[p.generateKey()] = p;
-            var p = new Position(this.col + 1, this.row - 1);
-            res[p.generateKey()] = p;
+            var ct = new Position(this.col, this.row - 1);
+            res.push(ct);
+            var rt = new Position(this.col + 1, this.row - 1);
+            res.push(rt);
         }
         if (this.col > 0) {
-            var p = new Position(this.col - 1, this.row + 1);
-            res[p.generateKey()] = p;
-            var p = new Position(this.col - 1, this.row);
-            res[p.generateKey()] = p;
+            var lb = new Position(this.col - 1, this.row + 1);
+            res.push(lb);
+            var lc = new Position(this.col - 1, this.row);
+            res.push(lc);
         }
         if (this.row > 0 && this.col > 0) {
-            var p = new Position(this.col - 1, this.row - 1);
-            res[p.generateKey()] = p;
+            var lt = new Position(this.col - 1, this.row - 1);
+            res.push(lt);
         }
-        var p = new Position(this.col + 1, this.row);
-        res[p.generateKey()] = p;
-        var p = new Position(this.col + 1, this.row + 1);
-        res[p.generateKey()] = p;
-        var p = new Position(this.col, this.row + 1);
-        res[p.generateKey()] = p;
+        var rc = new Position(this.col + 1, this.row);
+        res.push(rc);
+        var rb = new Position(this.col + 1, this.row + 1);
+        res.push(rb);
+        var cb = new Position(this.col, this.row + 1);
+        res.push(cb);
 
         return res;
     }

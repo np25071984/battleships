@@ -44,9 +44,7 @@ class Ship extends BaseShip {
             }
         }
 
-        const s = this.getSurraund()
-        for (const k in s) {
-            const p = s[k]
+        for (const p of this.getSurraund()) {
             if (p.isEqual(position)) {
                 return true
             }
