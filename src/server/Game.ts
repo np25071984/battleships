@@ -190,14 +190,14 @@ class Game {
 
         const opponent: Player = this.getOpponent(playerId)
         var shotResult: ShotResult = ShotResult.HIT_RESULT_MISS
-        let surrounding = {}
+        let surraund = []
         for (const s in opponent.ships) {
             const ship: Ship = opponent.ships[s]
             if (ship.isLocatedAt(shotPosition)) {
                 shotResult = ship.hit(shotPosition)
                 if (shotResult === ShotResult.HIT_RESULT_SUNK) {
                     opponent.shipsCount--
-                    surrounding = ship.getSurraund()
+                    surraund = ship.getSurraund()
                 }
                 break
             }
@@ -209,8 +209,7 @@ class Game {
                 cell.setType(Cell.CELL_TYPE_WATER)
                 break
             case ShotResult.HIT_RESULT_SUNK:
-                for (const key in surrounding) {
-                    const p = surrounding[key]
+                for (const p of surraund) {
                     if (player.grid.doesCellExist(p)) {
                         const c = player.grid.getCell(p)
                         c.setType(Cell.CELL_TYPE_WATER)

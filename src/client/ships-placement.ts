@@ -5,12 +5,9 @@ import PlacementBoard from './PlacementBoard'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
 import Ship from './Ship'
-import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
-import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
-import ShipTypeCarrier from '../common/ShipTypeCarrier'
-import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
 import ShipSection from '../common/ShipSection'
+import ShipTypeFactory from '../common/ShipTypeFactory'
 
 window.mouseDownEvent = (position: Position) => {
     console.log(`Down: ${position.col}x${position.row}`)
@@ -35,30 +32,7 @@ window.mouseDownEvent = (position: Position) => {
 }
 
 function canPlace(ship: Ship, position: Position): boolean {
-    // TODO: check if the ship is out of the grid
-    const shipTypeCarrier: ShipTypeAbstract = new ShipTypeCarrier()
-    const shipTypeBattleShip: ShipTypeAbstract = new ShipTypeBattleShip()
-    const shipTypeDestroyer: ShipTypeAbstract = new ShipTypeDestroyer()
-    const shipTypePatrolBoat: ShipTypeAbstract = new ShipTypePatrolBoat()
-
-    var t: ShipTypeAbstract
-    switch (ship.type.getSize()) {
-        case 5:
-            t = shipTypeCarrier
-            break
-        case 4:
-            t = shipTypeBattleShip
-            break
-        case 3:
-            t = shipTypeDestroyer
-            break
-        case 2:
-            t = shipTypePatrolBoat
-            break
-        default:
-            throw new Error(`Unknown ship type ${ship.type.getSize()}`)
-    }
-    const tmpShip = new Ship(position, ship.orientation, t)
+    const tmpShip = new Ship(position, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
 
     if (ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL) {
         const rightSectionCol: number = tmpShip.position.col + tmpShip.type.getSize()
@@ -128,7 +102,7 @@ window.mouseUpEvent = (position: Position) => {
 //     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 // }
 
-window.onload = function() {
+window.onload = function () {
     window.render = new PlacementRender();
 
     const placementCanvas = document.getElementById("placement-board")
@@ -139,31 +113,9 @@ window.onload = function() {
     const startPoint = new Point(40, 40)
     window.shipsBoard = PlacementBoard.getInstance(startPoint, 40, 1, 10, 10, true)
 
-    const shipTypeCarrier: ShipTypeAbstract = new ShipTypeCarrier()
-    const shipTypeBattleShip: ShipTypeAbstract = new ShipTypeBattleShip()
-    const shipTypeDestroyer: ShipTypeAbstract = new ShipTypeDestroyer()
-    const shipTypePatrolBoat: ShipTypeAbstract = new ShipTypePatrolBoat()
-
     window.initShips.forEach((shipData) => {
-        const p = new Position(shipData.col, shipData.row)
-        console.log(p)
-        var t: ShipTypeAbstract
-        switch (shipData.size) {
-            case 5:
-                t = shipTypeCarrier
-                break
-            case 4:
-                t = shipTypeBattleShip
-                break
-            case 3:
-                t = shipTypeDestroyer
-                break
-            case 2:
-                t = shipTypePatrolBoat
-                break
-            default:
-                throw new Error(`Unknown ship type ${shipData.type}`)
-        }
+        const p: Position = new Position(shipData.col, shipData.row)
+        const t: ShipTypeAbstract = ShipTypeFactory.getType(shipData.size)
         const s = new Ship(p, shipData.orientation, t)
         window.shipsBoard.loadShip(s)
     })
@@ -176,7 +128,7 @@ window.onload = function() {
         return new Point(x, y)
     }
 
-    placementCanvas.addEventListener('mousemove', function(board, e) {
+    placementCanvas.addEventListener('mousemove', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseMove(mousePoint)
@@ -189,13 +141,13 @@ window.onload = function() {
     //     board.mouseClick(mousePoint)
     // }.bind(placementCanvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('mousedown', function(board, e) {
+    placementCanvas.addEventListener('mousedown', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseDown(mousePoint)
     }.bind(placementCanvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('mouseup', function(board, e) {
+    placementCanvas.addEventListener('mouseup', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseUp(mousePoint)
@@ -206,7 +158,7 @@ window.onload = function() {
         throw Error("Can't find Sibmit button")
     }
 
-    submitButton.addEventListener('click', function(event) {
+    submitButton.addEventListener('click', function (event) {
         window.shipsBoard.ships.forEach((ship: Ship) => {
             const sh: string = JSON.stringify({
                 'col': ship.position.col,

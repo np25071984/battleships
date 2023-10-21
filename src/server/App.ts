@@ -4,11 +4,8 @@ import Grid from './Grid'
 import Player from './Player'
 import Ship from '../common/Ship'
 import Position from '../common/Position'
-import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
-import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
-import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
-import ShipTypeCarrier from '../common/ShipTypeCarrier'
+import ShipTypeFactory from '../common/ShipTypeFactory'
 
 class App {
     public static readonly EVENT_CHANNEL_NAME_SYSTEM: string = 'system'
@@ -88,34 +85,13 @@ class App {
             const playerId: string = this.makeId(6)
             const grid = Grid.initGrid(10, 10)
 
-            const shipTypeCarrier = new ShipTypeCarrier()
-            const shipTypeBattleShip = new ShipTypeBattleShip()
-            const shipTypeDestroyer = new ShipTypeDestroyer()
-            const shipTypePatrolBoat = new ShipTypePatrolBoat()
-
             const ships: Ship[] = [];
             // TODO: validate input
             for (const rawShip of req.body.ships) {
                 const raw = JSON.parse(rawShip)
                 const p = new Position(raw.col, raw.row)
-                var type: ShipTypeAbstract
-                switch (raw.type) {
-                    case 5:
-                        type = shipTypeCarrier
-                        break
-                    case 4:
-                        type = shipTypeBattleShip
-                        break
-                    case 3:
-                        type = shipTypeDestroyer
-                        break
-                    case 2:
-                        type = shipTypePatrolBoat
-                        break
-                    default:
-                        throw new Error(`Unknown ship type '${raw.type}'`)
-                }
-                const ship = new Ship(p, raw.orientation,type)
+                var type: ShipTypeAbstract = ShipTypeFactory.getType(raw.type)
+                const ship = new Ship(p, raw.orientation, type)
                 ships.push(ship)
             }
             const player = new Player(playerId, grid, ships)
