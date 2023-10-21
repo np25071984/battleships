@@ -1,3 +1,5 @@
+import Ship from '../../common/Ship'
+
 declare global {
     interface Window {
         gameId: string
@@ -13,6 +15,8 @@ declare global {
         mouseUpEvent: any
         mouseMoveEvent: any
         offset: any
+        shadeShip: Ship|null
+        canPlace: any
     }
 }
 

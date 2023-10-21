@@ -11,6 +11,7 @@ class PlacementRender {
     public static readonly COLOR_WRACKAGE: string = 'red';
     public static readonly COLOR_CLICKED: string = 'blue';
     public static readonly COLOR_WATER: string = 'yellow';
+    public static readonly COLOR_SHADOW: string = 'gray';
 
     drawBoard(canvas, board) {
         const context = canvas.getContext("2d");
@@ -67,12 +68,34 @@ class PlacementRender {
     }
 
     refreshGrid(canvas, board) {
+        if (window.shadeShip) {
+            for (var r = 0; r < board.grid.rows; r++) {
+                for (var c = 0; c < board.grid.cols; c++) {
+                    const pos = new Position(c, r)
+                    const cell = board.grid.getCell(pos);
+                    cell.setType(Cell.CELL_TYPE_FOG_OF_WAR)
+                }
+            }
+        }
+
         board.ships.forEach((ship: Ship) => {
             ship.sections.forEach((section: ShipSection) => {
-                const type = ship.isSelected() ? Cell.CELL_TYPE_SHIP_SELECTED : (section.isAlive ? Cell.CELL_TYPE_WRACKAGE : Cell.CELL_TYPE_SHIP)
+                const type = ship.isSelected() ? Cell.CELL_TYPE_SHIP_SELECTED : Cell.CELL_TYPE_SHIP
                 board.grid.getCell(section.position).setType(type)
             }, this)
         })
+
+        if (window.shadeShip) {
+            var type: number
+            if (window.canPlace(window.shadeShip, window.shadeShip.position)) {
+                type = Cell.CELL_TYPE_SHADOW
+            } else {
+                type = Cell.CELL_TYPE_WRACKAGE
+            }
+            window.shadeShip.sections.forEach((section: ShipSection) => {
+                board.grid.getCell(section.position).setType(type)
+            }, this)
+        }
 
         const context = canvas.getContext("2d");
         for (var r = 0; r < board.grid.rows; r++) {
@@ -95,19 +118,21 @@ class PlacementRender {
     getCellColor(cell: Cell) {
         switch (cell.getType()) {
             case Cell.CELL_TYPE_FOG_OF_WAR:
-                return cell.isHover ? PlacementRender.COLOR_HOVER : PlacementRender.COLOR_FOG_OF_WAR;
+                return cell.isHover ? PlacementRender.COLOR_HOVER : PlacementRender.COLOR_FOG_OF_WAR
             case Cell.CELL_TYPE_SHIP:
-                return PlacementRender.COLOR_SHIP;
+                return PlacementRender.COLOR_SHIP
             case Cell.CELL_TYPE_SHIP_SELECTED:
                 return PlacementRender.COLOR_SHIP_SELECTED
             case Cell.CELL_TYPE_WRACKAGE:
-                return PlacementRender.COLOR_WRACKAGE;
+                return PlacementRender.COLOR_WRACKAGE
             case Cell.CELL_TYPE_CLICKED:
-                return PlacementRender.COLOR_CLICKED;
+                return PlacementRender.COLOR_CLICKED
             case Cell.CELL_TYPE_WATER:
-                return PlacementRender.COLOR_WATER;
+                return PlacementRender.COLOR_WATER
+            case Cell.CELL_TYPE_SHADOW:
+                return PlacementRender.COLOR_SHADOW
             default:
-                throw new Error(`Unknown cell type ${cell.getType()}`);
+                throw new Error(`Unknown cell type ${cell.getType()}`)
         }
     }
 }

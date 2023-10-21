@@ -18,7 +18,6 @@ window.mouseDownEvent = (position: Position) => {
                 col: position.col - ship.position.col,
                 row: position.row - ship.position.row,
             }
-            console.log(window.offset)
         } else {
             ship.deselect()
         }
@@ -31,13 +30,11 @@ window.mouseDownEvent = (position: Position) => {
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 }
 
-function canPlace(ship: Ship, position: Position): boolean {
+window.canPlace = function(ship: Ship, position: Position): boolean {
     const tmpShip = new Ship(position, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
 
     if (ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL) {
         const rightSectionCol: number = tmpShip.position.col + tmpShip.type.getSize()
-        console.log(rightSectionCol)
-        console.log(window.shipsBoard.grid.cols)
         if (rightSectionCol > window.shipsBoard.grid.cols) {
             return false
         }
@@ -66,15 +63,21 @@ function canPlace(ship: Ship, position: Position): boolean {
 
 window.mouseUpEvent = (position: Position) => {
     console.log(`Up: ${position.col}x${position.row}`)
+    if (window.shadeShip) {
+        window.shadeShip.sections.forEach((section: ShipSection) => {
+            window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
+        }, this)
+        window.shadeShip = null
+    }
+
     for (const ship of window.shipsBoard.ships) {
         if (ship.isSelected()) {
-
             const actualPosition = new Position(
                 position.col - window.offset.col,
                 position.row - window.offset.row
             )
 
-            if (canPlace(ship, actualPosition)) {
+            if (window.canPlace(ship, actualPosition)) {
                 ship.sections.forEach((section: ShipSection) => {
                     console.log(`Position ${section.position.col}x${section.position.row} has been changed`)
                     window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
@@ -97,10 +100,22 @@ window.mouseUpEvent = (position: Position) => {
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 }
 
-// window.mouseMoveEvent = (position: Position) => {
-//     console.log(`Mouse move event: ${position.col}x${position.row}`)
-//     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
-// }
+window.mouseMoveEvent = (position: Position) => {
+    console.log(`Mouse move event: ${position.col}x${position.row}`)
+    const cell = window.shipsBoard.grid.getCell(position)
+    for (const ship of window.shipsBoard.ships) {
+        if (ship.isSelected()) {
+            const actualPosition = new Position(
+                position.col - window.offset.col,
+                position.row - window.offset.row
+            )
+
+            const shade: Ship = new Ship(actualPosition, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
+            window.shadeShip = shade
+            break
+        }
+    }
+}
 
 window.onload = function () {
     window.render = new PlacementRender();

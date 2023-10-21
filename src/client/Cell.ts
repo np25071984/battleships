@@ -8,6 +8,7 @@ class Cell extends BaseCell
 {
     public static readonly CELL_TYPE_CLICKED: number = 5;
     public static readonly CELL_TYPE_SHIP_SELECTED: number = 6;
+    public static readonly CELL_TYPE_SHADOW: number = 7;
 
     public rect: Rect
     public isHover: boolean
@@ -40,6 +41,10 @@ class Cell extends BaseCell
 
     mouseMove(point: Point): void {
         if (this.isInside(point)) {
+            if (window.mouseMoveEvent) {
+                window.mouseMoveEvent(this.position)
+            }
+
             if (!this.isHover) {
                 this.isHover = true;
                 this.setChanged()

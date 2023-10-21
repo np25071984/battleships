@@ -111,9 +111,8 @@ sequenceDiagram
 2. Implament restart game feature
 3. Implement a permanent storage
 4. Simplify event configuration (no system/game division)
-5. Implement shadow when drag a ship (placement stage)
-6. Implament ship rotation (placement stage)
-7. Add endpoint which returns random ships configuration (placement stage)
+5. Implament ship rotation (placement stage)
+6. Add endpoint which returns random ships configuration (placement stage)
 
 ## Terminology
 
