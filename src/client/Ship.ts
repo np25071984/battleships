@@ -29,7 +29,7 @@ class Ship extends BaseShip {
                     var c = new Position(position.col + i, position.row);
                     break;
                 default:
-                    throw new Error(`Unknown ship orientation(${orientation})`);
+                    throw new Error(`Unknown ship orientation(${this.orientation})`);
             }
             const s = new ShipSection(c, true);
             this.sections.push(s);

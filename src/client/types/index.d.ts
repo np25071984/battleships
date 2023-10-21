@@ -14,9 +14,11 @@ declare global {
         mouseDownEvent: any
         mouseUpEvent: any
         mouseMoveEvent: any
+        mouseClickEvent: any
         offset: any
         shadeShip: Ship|null
         canPlace: any
+        rotateShip: any
     }
 }
 

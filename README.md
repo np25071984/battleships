@@ -107,12 +107,11 @@ sequenceDiagram
 ```
 
 ## TODO
-1. Implement round timer
-2. Implament restart game feature
-3. Implement a permanent storage
-4. Simplify event configuration (no system/game division)
-5. Implament ship rotation (placement stage)
-6. Add endpoint which returns random ships configuration (placement stage)
+* Implement round timer
+* Implament restart game feature
+* Implement a permanent storage
+* Simplify event configuration (no system/game division)
+* Add endpoint which returns random ships configuration (placement stage)
 
 ## Terminology
 

@@ -2,7 +2,6 @@ import Point from './Point'
 import Rect from './Rect'
 import Position from '../common/Position'
 import BaseCell from '../common/Cell'
-import BattleshipsEvent from './BattleshipsEvent'
 
 class Cell extends BaseCell
 {
@@ -62,20 +61,9 @@ class Cell extends BaseCell
             return;
         }
 
-        if (this.getType() === Cell.CELL_TYPE_CLICKED) {
-            return;
+        if (window.mouseClickEvent) {
+            window.mouseClickEvent(this.position)
         }
-
-        window.shotsBoard.active = false
-        this.setType(Cell.CELL_TYPE_CLICKED)
-
-        window.socket.emit('game', {
-            'type': BattleshipsEvent.EVENT_TYPE_SHOT,
-            'col': this.position.col,
-            'row': this.position.row,
-            'playerId': window.playerId,
-            'gameId': window.gameId,
-        });
     }
 
     mouseDown(point: Point) {

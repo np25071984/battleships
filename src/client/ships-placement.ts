@@ -9,27 +9,6 @@ import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipSection from '../common/ShipSection'
 import ShipTypeFactory from '../common/ShipTypeFactory'
 
-window.mouseDownEvent = (position: Position) => {
-    console.log(`Down: ${position.col}x${position.row}`)
-    for (const ship of window.shipsBoard.ships) {
-        if (ship.isLocatedAt(position)) {
-            ship.select()
-            window.offset = {
-                col: position.col - ship.position.col,
-                row: position.row - ship.position.row,
-            }
-        } else {
-            ship.deselect()
-        }
-    }
-    const shipsCanvas = document.getElementById("placement-board")
-    if (shipsCanvas == null) {
-        throw Error("Can't find PlacementBboard")
-    }
-
-    window.render.refreshGrid(shipsCanvas, window.shipsBoard)
-}
-
 window.canPlace = function(ship: Ship, position: Position): boolean {
     const tmpShip = new Ship(position, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
 
@@ -61,12 +40,101 @@ window.canPlace = function(ship: Ship, position: Position): boolean {
     return true
 }
 
+window.rotateShip = function(): void {
+    console.log('Rotate')
+    for (const ship of window.shipsBoard.ships) {
+        if (ship.isSelected()) {
+            const oppositeOrientation: number = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? Ship.SHIP_ORIENTATION_VERTICAL : Ship.SHIP_ORIENTATION_HORIZONTAL
+            const rotatedShip = new Ship(ship.position, oppositeOrientation, ShipTypeFactory.getType(ship.type.getSize()))
+            if (window.canPlace(rotatedShip, rotatedShip.position)) {
+                console.log("yes, can rotate")
+
+                // clean up previously occupied space
+                ship.sections.forEach((section: ShipSection) => {
+                    window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
+                })
+
+                ship.orientation = oppositeOrientation
+                ship.move(ship.position)
+
+                const shipsCanvas = document.getElementById("placement-board")
+                if (shipsCanvas == null) {
+                    throw Error("Can't find PlacementBboard")
+                }
+
+                window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+            } else {
+                console.log("this ship can't be rotated")
+            }
+            break
+        }
+    }
+}
+
+window.mouseDownEvent = (position: Position) => {
+    for (const ship of window.shipsBoard.ships) {
+        if (ship.isLocatedAt(position)) {
+            ship.select()
+
+            window.offset = {
+                col: position.col - ship.position.col,
+                row: position.row - ship.position.row,
+            }
+
+            window.mouseMoveEvent = (position: Position) => {
+                console.log(`Mouse move event: ${position.col}x${position.row}`)
+                const cell = window.shipsBoard.grid.getCell(position)
+                for (const ship of window.shipsBoard.ships) {
+                    if (ship.isSelected()) {
+                        const actualPosition = new Position(
+                            position.col - window.offset.col,
+                            position.row - window.offset.row
+                        )
+
+                        const shade: Ship = new Ship(actualPosition, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
+                        window.shadeShip = shade
+                        break
+                    }
+                }
+            }
+        } else {
+            ship.deselect()
+        }
+
+        // enable/disable Rotate button when a Ship was/wasn't selected
+        var isSelectetShip: boolean = false
+        for (const ship of window.shipsBoard.ships) {
+            if (ship.isSelected()) {
+                isSelectetShip = true
+                break
+            }
+        }
+
+        const rotateButton = document.getElementById("rotate-ship") as HTMLButtonElement
+        if (rotateButton == null) {
+            throw Error("Can't find Rotate button")
+        }
+
+        // TODO: check if it is possible to rotate the ship
+        rotateButton.disabled = !isSelectetShip
+    }
+
+    const shipsCanvas = document.getElementById("placement-board")
+    if (shipsCanvas == null) {
+        throw Error("Can't find PlacementBboard")
+    }
+
+    window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+}
+
 window.mouseUpEvent = (position: Position) => {
-    console.log(`Up: ${position.col}x${position.row}`)
+    window.mouseMoveEvent = null
+
     if (window.shadeShip) {
+        // remove shadow from the board
         window.shadeShip.sections.forEach((section: ShipSection) => {
             window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
-        }, this)
+        })
         window.shadeShip = null
     }
 
@@ -79,15 +147,16 @@ window.mouseUpEvent = (position: Position) => {
 
             if (window.canPlace(ship, actualPosition)) {
                 ship.sections.forEach((section: ShipSection) => {
-                    console.log(`Position ${section.position.col}x${section.position.row} has been changed`)
                     window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
-                }, this)
+                })
 
                 ship.move(actualPosition)
-                ship.deselect()
+                // ship.deselect()
             } else {
                 console.log(`Ship can't be placed at ${position.col}x${position.row}`)
-                ship.deselect()
+                if (!ship.isLocatedAt(position)) {
+                    ship.deselect()
+                }
             }
         }
     }
@@ -98,23 +167,6 @@ window.mouseUpEvent = (position: Position) => {
     }
 
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
-}
-
-window.mouseMoveEvent = (position: Position) => {
-    console.log(`Mouse move event: ${position.col}x${position.row}`)
-    const cell = window.shipsBoard.grid.getCell(position)
-    for (const ship of window.shipsBoard.ships) {
-        if (ship.isSelected()) {
-            const actualPosition = new Position(
-                position.col - window.offset.col,
-                position.row - window.offset.row
-            )
-
-            const shade: Ship = new Ship(actualPosition, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
-            window.shadeShip = shade
-            break
-        }
-    }
 }
 
 window.onload = function () {
@@ -150,11 +202,11 @@ window.onload = function () {
         window.render.refreshGrid(this, board)
     }.bind(placementCanvas, window.shipsBoard))
 
-    // placementCanvas.addEventListener('click', function(board, e) {
-    //     const rect = this.getBoundingClientRect()
-    //     const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
-    //     board.mouseClick(mousePoint)
-    // }.bind(placementCanvas, window.shipsBoard))
+    placementCanvas.addEventListener('click', function(board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseClick(mousePoint)
+    }.bind(placementCanvas, window.shipsBoard))
 
     placementCanvas.addEventListener('mousedown', function (board, e) {
         const rect = this.getBoundingClientRect()

@@ -7,6 +7,24 @@ import Board from './Board'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
 
+window.mouseClickEvent = function(position: Position) {
+    const cell: Cell = window.shotsBoard.grid.getCell(position)
+    if (cell.getType() === Cell.CELL_TYPE_CLICKED) {
+        return;
+    }
+
+    window.shotsBoard.active = false
+    cell.setType(Cell.CELL_TYPE_CLICKED)
+
+    window.socket.emit('game', {
+        'type': BattleshipsEvent.EVENT_TYPE_SHOT,
+        'col': cell.position.col,
+        'row': cell.position.row,
+        'playerId': window.playerId,
+        'gameId': window.gameId,
+    });
+}
+
 window.onload = function() {
     console.log("gameId: " + window.gameId);
 
