@@ -241,16 +241,16 @@ class Game {
             'type': App.EVENT_TYPE_ANNOUNCE,
             'playerId': player1.id,
             'result': player1ShotRes,
-            'player_updates': player1Updates,
-            'opponent_updates': player2Updates
+            'shots_updates': player1Updates,
+            'ships_updates': player2Updates
         })
 
         global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
             'type': App.EVENT_TYPE_ANNOUNCE,
             'playerId': player2.id,
             'result': player2ShotRes,
-            'player_updates': player2Updates,
-            'opponent_updates': player1Updates
+            'shots_updates': player2Updates,
+            'ships_updates': player1Updates
         })
     }
 

@@ -61,7 +61,8 @@ class Cell extends BaseCell
             return;
         }
 
-        this.setType(Cell.CELL_TYPE_CLICKED);
+        window.shotsBoard.active = false
+        this.setType(Cell.CELL_TYPE_CLICKED)
 
         window.socket.emit('game', {
             'type': BattleshipsEvent.EVENT_TYPE_SHOT,

@@ -3,8 +3,6 @@ import Point from './Point'
 import Cell from './Cell'
 import Rect from './Rect'
 import Grid from './Grid'
-import Ship from './Ship'
-import ShipSection from '../common/ShipSection'
 
 class Board
 {
@@ -31,7 +29,6 @@ class Board
     mouseClick(point: Point) {
         if (this.active) {
             this.grid.mouseClick(point);
-            this.active = false; // TODO: there is a bug; you can click outside a cell as a result - no cell clicked, no board active
         }
     }
 
@@ -50,28 +47,6 @@ class Board
     roundStart(number: number) {
         this.active = true;
         this.round = number;
-    }
-
-    setCellType(position: Position, cellType) {
-        this.grid.setCellType(position, cellType)
-    }
-
-    loadShip(ship: Ship, surround: boolean = false): void {
-        ship.sections.forEach((section: ShipSection) => {
-            const type = ship.isSelected() ? Cell.CELL_TYPE_SHIP_SELECTED : (section.isAlive ? Cell.CELL_TYPE_WRACKAGE : Cell.CELL_TYPE_SHIP)
-            this.grid.setCellType(section.position, type)
-        }, this)
-
-        if (surround) {
-            const s = ship.getSurraund()
-            for (const k in s) {
-                const p = s[k]
-                const c = this.grid.getCell(p)
-                if (c) {
-                    c.setType(Cell.CELL_TYPE_WATER)
-                }
-            }
-        }
     }
 
     static initFromServerData(ltPoint: Point, width: number, gap: number, data: any, showAgenda: boolean) {

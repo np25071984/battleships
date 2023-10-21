@@ -79,21 +79,15 @@ window.onload = function() {
                 console.log(`Player ${event.playerId} has left the game`)
                 break
             case BattleshipsEvent.EVENT_TYPE_ANNOUNCE:
-                for (const u in event.opponent_updates) {
-                    const upd =  event.opponent_updates[u]
-                    window.shipsBoard.setCellType(
-                        new Position(upd.col, upd.row),
-                        upd.type
-                    )
+                for (const u in event.ships_updates) {
+                    const upd =  event.ships_updates[u]
+                    window.shipsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(upd.type)
                 }
                 window.render.refreshGrid(document.getElementById("ships-board"), window.shipsBoard)
 
-                for (const u in event.player_updates) {
-                    const upd =  event.player_updates[u]
-                    window.shotsBoard.setCellType(
-                        new Position(upd.col, upd.row),
-                        upd.type
-                    )
+                for (const u in event.shots_updates) {
+                    const upd =  event.shots_updates[u]
+                    window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(upd.type)
                 }
                 window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
 
@@ -122,10 +116,7 @@ window.onload = function() {
                     case BattleshipsEvent.GAME_RESULT_DEFEAT:
                         for (const u in event.opponent_ships) {
                             const upd =  event.opponent_ships[u]
-                            window.shotsBoard.setCellType(
-                                new Position(upd.col, upd.row),
-                                Cell.CELL_TYPE_SHIP
-                            )
+                            window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(Cell.CELL_TYPE_SHIP)
                         }
                         window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
                         console.log("Defaat")

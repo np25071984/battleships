@@ -69,27 +69,6 @@ class Grid {
             }
         }
     }
-
-    /**
-     * TODO: get rid of it
-     * @deprecated use getCell().setType() instead
-     */
-    setCellType(position: Position, cellType: number): void {
-        const cell = this.getCell(position)
-        cell.setType(cellType)
-    }
-
-    // canPlaceShip(ship: Ship): boolean {
-    //     for (const section of ship.sections) {
-    //         const cell = this.getCell(section.position)
-    //         if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
-    //             return false
-    //         }
-    //     }
-
-    //     return true
-    // }
-
 }
 
 export default Grid

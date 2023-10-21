@@ -111,6 +111,11 @@ sequenceDiagram
 2. Implament restart game feature
 3. Implement a permanent storage
 4. Simplify event configuration (no system/game division)
+5. Implement shadow when drag a ship (placement stage)
+6. Implament ship rotation (placement stage)
+7. Add endpoint which returns random ships configuration (placement stage)
+8. `ShipTypeAbstract` implementation is awful. Should prowide short identifier for each tipe
+9. `Ship@getSurround()` should return iterable collection of `Position` objects (not an object with keys)
 
 ## Terminology
 
