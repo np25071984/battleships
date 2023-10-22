@@ -69,10 +69,34 @@ window.rotateShip = function(): void {
 }
 
 window.shuffleShip = function(): void {
+    const shipsCanvas = document.getElementById("placement-board")
+    if (shipsCanvas == null) {
+        throw Error("Can't find PlacementBboard")
+    }
+
+    window.shipsBoard.setReady(false)
+    window.render.drawSubstrate(shipsCanvas, window.shipsBoard)
+    window.shipsBoard.resetShips()
+
+    sendShipsRequest()
+
+    const shuffleButton = document.getElementById("shuffle-button") as HTMLButtonElement
+    if (shuffleButton == null) {
+        throw Error("Can't find Shubble button")
+    }
+
+    shuffleButton.disabled = true
+}
+
+function sendShipsRequest(): void {
+    const shipsCanvas = document.getElementById("placement-board")
+    if (shipsCanvas == null) {
+        throw Error("Can't find PlacementBboard")
+    }
+
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            window.shipsBoard.resetShips()
             const shipsData = JSON.parse(this.responseText)
             shipsData.forEach((shipData) => {
                 const p: Position = new Position(shipData.col, shipData.row)
@@ -81,14 +105,17 @@ window.shuffleShip = function(): void {
                 window.shipsBoard.loadShip(s)
             })
 
-            const shipsCanvas = document.getElementById("placement-board")
-            if (shipsCanvas == null) {
-                throw Error("Can't find PlacementBboard")
+            window.shipsBoard.setReady(true)
+            window.render.drawSubstrate(shipsCanvas, window.shipsBoard)
+            window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+
+            const shuffleButton = document.getElementById("shuffle-button") as HTMLButtonElement
+            if (shuffleButton == null) {
+                throw Error("Can't find Shubble button")
             }
 
-            window.render.refreshGrid(shipsCanvas, window.shipsBoard)
+            shuffleButton.disabled = false
         }
-
     }
     xhttp.open("GET", `/shuffle/${window.gameId}`, true);
     xhttp.send();
@@ -204,7 +231,7 @@ window.onload = function () {
 
     const startPoint = new Point(40, 40)
     window.shipsBoard = PlacementBoard.getInstance(startPoint, 40, 1, 10, 10, true)
-    window.render.drawBoard(placementCanvas, window.shipsBoard)
+    window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 
     function getMousePoint(canvasRect, clientX, clientY) {
         const x = clientX - canvasRect.left
@@ -275,4 +302,6 @@ window.onload = function () {
             this.appendChild(input);
         }, this)
     })
+
+    sendShipsRequest()
 }

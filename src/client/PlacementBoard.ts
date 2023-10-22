@@ -12,12 +12,14 @@ class PlacementBoard
     public grid: Grid
     public showAgenda: boolean
     public ships: Ship[]
+    private isReady: boolean
 
     constructor(outerRect: Rect, grid: Grid, showAgenda: boolean) {
-        this.rect = outerRect;
-        this.grid = grid;
-        this.showAgenda = showAgenda;
+        this.rect = outerRect
+        this.grid = grid
+        this.showAgenda = showAgenda
         this.ships = []
+        this.isReady = false
     }
 
     mouseMove(point: Point): void {
@@ -34,6 +36,23 @@ class PlacementBoard
 
     mouseUp(point: Point): void {
         this.grid.mouseUp(point);
+    }
+
+    getIsReady(): boolean {
+        return this.isReady
+    }
+
+    setReady(value: boolean): void {
+        if (value) {
+            for (var r = 0; r < this.grid.rows; r++) {
+                for (var c = 0; c < this.grid.cols; c++) {
+                    const p = new Position(c, r)
+                    const cell = this.grid.getCell(p)
+                    cell.setChanged()
+                }
+            }
+        }
+        this.isReady = value
     }
 
     loadShip(ship: Ship): void {

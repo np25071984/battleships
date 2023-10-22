@@ -111,7 +111,6 @@ sequenceDiagram
 * Implament restart game feature
 * Implement a permanent storage
 * Simplify event configuration (no system/game division)
-* "Loading..." indicator for PlacementBoard
 
 ## Terminology
 

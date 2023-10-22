@@ -4,62 +4,42 @@ import Ship from './Ship'
 import ShipSection from '../common/ShipSection'
 
 class PlacementRender {
-    public static readonly COLOR_FOG_OF_WAR: string = '#ffffff';
-    public static readonly COLOR_HOVER: string = '#90d3de';
-    public static readonly COLOR_SHIP: string = 'green';
-    public static readonly COLOR_SHIP_SELECTED: string = 'orange';
-    public static readonly COLOR_WRACKAGE: string = 'red';
-    public static readonly COLOR_CLICKED: string = 'blue';
-    public static readonly COLOR_WATER: string = 'yellow';
-    public static readonly COLOR_SHADOW: string = 'gray';
+    public static readonly COLOR_FOG_OF_WAR: string = '#ffffff'
+    public static readonly COLOR_HOVER: string = '#90d3de'
+    public static readonly COLOR_SHIP: string = 'green'
+    public static readonly COLOR_SHIP_SELECTED: string = 'orange'
+    public static readonly COLOR_WRACKAGE: string = 'red'
+    public static readonly COLOR_CLICKED: string = 'blue'
+    public static readonly COLOR_WATER: string = 'yellow'
+    public static readonly COLOR_SHADOW: string = 'gray'
 
-    drawBoard(canvas, board) {
-        const context = canvas.getContext("2d");
-        context.clearRect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight());
-
-        // substrate
-        context.beginPath();
-        context.rect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight());
-        context.fillStyle = '#90d3de';
-        context.fill();
-        context.closePath();
-
-        // grid
-        for (var r = 0; r < board.grid.rows; r++) {
-            for (var c = 0; c < board.grid.cols; c++) {
-                const pos = new Position(c, r)
-                const cell = board.grid.getCell(pos);
-                context.beginPath();
-                context.rect(cell.rect.ltPoint.x, cell.rect.ltPoint.y, cell.rect.getWidth(), cell.rect.getHeight());
-                context.fillStyle = this.getCellColor(cell)
-                context.fill();
-                context.closePath();
-            }
-        }
+    drawEmptyBoard(canvas, board) {
+        const context = canvas.getContext("2d")
+        context.clearRect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight())
 
         // agenda
         if (board.showAgenda) {
-            const cellWidth = board.rect.getWidth() / board.grid.cols;
-            const fontWidth = Math.round(cellWidth / 3);
+            const cellWidth = board.rect.getWidth() / board.grid.cols
+            const fontWidth = Math.round(cellWidth / 3)
 
-            context.beginPath();
-            context.fillStyle = '#000000';
-            context.font = `${fontWidth}px serif`;
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
+            context.beginPath()
+            context.fillStyle = '#000000'
+            context.font = `${fontWidth}px serif`
+            context.textAlign = 'center'
+            context.textBaseline = 'middle'
             for (var i = 0; i < board.grid.rows; i++) {
-                const label = String.fromCharCode(97 + i).toUpperCase();
-                const curShift = board.rect.ltPoint.y + cellWidth*i + cellWidth/2;
-                context.fillText(label, board.rect.ltPoint.x - fontWidth/2 - 2, curShift);
+                const label = String.fromCharCode(97 + i).toUpperCase()
+                const curShift = board.rect.ltPoint.y + cellWidth*i + cellWidth/2
+                context.fillText(label, board.rect.ltPoint.x - fontWidth/2 - 2, curShift)
             }
-            context.closePath();
+            context.closePath()
 
-            context.beginPath();
-            context.textAlign = 'middle';
-            context.textBaseline = 'bottom';
+            context.beginPath()
+            context.textAlign = 'middle'
+            context.textBaseline = 'bottom'
             for (var i = 0; i < board.grid.cols; i++) {
-                const curShift = board.rect.ltPoint.x + cellWidth*i + cellWidth/2 + fontWidth/2;
-                context.fillText(i + 1, curShift, board.rect.ltPoint.y);
+                const curShift = board.rect.ltPoint.x + cellWidth*i + cellWidth/2 + fontWidth/2
+                context.fillText(i + 1, curShift, board.rect.ltPoint.y)
             }
             context.closePath();
         }
@@ -67,12 +47,42 @@ class PlacementRender {
         this.refreshGrid(canvas, board)
     }
 
+    drawSubstrate(canvas, board): void {
+        const context = canvas.getContext("2d")
+
+        // substrate
+        context.beginPath()
+        context.rect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight())
+        context.fillStyle = '#90d3de'
+        context.fill()
+        context.closePath()
+
+        if (!board.getIsReady()) {
+            context.beginPath()
+            const cellWidth = board.rect.getWidth() / board.grid.cols
+            const fontWidth = Math.round(cellWidth / 2)
+            context.font = `${fontWidth}px serif`
+            context.fillStyle = '#000000'
+            context.textBaseline = 'middle'
+            context.textAlign = "center"
+            context.fillText("Loading..." , board.rect.ltPoint.x + (board.rect.getWidth() / 2), board.rect.ltPoint.y + (board.rect.getHeight() / 2))
+            context.closePath()
+        }
+    }
+
     refreshGrid(canvas, board) {
+        const context = canvas.getContext("2d")
+
+        if (!board.getIsReady()) {
+            this.drawSubstrate(canvas, board)
+            return
+        }
+
         if (window.shadeShip) {
             for (var r = 0; r < board.grid.rows; r++) {
                 for (var c = 0; c < board.grid.cols; c++) {
                     const pos = new Position(c, r)
-                    const cell = board.grid.getCell(pos);
+                    const cell = board.grid.getCell(pos)
                     cell.setType(Cell.CELL_TYPE_FOG_OF_WAR)
                 }
             }
@@ -97,7 +107,6 @@ class PlacementRender {
             })
         }
 
-        const context = canvas.getContext("2d");
         for (var r = 0; r < board.grid.rows; r++) {
             for (var c = 0; c < board.grid.cols; c++) {
                 const pos = new Position(c, r)
