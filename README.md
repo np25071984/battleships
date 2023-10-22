@@ -112,7 +112,6 @@ sequenceDiagram
 * Implement a permanent storage
 * Simplify event configuration (no system/game division)
 * "Loading..." indicator for PlacementBoard
-* PlacementBoard out of border event when dragging
 
 ## Terminology
 

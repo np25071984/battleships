@@ -86,13 +86,13 @@ class PlacementRender {
         })
 
         if (window.shadeShip) {
-            var type: number
-            if (window.canPlace(window.shadeShip, window.shadeShip.position)) {
-                type = Cell.CELL_TYPE_SHADOW
-            } else {
-                type = Cell.CELL_TYPE_WRACKAGE
-            }
+            const canPlace: boolean = window.canPlace(window.shadeShip, window.shadeShip.position)
+            const type: number = canPlace ? Cell.CELL_TYPE_SHADOW : Cell.CELL_TYPE_WRACKAGE
             window.shadeShip.sections.forEach((section: ShipSection) => {
+                if (!board.grid.doesCellExist(section.position)) {
+                    return
+                }
+
                 board.grid.getCell(section.position).setType(type)
             })
         }

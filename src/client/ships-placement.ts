@@ -155,6 +155,10 @@ window.mouseUpEvent = (position: Position) => {
     if (window.shadeShip) {
         // remove shadow from the board
         window.shadeShip.sections.forEach((section: ShipSection) => {
+            if (!window.shipsBoard.grid.doesCellExist(section.position)) {
+                return
+            }
+
             window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
         })
         window.shadeShip = null
@@ -173,7 +177,6 @@ window.mouseUpEvent = (position: Position) => {
                 })
 
                 ship.move(actualPosition)
-                // ship.deselect()
             } else {
                 console.log(`Ship can't be placed at ${position.col}x${position.row}`)
                 if (!ship.isLocatedAt(position)) {
@@ -208,6 +211,24 @@ window.onload = function () {
         const y = clientY - canvasRect.top
         return new Point(x, y)
     }
+
+    placementCanvas.addEventListener('mouseout', function (board, e) {
+        window.mouseMoveEvent = null
+
+        if (window.shadeShip) {
+            // remove shadow from the board
+            window.shadeShip.sections.forEach((section: ShipSection) => {
+                if (!window.shipsBoard.grid.doesCellExist(section.position)) {
+                    return
+                }
+
+                window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
+            })
+            window.shadeShip = null
+        }
+
+        window.render.refreshGrid(this, board)
+    }.bind(placementCanvas, window.shipsBoard))
 
     placementCanvas.addEventListener('mousemove', function (board, e) {
         const rect = this.getBoundingClientRect()
