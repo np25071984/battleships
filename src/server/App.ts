@@ -99,6 +99,17 @@ class App {
             game.joinPlayer(player)
             res.redirect(`/${gameId}?playerId=${player.id}`)
         })
+        router.get('/shuffle/:gameId', (req, res) => {
+            const gameId: string = req.params.gameId
+            if (!this.doesGameExist(gameId)) {
+                res.send(`Game '${gameId}' not found`)
+                return
+            }
+            const game = this.getGame(gameId)
+
+            var ships: Object[] = randomShipsCombination()
+            res.json(ships);
+        })
         router.get('/list', (req, res) => {
             res.render('pages/list.ejs')
         })

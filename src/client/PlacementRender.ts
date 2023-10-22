@@ -82,7 +82,7 @@ class PlacementRender {
             ship.sections.forEach((section: ShipSection) => {
                 const type = ship.isSelected() ? Cell.CELL_TYPE_SHIP_SELECTED : Cell.CELL_TYPE_SHIP
                 board.grid.getCell(section.position).setType(type)
-            }, this)
+            })
         })
 
         if (window.shadeShip) {
@@ -94,7 +94,7 @@ class PlacementRender {
             }
             window.shadeShip.sections.forEach((section: ShipSection) => {
                 board.grid.getCell(section.position).setType(type)
-            }, this)
+            })
         }
 
         const context = canvas.getContext("2d");

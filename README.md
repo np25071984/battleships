@@ -111,7 +111,8 @@ sequenceDiagram
 * Implament restart game feature
 * Implement a permanent storage
 * Simplify event configuration (no system/game division)
-* Add endpoint which returns random ships configuration (placement stage)
+* "Loading..." indicator for PlacementBoard
+* PlacementBoard out of border event when dragging
 
 ## Terminology
 

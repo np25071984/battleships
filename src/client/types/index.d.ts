@@ -19,6 +19,7 @@ declare global {
         shadeShip: Ship|null
         canPlace: any
         rotateShip: any
+        shuffleShip: any
     }
 }
 

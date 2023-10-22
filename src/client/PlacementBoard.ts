@@ -20,27 +20,44 @@ class PlacementBoard
         this.ships = []
     }
 
-    mouseMove(point: Point) {
+    mouseMove(point: Point): void {
         this.grid.mouseMove(point);
     }
 
-    mouseClick(point: Point) {
+    mouseClick(point: Point): void {
         this.grid.mouseClick(point);
     }
 
-    mouseDown(point: Point) {
+    mouseDown(point: Point): void {
         this.grid.mouseDown(point);
     }
 
-    mouseUp(point: Point) {
+    mouseUp(point: Point): void {
         this.grid.mouseUp(point);
     }
 
-    loadShip(ship: Ship) {
+    loadShip(ship: Ship): void {
         this.ships.push(ship)
     }
 
-    static getInstance(ltPoint: Point, width: number, gap: number, row: number, col: number, showAgenda: boolean) {
+    resetShips(): void {
+        this.ships.forEach((ship: Ship) => {
+            ship.sections.forEach((section: ShipSection) => {
+                this.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
+            })
+        })
+
+        this.ships = []
+    }
+
+    static getInstance(
+        ltPoint: Point,
+        width: number,
+        gap: number,
+        row: number,
+        col: number,
+        showAgenda: boolean
+    ): PlacementBoard {
         // TODO: col,row max value
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;

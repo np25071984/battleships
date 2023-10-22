@@ -10,11 +10,12 @@
     <canvas style="background-color: azure;" id="placement-board" width="500" height="500"></canvas>
 
     <button onclick="window.rotateShip()" id="rotate-ship" disabled>Rotate</button>
+    <button onclick="window.shuffleShip()">Shuffle</button>
     <form action="/join/<%= gameId %>" method="post">
         <input type="submit" id="submit-ships" value="Submit">
     </form>
     <script>
-        window.initShips = JSON.parse('<%- shipsCombination %>')
+        window.gameId = '<%- gameId %>';
     </script>
 </body>
 </html>
