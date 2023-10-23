@@ -44,8 +44,7 @@ class Game {
         const player2: Player = this.players[1]
 
         if (!player1.isInitialized) {
-            global.io.sockets.to(player1.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                'type': App.EVENT_TYPE_INIT,
+            global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_INIT, {
                 'playerId': player1.id,
                 'round': this.round,
                 'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
@@ -55,8 +54,7 @@ class Game {
         }
 
         if (!player2.isInitialized) {
-            global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                'type': App.EVENT_TYPE_INIT,
+            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_INIT, {
                 'playerId': player2.id,
                 'round': this.round,
                 'ships_grid': this.getGridWithOpponentShips(player1).typesOnly(),
@@ -115,15 +113,8 @@ class Game {
         const player1: Player = this.players[0]
         const player2: Player = this.players[1]
 
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_ROUND,
-            'number': this.round,
-        })
-
-        global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_ROUND,
-            'number': this.round,
-        })
+        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ROUND, {'number': this.round})
+        global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ROUND, {'number': this.round})
     }
 
     nextRound() {
@@ -234,16 +225,14 @@ class Game {
         const player1Updates = player1.getUpdates()
         const player2Updates = player2.getUpdates()
 
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_ANNOUNCE,
+        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
             'playerId': player1.id,
             'result': player1ShotRes,
             'shots_updates': player1Updates,
             'ships_updates': player2Updates
         })
 
-        global.io.sockets.to(player2.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_ANNOUNCE,
+        global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
             'playerId': player2.id,
             'result': player2ShotRes,
             'shots_updates': player2Updates,
@@ -273,22 +262,19 @@ class Game {
             const loserId: string = losers[0]
             const l = this.getPlayer(loserId)
             const winner = this.getOpponent(loserId)
-            global.io.sockets.to(l.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                'type': App.EVENT_TYPE_GAME_RESULT,
+            global.io.sockets.to(l.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
                 'result': App.GAME_RESULT_DEFEAT,
                 'playerId': l.id,
                 'opponent_ships': winner.getAliveShips()
             })
 
-            global.io.sockets.to(winner.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                'type': App.EVENT_TYPE_GAME_RESULT,
+            global.io.sockets.to(winner.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
                 'result': App.GAME_RESULT_WIN,
                 'playerId': winner.id,
             })
         } else if (losers.length == 2) {
             this.players.forEach((player: Player) => {
-                global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                    'type': App.EVENT_TYPE_GAME_RESULT,
+                global.io.sockets.to(player.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
                     'result': App.GAME_RESULT_DRAW,
                     'playerId': player.id,
                 })

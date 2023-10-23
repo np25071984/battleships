@@ -110,7 +110,7 @@ sequenceDiagram
 * Implement round timer
 * Add Restart Game feature
 * Use permanent storage
-* Simplify event configuration (no system/game division)
+* "Wating for player" message
 
 ## Terminology
 

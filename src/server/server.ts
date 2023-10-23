@@ -54,29 +54,21 @@ global.io.on("connect", (socket) => {
         return
     }
 
-    global.io.sockets.to(socket.id).emit(App.EVENT_CHANNEL_NAME_SYSTEM, {
-        'type': App.EVENT_TYPE_CONNECTED,
-        'playerId': playerId,
-    })
+    global.io.sockets.to(socket.id).emit(App.EVENT_TYPE_CONNECTED, {'playerId': playerId})
 
     const player: Player = game.getPlayer(playerId)
     player.updateSocketId(socket.id)
 
     if (game.doesOpponentExist(playerId)) {
         const opponent: Player = game.getOpponent(playerId)
-        global.io.sockets.to(opponent.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_JOINED,
-            'playerId': player.id,
-        })
+        global.io.sockets.to(opponent.socketId).emit(App.EVENT_TYPE_JOINED, {'playerId': player.id})
 
         // all players are in place; let's start the game
         game.initClients()
         game.startRound()
     } else {
         // the opponent isn't there yet; let's wait for they
-        global.io.sockets.to(player.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-            'type': App.EVENT_TYPE_WAITING,
-        })
+        global.io.sockets.to(player.socketId).emit(App.EVENT_TYPE_WAITING)
     }
 
 
@@ -95,14 +87,11 @@ global.io.on("connect", (socket) => {
 
         if (playerId && game.doesOpponentExist(playerId)) {
             const opponnet = game.getOpponent(playerId)
-            socket.to(opponnet.socketId).emit(App.EVENT_CHANNEL_NAME_GAME, {
-                'type': App.EVENT_TYPE_LEFT,
-                'playerId': playerId,
-            })
+            socket.to(opponnet.socketId).emit(App.EVENT_TYPE_LEFT)
         }
     })
 
-    socket.on(App.EVENT_CHANNEL_NAME_GAME, (event) => {
+    socket.on(App.EVENT_TYPE_SHOT, (event) => {
         const socketId = socket.id;
         const gameId = event.gameId
         const playerId = event.playerId
@@ -118,26 +107,20 @@ global.io.on("connect", (socket) => {
             return
         }
 
-        switch (event.type) {
-            case App.EVENT_TYPE_SHOT:
-                const position = new Position(event.col, event.row)
-                game.shot(position, playerId)
+        const position = new Position(event.col, event.row)
+        game.shot(position, playerId)
 
-                if (game.roundShotsCounter !== 2) {
-                    // wait for the second player
-                    return
-                }
+        if (game.roundShotsCounter !== 2) {
+            // wait for the second player
+            return
+        }
 
-                game.announceShotResults()
-                if (game.isOver()) {
-                    game.announceGameResults()
-                    app.purgeGameData(gameId)
-                } else {
-                    game.nextRound()
-                }
-                break
-            default:
-                throw new Error(`Unknown system event type(${event.type})`)
+        game.announceShotResults()
+        if (game.isOver()) {
+            game.announceGameResults()
+            app.purgeGameData(gameId)
+        } else {
+            game.nextRound()
         }
     })
 })
