@@ -4,12 +4,15 @@
     <meta charset="utf-8">
     <title>Battleships</title>
     <script type="text/javascript" src="/static/game.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <h1>GameId: <%- gameId %></h1>
-    <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
-    <canvas style="background-color: beige;" id="shots-board" width="500" height="500"></canvas>
-    <script src="/socket.io/socket.io.js"></script>
+    <p id="waiting-message">Waiting for opponent...</p>
+    <div id="game-boards" style="visibility: hidden">
+        <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
+        <canvas style="background-color: beige;" id="shots-board" width="500" height="500"></canvas>
+    </div>
     <script>
         var exports = {};
         const gameId = '<%= gameId %>';

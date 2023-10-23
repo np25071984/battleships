@@ -76,6 +76,18 @@ window.onload = function() {
             board.mouseClick(mousePoint)
             window.render.refreshGrid(this, board)
         }.bind(shotsCanvas, window.shotsBoard))
+
+        const gameDiv = document.getElementById("game-boards")
+        if (gameDiv == null) {
+            throw Error("Can't find Game Board")
+        }
+        gameDiv.style.visibility = 'visible';
+
+        const waitingMessageDiv = document.getElementById("waiting-message")
+        if (waitingMessageDiv == null) {
+            throw Error("Can't find Game Board")
+        }
+        waitingMessageDiv.style.display = 'none';
     })
 
     window.socket.on(BattleshipsEvent.EVENT_TYPE_WAITING, function(event) {

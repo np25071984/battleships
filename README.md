@@ -107,10 +107,10 @@ sequenceDiagram
 ```
 
 ## TODO
-* Implement round timer
-* Add Restart Game feature
-* Use permanent storage
-* "Wating for player" message
+* Single game logic
+* Implement round timer (?)
+* Add Restart Game feature (?)
+* Use permanent storage (?)
 
 ## Terminology
 

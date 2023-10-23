@@ -6,6 +6,7 @@ import Ship from '../common/Ship'
 import Position from '../common/Position'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipTypeFactory from '../common/ShipTypeFactory'
+import Settings from './Settings'
 
 class App {
     public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
@@ -22,7 +23,7 @@ class App {
     public static readonly GAME_RESULT_DRAW: string = 'draw'
     public static readonly GAME_RESULT_DEFEAT: string = 'defeat'
     public express
-    private games: Game[]
+    public games: Game[]
 
     constructor() {
         this.express = express()
@@ -45,9 +46,13 @@ class App {
             res.render('pages/create.ejs')
         })
         router.post('/create', (req, res) => {
-            // TODO: get game settings
+            const gridCols = parseInt(req.body.cols)
+            const gridRows = parseInt(req.body.rows)
+            const gameType = req.body.type
+            const settings = new Settings(gridCols, gridRows, gameType)
+
             const gameId = this.makeId(6)
-            const game = new Game(gameId, 1)
+            const game = new Game(gameId, 1, settings)
             this.addGame(game)
             res.redirect(`/join/${gameId}`)
         })
@@ -58,16 +63,7 @@ class App {
                 return
             }
 
-            // const shipTypeCarrier = new ShipTypeCarrier()
-            // const shipTypeBattleShip = new ShipTypeBattleShip()
-            // const shipDestroyerType = new ShipTypeDestroyer()
-            // const shipPatrolBoatType = new ShipTypePatrolBoat()
-            // const shipTypes = [shipTypeCarrier, shipTypeBattleShip, shipTypeBattleShip, shipDestroyerType, shipDestroyerType, shipDestroyerType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType]
-
-            // const shipsCombinations = Grid.arrangeShips(10, 10, [], shipTypes)
-            // const randomCombination = shipsCombinations[Math.floor(Math.random() * shipsCombinations.length)]
             var ships: Object[] = randomShipsCombination()
-
             res.render('pages/join.ejs', {
                 'gameId': req.params.gameId,
                 'shipsCombination': JSON.stringify(ships),
@@ -81,7 +77,7 @@ class App {
             }
             const game = this.getGame(gameId)
             const playerId: string = this.makeId(6)
-            const grid = Grid.initGrid(10, 10)
+            const grid = Grid.initGrid(game.settings.gridCols, game.settings.gridRows)
 
             const ships: Ship[] = [];
             // TODO: validate input
@@ -161,6 +157,15 @@ class App {
 
 function randomShipsCombination(): Object[] {
     var ships: Object[] = []
+
+    ships.push({
+        'col': 8,
+        'row': 7,
+        'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
+        'size': 2,
+    })
+    return ships
+
     switch(Math.floor(Math.random()*3)) {
         case 0:
             ships.push({

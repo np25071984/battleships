@@ -6,19 +6,20 @@ import Ship from '../common/Ship'
 import ShotResult from '../common/ShotResult'
 import Cell from '../common/Cell'
 import ShipSection from '../common/ShipSection'
+import Settings from './Settings'
 
 class Game {
     public id: string
     public round: number
     public players: Player[]
-    public grid: Grid[]
     public roundShotsCounter: number
-    public started: boolean
+    public settings: Settings
 
-    constructor(gameId: string, round: number) {
+    constructor(gameId: string, round: number, settings: Settings) {
         this.id = gameId
         this.round = round
         this.players = []
+        this.settings = settings
         // TODO: calculate playes shots in current round
         this.roundShotsCounter = 0
     }

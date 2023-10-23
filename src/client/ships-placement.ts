@@ -296,10 +296,10 @@ window.onload = function () {
                 'orientation': ship.orientation,
             })
             var input = document.createElement('input')
-            input.setAttribute('name', "ships")
+            input.setAttribute('name', "ships[]")
             input.setAttribute('value', sh);
             input.setAttribute('type', "hidden")
-            this.appendChild(input);
+            this.appendChild(input)
         }, this)
     })
 

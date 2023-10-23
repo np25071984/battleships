@@ -32,7 +32,6 @@ global.io.on("connect", (socket) => {
     if (app.doesGameExist(gameId)) {
         game = app.getGame(gameId)
     } else {
-        console.log(`Game ${gameId} doesn't exists`)
         socket.disconnect()
         return
     }
@@ -73,6 +72,11 @@ global.io.on("connect", (socket) => {
 
 
     socket.on(App.EVENT_TYPE_DISCONNECT, () => {
+        if (!app.doesGameExist(gameId)) {
+            // game finished or the server is after recovery
+            return
+        }
+
         const game: Game = app.getGame(gameId)
 
         var playerId: string
@@ -110,7 +114,7 @@ global.io.on("connect", (socket) => {
         const position = new Position(event.col, event.row)
         game.shot(position, playerId)
 
-        if (game.roundShotsCounter !== 2) {
+        if (!game.isReadyForNextRound()) {
             // wait for the second player
             return
         }

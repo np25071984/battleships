@@ -7,10 +7,41 @@
 <body>
     <h1>Create new game</h1>
     <form action="/create" method="post">
-        <select name="type" id="type">
+        <fieldset>
+            <legend>Game type:</legend>
+
+            <div>
+                <input type="radio" id="single" name="type" value="single" checked />
+                <label for="single">Single player</label>
+            </div>
+
+            <div>
+                <input type="radio" id="multy-public" name="type" value="multi-public" />
+                <label for="multy-public">Multiplayer public</label>
+            </div>
+
+            <div>
+                <input type="radio" id="multy-private" name="type" value="multi-private" />
+                <label for="multy-private">Multiplayer private</label>
+            </div>
+        </fieldset>
+
+        <br />
+
+        <select>
             <option value="classic">Classic game</option>
             <option value="classic" disabled>Custom game</option>
         </select>
+
+        <br />
+        <br />
+
+        <label for="cols">Grid cols:</label><input type="text" id="cols" name="cols" value="10" readonly><br />
+        <label for="rows">Grid rows:</label><input type="text" id="rows" name="rows" value="10" readonly>
+
+        <br />
+        <br />
+
         <input type="submit" value="Submit">
     </form>
 </body>
