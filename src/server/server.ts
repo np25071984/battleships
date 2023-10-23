@@ -131,6 +131,7 @@ global.io.on("connect", (socket) => {
                 game.announceShotResults()
                 if (game.isOver()) {
                     game.announceGameResults()
+                    app.purgeGameData(gameId)
                 } else {
                     game.nextRound()
                 }

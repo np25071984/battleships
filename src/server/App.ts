@@ -155,6 +155,10 @@ class App {
     getGame(gameId: string): Game {
         return this.games[gameId]
     }
+
+    purgeGameData(gameId: string): void {
+        delete this.games[gameId]
+    }
 }
 
 function randomShipsCombination(): Object[] {

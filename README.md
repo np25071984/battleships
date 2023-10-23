@@ -108,8 +108,8 @@ sequenceDiagram
 
 ## TODO
 * Implement round timer
-* Implament restart game feature
-* Implement a permanent storage
+* Add Restart Game feature
+* Use permanent storage
 * Simplify event configuration (no system/game division)
 
 ## Terminology
