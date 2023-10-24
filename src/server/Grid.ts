@@ -31,11 +31,11 @@ class Grid {
     }
 
     doesCellExist(position: Position): boolean {
-        if (!(position.col in this.cells)) {
+        if (!(position.row in this.cells)) {
             return false
         }
 
-        if (!(position.row in this.cells[position.col])) {
+        if (!(position.col in this.cells[position.row])) {
             return false
         }
 
@@ -43,7 +43,7 @@ class Grid {
     }
 
     getCell(position: Position): Cell {
-        return this.cells[position.col][position.row]
+        return this.cells[position.row][position.col]
     }
 
     typesOnly(): number[][] {

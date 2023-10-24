@@ -3,7 +3,7 @@ import App from './App'
 import { Server } from "socket.io"
 import Position from '../common/Position'
 import Player from './Player'
-import GameAbstract from './GameAbstract'
+import GameAbstract from './Game'
 
 const port = process.env.PORT || 3000
 const app = new App()

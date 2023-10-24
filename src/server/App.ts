@@ -6,9 +6,7 @@ import Position from '../common/Position'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipTypeFactory from '../common/ShipTypeFactory'
 import Settings from './Settings'
-import GameAbstract from './GameAbstract'
-import SingleGame from './SingleGame'
-import MultiGame from './MultiGame'
+import Game from './Game'
 
 class App {
     public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
@@ -25,7 +23,7 @@ class App {
     public static readonly GAME_RESULT_DRAW: string = 'draw'
     public static readonly GAME_RESULT_DEFEAT: string = 'defeat'
     public express
-    public games: GameAbstract[]
+    public games: Game[]
 
     constructor() {
         this.express = express()
@@ -54,12 +52,7 @@ class App {
             const settings = new Settings(gridCols, gridRows, gameType)
 
             const gameId = this.makeId(6)
-            var game: GameAbstract
-            if (gameType === 'single') {
-                game = new SingleGame(gameId, 1, settings)
-            } else {
-                game = new MultiGame(gameId, 1, settings)
-            }
+            const game: Game = new Game(gameId, 1, settings)
             this.addGame(game)
             res.redirect(`/join/${gameId}`)
         })
@@ -148,12 +141,12 @@ class App {
         return (gameId in this.games)
     }
 
-    addGame(game: GameAbstract): GameAbstract {
+    addGame(game: Game): Game {
         this.games[game.id] = game
         return game
     }
 
-    getGame(gameId: string): GameAbstract {
+    getGame(gameId: string): Game {
         return this.games[gameId]
     }
 

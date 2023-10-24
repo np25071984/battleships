@@ -23,16 +23,16 @@ class Ship extends BaseShip {
         for (var i = 0; i < this.type.getSize(); i++) {
             switch (this.orientation) {
                 case Ship.SHIP_ORIENTATION_VERTICAL:
-                    var c = new Position(position.col, position.row + i);
-                    break;
+                    var c = new Position(position.col, position.row + i)
+                    break
                 case Ship.SHIP_ORIENTATION_HORIZONTAL:
-                    var c = new Position(position.col + i, position.row);
-                    break;
+                    var c = new Position(position.col + i, position.row)
+                    break
                 default:
-                    throw new Error(`Unknown ship orientation(${this.orientation})`);
+                    throw new Error(`Unknown ship orientation(${this.orientation})`)
             }
-            const s = new ShipSection(c, true);
-            this.sections.push(s);
+            const s = new ShipSection(c, true)
+            this.sections.push(s)
         }
     }
 

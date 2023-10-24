@@ -107,7 +107,7 @@ sequenceDiagram
 ```
 
 ## TODO
-* Single game logic
+* Improve AI
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)

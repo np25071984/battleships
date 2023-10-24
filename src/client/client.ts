@@ -8,7 +8,8 @@ import type Window from './types/index.d.ts'
 
 window.mouseClickEvent = function(position: Position) {
     const cell: Cell = window.shotsBoard.grid.getCell(position)
-    if (cell.getType() === Cell.CELL_TYPE_CLICKED) {
+    // only shot at CELL_TYPE_FOG_OF_WAR makes sense
+    if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
         return;
     }
 

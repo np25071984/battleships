@@ -7,8 +7,10 @@ import ShotResult from '../common/ShotResult'
 import Cell from '../common/Cell'
 import ShipSection from '../common/ShipSection'
 import Settings from './Settings'
+import ShipTypeFactory from '../common/ShipTypeFactory'
+import Bot from './Bot'
 
-abstract class GameAbstract {
+class Game {
     public id: string
     public round: number
     public players: Player[]
@@ -35,9 +37,47 @@ abstract class GameAbstract {
         return false
     }
 
-    abstract joinPlayer(player: Player): void
+    joinPlayer(player: Player): void {
+        this.players.push(player)
 
-    abstract initClients(): void
+        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
+            const playerId: string = 'bot'
+            const grid = Grid.initGrid(this.settings.gridCols, this.settings.gridRows)
+
+            const ships: Ship[] = []
+            const ship = new Ship(new Position(8, 7), Ship.SHIP_ORIENTATION_HORIZONTAL, ShipTypeFactory.getType(2))
+            ships.push(ship)
+
+            const bot = new Bot(playerId, grid, ships)
+            bot.updateSocketId('null-socket')
+            this.players.push(bot)
+        }
+    }
+
+    initClients() {
+        const player1: Player = this.players[0]
+        const player2: Player = this.players[1]
+
+        if (!player1.isInitialized) {
+            global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_INIT, {
+                'playerId': player1.id,
+                'round': this.round,
+                'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
+                'shots_grid': player1.grid.typesOnly(),
+            })
+            player1.isInitialized = true
+        }
+
+        if (player2.id !== 'bot' && !player2.isInitialized) {
+            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_INIT, {
+                'playerId': player2.id,
+                'round': this.round,
+                'ships_grid': this.getGridWithOpponentShips(player1).typesOnly(),
+                'shots_grid': player2.grid.typesOnly(),
+            })
+            player2.isInitialized = true
+        }
+    }
 
     getGridWithOpponentShips(player: Player): Grid {
         const cells: Cell[][] = [];
@@ -140,6 +180,11 @@ abstract class GameAbstract {
             player.shots[this.round] = position
             this.roundShotsCounter++
         }
+
+        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
+            const bot: Bot = this.players[1] as Bot
+            bot.makeShot(this.round)
+        }
     }
 
     getShotResult(playerId: string): ShotResult {
@@ -181,7 +226,36 @@ abstract class GameAbstract {
         return shotResult
     }
 
-    abstract announceShotResults()
+    announceShotResults(): void {
+        this.roundShotsCounter = 0
+        const player1: Player = this.players[0]
+        const player2: Player = this.players[1]
+
+        const player1ShotRes: ShotResult = this.getShotResult(player1.id)
+        const player2ShotRes: ShotResult = this.getShotResult(player2.id)
+
+        const player1Updates = player1.getUpdates()
+        const player2Updates = player2.getUpdates()
+
+        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
+            'playerId': player1.id,
+            'result': player1ShotRes,
+            'shots_updates': player1Updates,
+            'ships_updates': player2Updates
+        })
+
+        if (player2.id === 'bot') {
+            const bot = player2 as Bot
+            bot.syncDecisionBoard(player2Updates)
+        } else {
+            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
+                'playerId': player2.id,
+                'result': player2ShotRes,
+                'shots_updates': player2Updates,
+                'ships_updates': player1Updates
+            })
+        }
+    }
 
     isOver(): boolean {
         for (const p of this.players) {
@@ -193,9 +267,55 @@ abstract class GameAbstract {
         return false
     }
 
-    abstract announceGameResults()
+    announceGameResults() {
+        const losers = []
+        for (const p of this.players) {
+            if (p.shipsCount === 0) {
+                losers.push(p.id)
+            }
+        }
 
-    abstract isReadyForNextRound(): boolean
+        if (losers.length === 1) {
+            const loserId: string = losers[0]
+            const loser = this.getPlayer(loserId)
+            const winner = this.getOpponent(loserId)
+            if (loser.id !== 'bot') {
+                global.io.sockets.to(loser.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
+                    'result': App.GAME_RESULT_DEFEAT,
+                    'playerId': loser.id,
+                    'opponent_ships': winner.getAliveShips()
+                })
+            }
+
+            if (winner.id !== 'bot') {
+                global.io.sockets.to(winner.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
+                    'result': App.GAME_RESULT_WIN,
+                    'playerId': winner.id,
+                })
+            }
+        } else if (losers.length == 2) {
+            this.players.forEach((player: Player) => {
+                if (player.id === 'bot') {
+                    return
+                }
+
+                global.io.sockets.to(player.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
+                    'result': App.GAME_RESULT_DRAW,
+                    'playerId': player.id,
+                })
+            })
+        } else {
+            throw new Error(`Game ${this.id} doesn't look like it is over`)
+        }
+    }
+
+    isReadyForNextRound(): boolean {
+        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
+            return this.roundShotsCounter === 1
+        } else {
+            return this.roundShotsCounter === 2
+        }
+    }
 
     startRound() {
         const player1: Player = this.players[0]
@@ -218,4 +338,4 @@ abstract class GameAbstract {
     }
 }
 
-export default GameAbstract
+export default Game

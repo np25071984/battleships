@@ -65,23 +65,23 @@ class Board
             var positionX = 0;
             const gridRow: Cell[] = []
             for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
-                const ltP = new Point(x, y);
-                const pos = new Position(positionX, positionY);
-                const rbP = new Point(x + width, y + width);
-                const outerRect = new Rect(ltP, rbP);
-                gridRow[positionX] = new Cell(outerRect, pos, false, data[positionX][positionY], false);
-                positionX++;
+                const ltP = new Point(x, y)
+                const pos = new Position(positionX, positionY)
+                const rbP = new Point(x + width, y + width)
+                const outerRect = new Rect(ltP, rbP)
+                gridRow[positionX] = new Cell(outerRect, pos, false, data[positionY][positionX], false)
+                positionX++
             }
             cells[positionY] = gridRow
-            positionY++;
+            positionY++
         }
 
-        const grid = new Grid(cells);
-        const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight);
-        const boardOuterRect = new Rect(ltPoint, rbPoint);
-        const board = new Board(boardOuterRect, grid, showAgenda);
+        const grid = new Grid(cells)
+        const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight)
+        const boardOuterRect = new Rect(ltPoint, rbPoint)
+        const board = new Board(boardOuterRect, grid, showAgenda)
 
-        return board;
+        return board
     }
 
     static initFrom(ltPoint: Point, width: number, gap: number, row: number, col: number, showAgenda: boolean) {
