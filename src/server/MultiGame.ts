@@ -7,39 +7,9 @@ import ShotResult from '../common/ShotResult'
 import Cell from '../common/Cell'
 import ShipSection from '../common/ShipSection'
 import Settings from './Settings'
+import GameAbstract from './GameAbstract'
 
-class Game {
-    public id: string
-    public round: number
-    public players: Player[]
-    public roundShotsCounter: number
-    public settings: Settings
-
-    constructor(gameId: string, round: number, settings: Settings) {
-        this.id = gameId
-        this.round = round
-        this.players = []
-        this.settings = settings
-        // TODO: calculate playes shots in current round
-        this.roundShotsCounter = 0
-    }
-
-    doesPlayerExist(playerId: string): boolean {
-        for (const p in this.players) {
-            const pl: Player = this.players[p]
-            if (pl.id == playerId) {
-                return true
-            }
-        }
-
-        return false
-    }
-
-    joinPlayer(player: Player): void {
-        // TODO: two players only
-        this.players.push(player)
-    }
-
+class MultiGame extends GameAbstract {
     initClients() {
         const player1: Player = this.players[0]
         const player2: Player = this.players[1]
@@ -110,111 +80,6 @@ class Game {
         return grid
     }
 
-    startRound() {
-        const player1: Player = this.players[0]
-        const player2: Player = this.players[1]
-
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ROUND, {'number': this.round})
-        global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ROUND, {'number': this.round})
-    }
-
-    nextRound() {
-        this.round++
-        this.roundShotsCounter = 0
-        this.startRound()
-    }
-
-    isValidSocketId(targetSocketId: string): boolean {
-        for (const p in this.players) {
-            const pl: Player = this.players[p]
-            if (pl.socketId == targetSocketId) {
-                return true
-            }
-        }
-
-        return false
-    }
-
-    getPlayer(playerId: string): Player {
-        for (const p in this.players) {
-            const pl: Player = this.players[p]
-            if (pl.id == playerId) {
-                return pl
-            }
-        }
-
-        throw new Error(`Couldn't get player '${playerId}' in game '${this.id}'`)
-    }
-
-    getOpponent(playerId: string): Player {
-        for (const p in this.players) {
-            const pl: Player = this.players[p]
-            if (pl.id !== playerId) {
-                return pl
-            }
-        }
-
-        throw new Error(`Couldn't find the opponent for '${playerId}' in game '${this.id}'`)
-    }
-
-    doesOpponentExist(playerId: string): boolean {
-        for (const p in this.players) {
-            const pl: Player = this.players[p]
-            if (pl.id !== playerId && pl.socketId !== '') {
-                return true
-            }
-        }
-
-        return false
-    }
-
-    shot(position: Position, playerId: string): void {
-        const player = this.getPlayer(playerId)
-        if (!(this.round in player.shots)) {
-            player.shots[this.round] = position
-            this.roundShotsCounter++
-        }
-    }
-
-    getShotResult(playerId: string): ShotResult {
-        const player: Player = this.getPlayer(playerId)
-        const shotPosition = player.shots[this.round]
-
-        const opponent: Player = this.getOpponent(playerId)
-        var shotResult: ShotResult = ShotResult.HIT_RESULT_MISS
-        let surraund = []
-        for (const s in opponent.ships) {
-            const ship: Ship = opponent.ships[s]
-            if (ship.isLocatedAt(shotPosition)) {
-                shotResult = ship.hit(shotPosition)
-                if (shotResult === ShotResult.HIT_RESULT_SUNK) {
-                    opponent.shipsCount--
-                    surraund = ship.getSurraund()
-                }
-                break
-            }
-        }
-
-        const cell = player.grid.getCell(shotPosition)
-        switch (shotResult) {
-            case ShotResult.HIT_RESULT_MISS:
-                cell.setType(Cell.CELL_TYPE_WATER)
-                break
-            case ShotResult.HIT_RESULT_SUNK:
-                for (const p of surraund) {
-                    if (player.grid.doesCellExist(p)) {
-                        const c = player.grid.getCell(p)
-                        c.setType(Cell.CELL_TYPE_WATER)
-                    }
-                }
-            case ShotResult.HIT_RESULT_DAMAGE:
-                cell.setType(Cell.CELL_TYPE_WRACKAGE)
-                break
-        }
-
-        return shotResult
-    }
-
     announceShotResults() {
         this.roundShotsCounter = 0
         const player1: Player = this.players[0]
@@ -239,16 +104,6 @@ class Game {
             'shots_updates': player2Updates,
             'ships_updates': player1Updates
         })
-    }
-
-    isOver(): boolean {
-        for (const p of this.players) {
-            if (p.shipsCount === 0) {
-                return true
-            }
-        }
-
-        return false
     }
 
     announceGameResults() {
@@ -284,6 +139,15 @@ class Game {
             throw new Error(`Game ${this.id} doesn't look like it is over`)
         }
     }
+
+    isReadyForNextRound(): boolean {
+        return this.roundShotsCounter === 2
+    }
+
+    joinPlayer(player: Player): void {
+        // TODO: two players maximum
+        this.players.push(player)
+    }
 }
 
-export default Game
+export default MultiGame

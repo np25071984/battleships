@@ -3,7 +3,7 @@ import App from './App'
 import { Server } from "socket.io"
 import Position from '../common/Position'
 import Player from './Player'
-import Game from './Game'
+import GameAbstract from './GameAbstract'
 
 const port = process.env.PORT || 3000
 const app = new App()
@@ -28,7 +28,7 @@ global.io.on("connect", (socket) => {
 
     // TODO: validate gameId value
     const gameId = cookies.gameId
-    var game: Game
+    var game: GameAbstract
     if (app.doesGameExist(gameId)) {
         game = app.getGame(gameId)
     } else {
@@ -59,9 +59,7 @@ global.io.on("connect", (socket) => {
     player.updateSocketId(socket.id)
 
     if (game.doesOpponentExist(playerId)) {
-        const opponent: Player = game.getOpponent(playerId)
-        global.io.sockets.to(opponent.socketId).emit(App.EVENT_TYPE_JOINED, {'playerId': player.id})
-
+        game.notifyOpponent(playerId, App.EVENT_TYPE_JOINED, {'playerId': player.id})
         // all players are in place; let's start the game
         game.initClients()
         game.startRound()
@@ -70,14 +68,13 @@ global.io.on("connect", (socket) => {
         global.io.sockets.to(player.socketId).emit(App.EVENT_TYPE_WAITING)
     }
 
-
     socket.on(App.EVENT_TYPE_DISCONNECT, () => {
         if (!app.doesGameExist(gameId)) {
             // game finished or the server is after recovery
             return
         }
 
-        const game: Game = app.getGame(gameId)
+        const game: GameAbstract = app.getGame(gameId)
 
         var playerId: string
         for (const p of game.players) {
@@ -90,8 +87,7 @@ global.io.on("connect", (socket) => {
         }
 
         if (playerId && game.doesOpponentExist(playerId)) {
-            const opponnet = game.getOpponent(playerId)
-            socket.to(opponnet.socketId).emit(App.EVENT_TYPE_LEFT)
+            game.notifyOpponent(playerId, App.EVENT_TYPE_LEFT, {})
         }
     })
 
