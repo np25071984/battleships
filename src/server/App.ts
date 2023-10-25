@@ -164,6 +164,12 @@ function randomShipsCombination(): Object[] {
         'orientation': Ship.SHIP_ORIENTATION_HORIZONTAL,
         'size': 2,
     })
+    ships.push({
+        'col': 1,
+        'row': 1,
+        'orientation': Ship.SHIP_ORIENTATION_VERTICAL,
+        'size': 4,
+    })
     return ships
 
     switch(Math.floor(Math.random()*3)) {

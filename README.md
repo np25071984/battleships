@@ -107,7 +107,7 @@ sequenceDiagram
 ```
 
 ## TODO
-* Improve AI
+* Improve AI (mark "dead" cells)
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)

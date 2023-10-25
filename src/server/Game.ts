@@ -45,8 +45,10 @@ class Game {
             const grid = Grid.initGrid(this.settings.gridCols, this.settings.gridRows)
 
             const ships: Ship[] = []
-            const ship = new Ship(new Position(8, 7), Ship.SHIP_ORIENTATION_HORIZONTAL, ShipTypeFactory.getType(2))
-            ships.push(ship)
+            const s1 = new Ship(new Position(8, 7), Ship.SHIP_ORIENTATION_HORIZONTAL, ShipTypeFactory.getType(2))
+            ships.push(s1)
+            const s2 = new Ship(new Position(1, 1), Ship.SHIP_ORIENTATION_VERTICAL, ShipTypeFactory.getType(4))
+            ships.push(s2)
 
             const bot = new Bot(playerId, grid, ships)
             bot.updateSocketId('null-socket')
@@ -246,7 +248,7 @@ class Game {
 
         if (player2.id === 'bot') {
             const bot = player2 as Bot
-            bot.syncDecisionBoard(player2Updates)
+            bot.syncDecisionBoard(player2ShotRes, player2Updates)
         } else {
             global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
                 'playerId': player2.id,
