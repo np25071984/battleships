@@ -33,14 +33,39 @@
             <option value="classic" disabled>Custom game</option>
         </select>
 
-        <br />
-        <br />
+        <fieldset>
+            <legend>Game settings:</legend>
 
-        <label for="cols">Grid cols:</label><input type="text" id="cols" name="cols" value="10" readonly><br />
-        <label for="rows">Grid rows:</label><input type="text" id="rows" name="rows" value="10" readonly>
+            <div>
+                <label for="cols">Grid cols:</label>
+                <input type="text" id="cols" name="cols" value="10" readonly>
+            </div>
 
-        <br />
-        <br />
+            <div>
+                <label for="rows">Grid rows:</label>
+                <input type="text" id="rows" name="rows" value="10" readonly>
+            </div>
+
+            <div>
+                <label for="carrier">Carriers:</label>
+                <input type="text" id="carrier" name="carrier" value="1" readonly>
+            </div>
+
+            <div>
+                <label for="battleship">Battleships:</label>
+                <input type="text" id="battleship" name="battleship" value="2" readonly>
+            </div>
+
+            <div>
+                <label for="destroyer">Carriers:</label>
+                <input type="text" id="destroyer" name="destroyer" value="3" readonly>
+            </div>
+
+            <div>
+                <label for="patrol-boat">Patrol boats:</label>
+                <input type="text" id="patrol-boat" name="patrolboat" value="4" readonly>
+            </div>
+        </fieldset>
 
         <input type="submit" value="Submit">
     </form>

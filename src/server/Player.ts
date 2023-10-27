@@ -14,7 +14,6 @@ class Player {
     shots: Shots
     id: string
     shipsCount: number
-    isInitialized: boolean
 
     constructor(id: string, grid: Grid, ships: Ship[]) {
         this.id = id
@@ -23,7 +22,6 @@ class Player {
         this.ships = ships
         this.shots = {}
         this.shipsCount = this.ships.length
-        this.isInitialized = false
     }
 
     updateSocketId(socketId: string) {

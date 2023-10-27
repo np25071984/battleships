@@ -44,11 +44,16 @@ class Game {
             const playerId: string = 'bot'
             const grid = Grid.initGrid(this.settings.gridCols, this.settings.gridRows)
 
-            const ships: Ship[] = []
-            const s1 = new Ship(new Position(8, 7), Ship.SHIP_ORIENTATION_HORIZONTAL, ShipTypeFactory.getType(2))
-            ships.push(s1)
-            const s2 = new Ship(new Position(1, 1), Ship.SHIP_ORIENTATION_VERTICAL, ShipTypeFactory.getType(4))
-            ships.push(s2)
+            var ships: Ship[]|null = Grid.placeShips(
+                this.settings.gridCols,
+                this.settings.gridRows,
+                [],
+                this.settings.shipTypes
+            )
+
+            if (ships === null) {
+                throw new Error("Couldn't place for BOT")
+            }
 
             const bot = new Bot(playerId, grid, ships)
             bot.updateSocketId('null-socket')
@@ -60,24 +65,20 @@ class Game {
         const player1: Player = this.players[0]
         const player2: Player = this.players[1]
 
-        if (!player1.isInitialized) {
-            global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_INIT, {
-                'playerId': player1.id,
-                'round': this.round,
-                'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
-                'shots_grid': player1.grid.typesOnly(),
-            })
-            player1.isInitialized = true
-        }
+        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_INIT, {
+            'playerId': player1.id,
+            'round': this.round,
+            'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
+            'shots_grid': player1.grid.typesOnly(),
+        })
 
-        if (player2.id !== 'bot' && !player2.isInitialized) {
+        if (player2.id !== 'bot') {
             global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_INIT, {
                 'playerId': player2.id,
                 'round': this.round,
                 'ships_grid': this.getGridWithOpponentShips(player1).typesOnly(),
                 'shots_grid': player2.grid.typesOnly(),
             })
-            player2.isInitialized = true
         }
     }
 

@@ -88,80 +88,50 @@ class Grid {
 
     static memo = {}
 
-    // const shipTypeCarrier = new ShipTypeCarrier()
-    // const shipTypeBattleShip = new ShipTypeBattleShip()
-    // const shipDestroyerType = new ShipTypeDestroyer()
-    // const shipPatrolBoatType = new ShipTypePatrolBoat()
-    // const shipTypes = [shipTypeCarrier, shipTypeBattleShip, shipTypeBattleShip, shipDestroyerType, shipDestroyerType, shipDestroyerType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType, shipPatrolBoatType]
-
-    // const res = Grid.arrangeShips(10, 10, [], shipTypes)
-    // console.log(res)
-    // for (const key in res) {
-    //     console.log("Set:")
-    //     const ships: Ship[] = res[key]
-    //     ships.forEach((ship: Ship) => {
-    //         const orientation: string = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? 'hr' : 'vr'
-    //         console.log(`${ship.position.col}x${ship.position.row}: ${orientation} ${ship.type.getSize()}`)
-    //     })
-    // }
-    // process.exit()
-
-    /**
-     * Dinamic programming + memorization approach to find all possible ships combinations for a given grid dimension
-     * TODO: doesn't look like it is efficient...
-     */
-    static arrangeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]) {
-        const shipKeys: string[] = [];
-        placedShips.forEach((ship: Ship) => {
-            shipKeys.push(`${ship.position.col}x${ship.position.row}x${ship.orientation}x${ship.type.getSize()}`)
-        })
-        var typeKeys: number[] = [];
-        shipsToPlace.forEach((type: ShipTypeAbstract) => {
-            typeKeys.push(type.getSize())
-        })
-        shipKeys.sort()
-        typeKeys.sort()
-        const cacheKey: string = shipKeys.join("|") + '|' + typeKeys.join("|")
-
-        if (cacheKey in Grid.memo) {
-            console.log(cacheKey)
-            return Grid.memo[cacheKey]
-        }
-
-        const res: PlacedShips = {}
-
+    static placeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]): Ship[]|null {
         if (shipsToPlace.length === 0) {
-            res[shipKeys.join("|")] = placedShips
-        } else {
-            const grid = Grid.initGrid(col, row)
-            placedShips.forEach((ship: Ship) => {
-                grid.placeShipWithSurrounding(ship)
-            })
+            return placedShips
+        }
+        const grid = Grid.initGrid(col, row)
+        placedShips.forEach((ship: Ship) => {
+            grid.placeShipWithSurrounding(ship)
+        })
 
-            const shipType = shipsToPlace.pop()
-            for (const orientation of [Ship.SHIP_ORIENTATION_VERTICAL, Ship.SHIP_ORIENTATION_HORIZONTAL]) {
-                const maxCol = orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? grid.cols - shipType.getSize() : grid.cols - 1
-                const maxRow = orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? grid.rows - 1 : grid.rows - shipType.getSize()
-                for (var r = 0; r <= maxRow; r++) {
-                    for (var c = 0; c <= maxCol; c++) {
-                        const ship = new Ship(new Position(c, r), orientation, shipType)
+        const types = [...shipsToPlace]
+        const shipType = types.pop()
+        const orientations = Math.random() > 0.5
+            ? [Ship.SHIP_ORIENTATION_VERTICAL, Ship.SHIP_ORIENTATION_HORIZONTAL]
+            : [Ship.SHIP_ORIENTATION_HORIZONTAL, Ship.SHIP_ORIENTATION_VERTICAL]
+        for (const orientation of orientations) {
+            const maxCol = orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? grid.cols - shipType.getSize() : grid.cols
+            const maxRow = orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? grid.rows : grid.rows - shipType.getSize()
+            const randomRowOffset = Math.floor(Math.random() * maxRow)
+            for (var r = 0; r < maxRow; r++) {
+                var rr = r + randomRowOffset
+                if (rr >= maxRow) {
+                    rr -= maxRow
+                }
+                const randomColOffset = Math.floor(Math.random() * maxCol)
+                for (var c = 0; c < maxCol; c++) {
+                    var cc = c + randomColOffset
+                    if (cc >= maxCol) {
+                        cc -= maxCol
+                    }
+                    const ship = new Ship(new Position(cc, rr), orientation, shipType)
 
-                        if (grid.canPlaceShip(ship) === true) {
-                            const pl = [...placedShips]
-                            pl.push(ship)
-                            const r = Grid.arrangeShips(col, row, pl, [...shipsToPlace])
-                            for (const k in r) {
-                                res[k] = r[k]
-                            }
+                    if (grid.canPlaceShip(ship) === true) {
+                        const pl = [...placedShips]
+                        pl.push(ship)
+                        const res = Grid.placeShips(col, row, pl, [...types])
+                        if (res !== null) {
+                            return res
                         }
                     }
                 }
             }
         }
 
-        Grid.memo[cacheKey] = res
-
-        return res
+        return null
     }
 }
 

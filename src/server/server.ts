@@ -81,7 +81,6 @@ global.io.on("connect", (socket) => {
             if (p.socketId === socket.id) {
                 playerId = p.id
                 p.updateSocketId('')
-                p.isInitialized = false
                 break
             }
         }

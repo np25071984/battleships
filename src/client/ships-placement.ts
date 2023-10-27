@@ -94,7 +94,7 @@ function sendShipsRequest(): void {
         throw Error("Can't find PlacementBboard")
     }
 
-    var xhttp = new XMLHttpRequest();
+    var xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const shipsData = JSON.parse(this.responseText)
@@ -117,8 +117,8 @@ function sendShipsRequest(): void {
             shuffleButton.disabled = false
         }
     }
-    xhttp.open("GET", `/shuffle/${window.gameId}`, true);
-    xhttp.send();
+    xhttp.open("GET", `/shuffle/${window.gameId}`, true)
+    xhttp.send()
 }
 
 window.mouseDownEvent = (position: Position) => {

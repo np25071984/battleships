@@ -6,5 +6,34 @@
 </head>
 <body>
     <h1>List of games to join</h1>
+    <div id="gameList"></div>
+    <script>
+        window.onload = function () {
+            var xhttp = new XMLHttpRequest()
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    const gamesData = JSON.parse(this.responseText)
+                    const gameList = document.getElementById("gameList")
+                    if (gamesData.length === 0) {
+                        gameList.innerText = "No available games"
+                    } else {
+                        gamesData.forEach((gameData) => {
+
+                            const link = document.createElement('a')
+                            link.innerHTML = `${gameData.cols}x${gameData.rows}`
+                            link.setAttribute('href', `/join/${gameData.gameId}`)
+                            gameList.appendChild(link)
+
+                            const br = document.createElement('br')
+                            gameList.appendChild(br)
+                        })
+                    }
+                }
+            }
+            xhttp.open("GET", `/games`, true)
+            xhttp.send()
+        }
+    </script>
 </body>
 </html>
