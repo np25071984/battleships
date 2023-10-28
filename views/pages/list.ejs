@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <style>
+        TABLE TH:first-of-type {text-align: center;}
+        TR TD:first-of-type {text-align: center;}
+    </style>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Battleships</title>
-</head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <body>
-    <h1>List of games to join</h1>
-    <div id="gameList"></div>
+    <div class="container-sm">
+        <div class="row text-center">
+            <h1 style="line-height: 105px;">Available games</h1>
+        </div>
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Main</a></li>
+              <li class="breadcrumb-item active" aria-current="page">List</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <table class="table align-middle" style="width: 100%; margin: 0 auto">
+                <thead>
+                  <tr>
+                    <th scope="col">Size</th>
+                    <th scope="col">Ships</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody id="gameList">
+                </tbody>
+              </table>
+
+        </div>
+    </div>
     <script>
         window.onload = function () {
             var xhttp = new XMLHttpRequest()
@@ -14,21 +43,48 @@
                 if (this.readyState == 4 && this.status == 200) {
 
                     const gamesData = JSON.parse(this.responseText)
-                    const gameList = document.getElementById("gameList")
+                    const tableBody = document.getElementById("gameList")
                     if (gamesData.length === 0) {
-                        gameList.innerText = "No available games"
-                    } else {
-                        gamesData.forEach((gameData) => {
-
-                            const link = document.createElement('a')
-                            link.innerHTML = `${gameData.cols}x${gameData.rows}`
-                            link.setAttribute('href', `/join/${gameData.gameId}`)
-                            gameList.appendChild(link)
-
-                            const br = document.createElement('br')
-                            gameList.appendChild(br)
-                        })
+                        const tr = document.createElement('tr')
+                        const td = document.createElement('td')
+                        td.colSpan = 3
+                        const noAvailableGamesText = document.createTextNode("No available games yet")
+                        td.appendChild(noAvailableGamesText)
+                        tr.appendChild(td)
+                        tableBody.appendChild(tr)
+                        return
                     }
+
+                    gamesData.forEach((gameData) => {
+                        const tr = document.createElement('tr')
+
+                        const tdSize = document.createElement('td')
+                        const gameSizeText = document.createTextNode(`${gameData.cols} x ${gameData.rows}`)
+                        tdSize.appendChild(gameSizeText)
+                        tr.appendChild(tdSize)
+
+                        const tdShips = document.createElement('td')
+                        const ships = []
+                        for (const size in gameData.ships) {
+                            const amount = gameData.ships[size]
+                            const shipText = document.createTextNode("🟦".repeat(size) + " x " + amount)
+                            tdShips.appendChild(shipText)
+                            // tdShips.appendChild(document.createTextNode(" "))
+                            tdShips.appendChild(document.createElement('br'))
+                        }
+                        tr.appendChild(tdShips)
+
+                        const tdJoin = document.createElement('td')
+                        const link = document.createElement('a')
+                        link.className = "btn btn-primary"
+                        link.role = "button"
+                        link.innerHTML = "Join"
+                        link.setAttribute('href', `/join/${gameData.gameId}`)
+                        tdJoin.appendChild(link)
+                        tr.appendChild(tdJoin)
+
+                        tableBody.appendChild(tr)
+                    })
                 }
             }
             xhttp.open("GET", `/games`, true)

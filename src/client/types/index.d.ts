@@ -20,6 +20,8 @@ declare global {
         canPlace: any
         rotateShip: any
         shuffleShip: any
+        cols: number
+        rows: number
     }
 }
 

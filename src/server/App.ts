@@ -86,9 +86,12 @@ class App {
                 res.send(`Game '${gameId}' not found`)
                 return
             }
+            const game = this.getGame(gameId)
 
             res.render('pages/join.ejs', {
                 'gameId': req.params.gameId,
+                'cols': game.settings.gridCols,
+                'rows': game.settings.gridRows,
             })
         })
         router.post('/join/:gameId', (req, res) => {
@@ -157,10 +160,21 @@ class App {
                 if (game.settings.gameType !== Settings.GAME_TYPE_MULTIPLAYER_PUBLIC) {
                     continue
                 }
+
+                const ships = {}
+                game.settings.shipTypes.forEach((shipType: ShipTypeAbstract) => {
+                    const size = shipType.getSize()
+                    if (!(size in ships)) {
+                        ships[size] = 0
+                    }
+                    ships[size]++
+                })
+
                 gameList.push({
                     "gameId": gameId,
                     "cols": game.settings.gridCols,
                     "rows": game.settings.gridRows,
+                    "ships": ships
                 })
                 if (gameList.length === 30) {
                     break

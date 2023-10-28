@@ -2,72 +2,129 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Battleships</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
-    <h1>Create new game</h1>
-    <form action="/create" method="post">
-        <fieldset>
-            <legend>Game type:</legend>
+    <div class="container-sm">
+        <div class="row text-center">
+            <h1 style="line-height: 105px;">Create new game</h1>
+        </div>
 
-            <div>
-                <input type="radio" id="single" name="type" value="single" checked />
-                <label for="single">Single player</label>
-            </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/">Main</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Create</li>
+            </ol>
+        </nav>
 
-            <div>
-                <input type="radio" id="multy-public" name="type" value="multi-public" />
-                <label for="multy-public">Multiplayer public</label>
-            </div>
+        <div class="row">
 
-            <div>
-                <input type="radio" id="multy-private" name="type" value="multi-private" />
-                <label for="multy-private">Multiplayer private</label>
-            </div>
-        </fieldset>
+            <form action="/create" method="post">
+                <fieldset>
+                    <legend>Game type:</legend>
 
-        <br />
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="single" name="type" value="single" checked />
+                        <label class="form-label" for="single">Single player</label>
+                    </div>
 
-        <select>
-            <option value="classic">Classic game</option>
-            <option value="classic" disabled>Custom game</option>
-        </select>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="multy-public" name="type" value="multi-public"/>
+                        <label class="form-label" for="multy-public">Multiplayer public</label>
+                    </div>
 
-        <fieldset>
-            <legend>Game settings:</legend>
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="multy-private" name="type" value="multi-private" />
+                        <label class="form-label" for="multy-private">Multiplayer private</label>
+                    </div>
+                </fieldset>
 
-            <div>
-                <label for="cols">Grid cols:</label>
-                <input type="text" id="cols" name="cols" value="10" readonly>
-            </div>
+                <fieldset>
+                    <legend>Game settings:</legend>
 
-            <div>
-                <label for="rows">Grid rows:</label>
-                <input type="text" id="rows" name="rows" value="10" readonly>
-            </div>
+                    <select class="form-select mb-4" id="type" onChange="typeChanged(this)">
+                        <option selected value="classic">Classic game</option>
+                        <option value="custom">Custom game</option>
+                    </select>
 
-            <div>
-                <label for="carrier">Carriers:</label>
-                <input type="text" id="carrier" name="carrier" value="1" readonly>
-            </div>
+                    <div class="row mb-3">
+                        <label for="cols" class="col-sm-2 col-form-label">Grid columns</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="cols" name="cols" value="10" readonly min="0" max="20">
+                        </div>
+                    </div>
 
-            <div>
-                <label for="battleship">Battleships:</label>
-                <input type="text" id="battleship" name="battleship" value="2" readonly>
-            </div>
+                    <div class="row mb-3">
+                        <label for="rows" class="col-sm-2 col-form-label">Grid rows</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="rows" name="rows" value="10" readonly min="0" max="20">
+                        </div>
+                    </div>
 
-            <div>
-                <label for="destroyer">Carriers:</label>
-                <input type="text" id="destroyer" name="destroyer" value="3" readonly>
-            </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label" for="carrier">🟦🟦🟦🟦🟦 (carrier)</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="carrier" name="carrier" value="1" readonly min="0" max="10">
+                        </div>
+                    </div>
 
-            <div>
-                <label for="patrol-boat">Patrol boats:</label>
-                <input type="text" id="patrol-boat" name="patrolboat" value="4" readonly>
-            </div>
-        </fieldset>
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label" for="battleship">🟦🟦🟦🟦 (battleship)</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="battleship" name="battleship" value="2" readonly min="0" max="10">
+                        </div>
+                    </div>
 
-        <input type="submit" value="Submit">
-    </form>
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label" for="destroyer">🟦🟦🟦 (destroyer)</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="destroyer" name="destroyer" value="3" readonly min="0" max="10">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label" for="patrol-boat">🟦🟦 (patrol boat)</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="patrol-boat" name="patrolboat" value="4" readonly min="0" max="10">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="row">
+                    <div class="col-sm-10"></div>
+                    <div class="col-sm-2">
+                        <button type="submit" class="btn btn-primary form-control">Submit</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <script>
+        function typeChanged(e) {
+            const type = document.getElementById("type").value
+            var readOnlyValue
+            if (type === "custom") {
+                readOnlyValue = false
+            } else {
+                readOnlyValue = true
+                document.getElementById("cols").value = 10
+                document.getElementById("rows").value = 10
+                document.getElementById("carrier").value = 1
+                document.getElementById("battleship").value = 2
+                document.getElementById("destroyer").value = 3
+                document.getElementById("patrol-boat").value = 4
+            }
+
+            document.getElementById("cols").readOnly = readOnlyValue
+            document.getElementById("rows").readOnly = readOnlyValue
+            document.getElementById("carrier").readOnly = readOnlyValue
+            document.getElementById("battleship").readOnly = readOnlyValue
+            document.getElementById("destroyer").readOnly = readOnlyValue
+            document.getElementById("patrol-boat").readOnly = readOnlyValue
+        }
+    </script>
 </body>
 </html>

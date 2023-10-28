@@ -230,7 +230,7 @@ window.onload = function () {
     }
 
     const startPoint = new Point(40, 40)
-    window.shipsBoard = PlacementBoard.getInstance(startPoint, 40, 1, 10, 10, true)
+    window.shipsBoard = PlacementBoard.getInstance(startPoint, 40, 1, window.cols, window.rows, true)
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 
     function getMousePoint(canvasRect, clientX, clientY) {
