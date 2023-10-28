@@ -55,7 +55,7 @@ window.onload = function() {
         const startPoint = new Point(40, 40)
         window.shotsBoard = Board.initFromServerData(startPoint, 40, 1, event.shots_grid, true)
         window.render.drawBoard(shotsCanvas, window.shotsBoard)
-        window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.ships_grid, true)
+        window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.ships_grid, false)
         window.render.drawBoard(shipsCanvas, window.shipsBoard)
 
         function getMousePoint(canvasRect, clientX, clientY) {

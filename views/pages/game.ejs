@@ -18,28 +18,28 @@
             </ol>
         </nav>
 
-        <div class="row text-center">
-            <div class="col-sm-12">
-                <p id="waiting-message">Waiting for opponent...</p>
-                <div id="game-boards" style="visibility: hidden">
-                    <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
-                    <canvas style="background-color: beige;" id="shots-board" width="500" height="500"></canvas>
-                </div>
+        <p id="waiting-message">Waiting for opponent...</p>
+        <div class="row" id="game-boards" style="visibility: hidden">
+            <div class="col-sm-6 order-sm-2">
+                <canvas style="background-color: azure;" id="shots-board" width="500" height="500"></canvas>
+            </div>
+            <div class="col-sm-6 text-end order-sm-1">
+                <canvas style="background-color: azure;" id="ships-board" width="500" height="500"></canvas>
             </div>
         </div>
     </div>
     <script>
-        var exports = {};
-        const gameId = '<%= gameId %>';
-        window.gameId = gameId;
-        const d = new Date();
-        d.setTime(d.getTime() + (1*24*60*60*1000));
-        let expires = "expires="+ d.toUTCString();
-        document.cookie = "gameId=" + gameId + ";" + expires + ";path=/";
+        var exports = {}
+        const gameId = '<%= gameId %>'
+        window.gameId = gameId
+        const d = new Date()
+        d.setTime(d.getTime() + (1*24*60*60*1000))
+        let expires = "expires="+ d.toUTCString()
+        document.cookie = "gameId=" + gameId + ";" + expires + ";path=/"
 
-        const urlParams = new URLSearchParams(window.location.search);
-        window.playerId = urlParams.get('playerId');
-        document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/";
+        const urlParams = new URLSearchParams(window.location.search)
+        window.playerId = urlParams.get('playerId')
+        document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/"
      </script>
 </body>
 </html>

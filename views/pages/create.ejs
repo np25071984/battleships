@@ -19,6 +19,10 @@
             </ol>
         </nav>
 
+        <% if (typeof error != 'undefined') { %>
+        <div class="alert alert-primary" role="alert"><%= error %></div>
+        <% } %>
+
         <div class="row">
 
             <form action="/create" method="post">
@@ -26,17 +30,17 @@
                     <legend>Game type:</legend>
 
                     <div class="form-check">
-                        <input type="radio" class="form-check-input" id="single" name="type" value="single" checked />
+                        <input type="radio" class="form-check-input" id="single" name="type" value="single" <%- type == 'single' ? "checked" : "" %> />
                         <label class="form-label" for="single">Single player</label>
                     </div>
 
                     <div class="form-check">
-                        <input type="radio" class="form-check-input" id="multy-public" name="type" value="multi-public"/>
+                        <input type="radio" class="form-check-input" id="multy-public" name="type" value="multi-public" <%- type == 'multi-public' ? "checked" : "" %> />
                         <label class="form-label" for="multy-public">Multiplayer public</label>
                     </div>
 
                     <div class="form-check">
-                        <input type="radio" class="form-check-input" id="multy-private" name="type" value="multi-private" />
+                        <input type="radio" class="form-check-input" id="multy-private" name="type" value="multi-private" <%- type == 'multi-private' ? "checked" : "" %> />
                         <label class="form-label" for="multy-private">Multiplayer private</label>
                     </div>
                 </fieldset>
@@ -44,50 +48,50 @@
                 <fieldset>
                     <legend>Game settings:</legend>
 
-                    <select class="form-select mb-4" id="type" onChange="typeChanged(this)">
-                        <option selected value="classic">Classic game</option>
-                        <option value="custom">Custom game</option>
+                    <select class="form-select mb-4" id="mode" name="mode" onChange="modeChanged(this)">
+                        <option <%- mode == 'classic' ? "selected" : "" %> value="classic">Classic game</option>
+                        <option  <%- mode == 'custom' ? "selected" : "" %> value="custom">Custom game</option>
                     </select>
 
                     <div class="row mb-3">
                         <label for="cols" class="col-sm-2 col-form-label">Grid columns</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" id="cols" name="cols" value="10" readonly min="0" max="20">
+                            <input type="number" class="form-control" id="cols" name="cols" value="<%= cols %>" readonly min="0" max="20" onchange="numberChanged(this)">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="rows" class="col-sm-2 col-form-label">Grid rows</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" id="rows" name="rows" value="10" readonly min="0" max="20">
+                            <input type="number" class="form-control" id="rows" name="rows" value="<%= rows %>" readonly min="0" max="20" onchange="numberChanged(this)">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label" for="carrier">🟦🟦🟦🟦🟦 (carrier)</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" id="carrier" name="carrier" value="1" readonly min="0" max="10">
+                            <input type="number" class="form-control" id="carrier" name="carrier" value="<%= carrier %>" readonly min="0" max="10" onchange="numberChanged(this)">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label" for="battleship">🟦🟦🟦🟦 (battleship)</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" id="battleship" name="battleship" value="2" readonly min="0" max="10">
+                            <input type="number" class="form-control" id="battleship" name="battleship" value="<%= battleship %>" readonly min="0" max="10" onchange="numberChanged(this)">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label" for="destroyer">🟦🟦🟦 (destroyer)</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" id="destroyer" name="destroyer" value="3" readonly min="0" max="10">
+                            <input type="number" class="form-control" id="destroyer" name="destroyer" value="<%= destroyer %>" readonly min="0" max="10" onchange="numberChanged(this)">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label" for="patrol-boat">🟦🟦 (patrol boat)</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" id="patrol-boat" name="patrolboat" value="4" readonly min="0" max="10">
+                            <input type="number" class="form-control" id="patrol-boat" name="patrolboat" value="<%= patrolboat %>" readonly min="0" max="10" onchange="numberChanged(this)">
                         </div>
                     </div>
                 </fieldset>
@@ -95,18 +99,18 @@
                 <div class="row">
                     <div class="col-sm-10"></div>
                     <div class="col-sm-2">
-                        <button type="submit" class="btn btn-primary form-control">Submit</button>
+                        <button type="submit" class="btn btn-primary form-control" onsubmit="formSubmit()">Submit</button>
                     </div>
                 </div>
             </form>
 
         </div>
     </div>
-    <script>
-        function typeChanged(e) {
-            const type = document.getElementById("type").value
+    <script language="javascript">
+        function modeChanged(e) {
+            const mode = document.getElementById("mode").value
             var readOnlyValue
-            if (type === "custom") {
+            if (mode === "custom") {
                 readOnlyValue = false
             } else {
                 readOnlyValue = true
@@ -124,6 +128,19 @@
             document.getElementById("battleship").readOnly = readOnlyValue
             document.getElementById("destroyer").readOnly = readOnlyValue
             document.getElementById("patrol-boat").readOnly = readOnlyValue
+        }
+
+        const numberChanged = function(el) {
+            const val = parseInt(el.value)
+            const max = parseInt(el.max)
+            if (val > max) {
+                el.value = max
+            }
+
+            const min = parseInt(el.min);
+            if (val < min) {
+                el.value = min
+            }
         }
     </script>
 </body>

@@ -15,6 +15,8 @@ class PlacementRender {
 
     drawEmptyBoard(canvas, board) {
         const context = canvas.getContext("2d")
+        canvas.width = board.rect.getWidth() + 80
+        canvas.height = board.rect.getHeight() + 80
         context.clearRect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight())
 
         // agenda

@@ -7,6 +7,8 @@ import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipTypeFactory from '../common/ShipTypeFactory'
 import Settings from './Settings'
 import Game from './Game'
+import { GameCreateValidator } from './Validators'
+import { validationResult } from 'express-validator'
 
 class App {
     public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
@@ -43,12 +45,28 @@ class App {
             res.render('pages/main.ejs')
         })
         router.get('/create', (req, res) => {
-            res.render('pages/create.ejs')
+            res.render('pages/create.ejs', {
+                'cols': 10,
+                'rows': 10,
+                'carrier': 1,
+                'battleship': 2,
+                'destroyer': 3,
+                'patrolboat': 4,
+                'mode': 'classic',
+                'type': 'single',
+            })
         })
-        router.post('/create', (req, res) => {
+        router.post('/create', GameCreateValidator, (req, res) => {
+            const errors = validationResult(req)
+            if (!errors.isEmpty()) {
+                res.status(400).json({errors: errors.array()})
+                return
+            }
+
             const gridCols = parseInt(req.body.cols)
             const gridRows = parseInt(req.body.rows)
             const gameType = req.body.type
+            const gameMode = req.body.mode
             const shipTypes: ShipTypeAbstract[] = []
 
             const carrierAmount: number = parseInt(req.body.carrier)
@@ -71,9 +89,30 @@ class App {
                 shipTypes.push(ShipTypeFactory.getType(2))
             }
 
-            // TODO: check if shipTypes can fit into the given grid
+            const ships: Ship[]|null = Grid.placeShips(
+                gridCols,
+                gridRows,
+                [],
+                shipTypes
+            )
 
-            const settings = new Settings(gridCols, gridRows, gameType, shipTypes)
+            if (ships === null) {
+                console.log("Couldn't place")
+                res.render('pages/create.ejs', {
+                    'cols': gridCols,
+                    'rows': gridRows,
+                    'carrier': carrierAmount,
+                    'battleship': battleshipAmount,
+                    'destroyer': destroyerAmount,
+                    'patrolboat': patrolBoatAmount,
+                    'type': gameType,
+                    'mode': gameMode,
+                    'error': "The grid is too small to fit all the ships!"
+                })
+                return
+            }
+
+            const settings = new Settings(gridCols, gridRows, gameType, gameMode, shipTypes)
 
             const gameId = this.makeId(6)
             const game: Game = new Game(gameId, 1, settings)
