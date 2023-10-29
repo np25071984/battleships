@@ -206,7 +206,8 @@ class App {
                     "gameId": gameId,
                     "cols": game.settings.gridCols,
                     "rows": game.settings.gridRows,
-                    "ships": ships
+                    "ships": ships,
+                    "mode": game.settings.gameMode,
                 })
                 if (gameList.length === 30) {
                     break

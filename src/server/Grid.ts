@@ -92,7 +92,7 @@ class Grid {
 
         var ships: Ship[]|null
         try {
-            ships = Grid.placeShips(10, 10, [], shipsToPlace)
+            ships = Grid.placeShips(col, row, [], shipsToPlace)
         } catch (e) {
             // took too long to find the combination
             return null

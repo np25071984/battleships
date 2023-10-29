@@ -104,7 +104,6 @@ class PlacementBoard
         const grid = new Grid(cells)
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight)
         const boardOuterRect = new Rect(ltPoint, rbPoint)
-        console.log(boardOuterRect)
         const board = new PlacementBoard(boardOuterRect, grid, showAgenda)
 
         return board;

@@ -26,6 +26,7 @@
                 <thead>
                   <tr>
                     <th scope="col">Size</th>
+                    <th scope="col">Mode</th>
                     <th scope="col">Ships</th>
                     <th scope="col"></th>
                   </tr>
@@ -47,7 +48,7 @@
                     if (gamesData.length === 0) {
                         const tr = document.createElement('tr')
                         const td = document.createElement('td')
-                        td.colSpan = 3
+                        td.colSpan = 4
                         const noAvailableGamesText = document.createTextNode("No available games yet")
                         td.appendChild(noAvailableGamesText)
                         tr.appendChild(td)
@@ -63,13 +64,17 @@
                         tdSize.appendChild(gameSizeText)
                         tr.appendChild(tdSize)
 
+                        const tdMode = document.createElement('td')
+                        const modeText = document.createTextNode(gameData.mode)
+                        tdMode.appendChild(modeText)
+                        tr.appendChild(tdMode)
+
                         const tdShips = document.createElement('td')
                         const ships = []
                         for (const size in gameData.ships) {
                             const amount = gameData.ships[size]
                             const shipText = document.createTextNode("🟦".repeat(size) + " x " + amount)
                             tdShips.appendChild(shipText)
-                            // tdShips.appendChild(document.createTextNode(" "))
                             tdShips.appendChild(document.createElement('br'))
                         }
                         tr.appendChild(tdShips)

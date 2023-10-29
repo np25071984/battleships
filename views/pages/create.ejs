@@ -107,6 +107,18 @@
         </div>
     </div>
     <script language="javascript">
+        window.onload = function(e) {
+            const mode = document.getElementById("mode").value
+            if (mode === "custom") {
+                document.getElementById("cols").readOnly = false
+                document.getElementById("rows").readOnly = false
+                document.getElementById("carrier").readOnly = false
+                document.getElementById("battleship").readOnly = false
+                document.getElementById("destroyer").readOnly = false
+                document.getElementById("patrol-boat").readOnly = false
+            }
+        }
+
         function modeChanged(e) {
             const mode = document.getElementById("mode").value
             var readOnlyValue
