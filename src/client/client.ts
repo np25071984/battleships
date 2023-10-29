@@ -124,7 +124,7 @@ window.onload = function() {
     window.socket.on(BattleshipsEvent.EVENT_TYPE_GAME_RESULT, function(event) {
         switch (event.result) {
             case BattleshipsEvent.GAME_RESULT_WIN:
-                console.log("Win")
+                alert("Congratulations, you won!")
                 break
             case BattleshipsEvent.GAME_RESULT_DEFEAT:
                 for (const u in event.opponent_ships) {
@@ -132,10 +132,10 @@ window.onload = function() {
                     window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(Cell.CELL_TYPE_SHIP)
                 }
                 window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
-                console.log("Defaat")
+                alert("Defeat")
                 break
             case BattleshipsEvent.GAME_RESULT_DRAW:
-                console.log("Draw")
+                alert("Draw")
                 break
             default:
                 throw new Error(`Unknown game result '${event.result}'`)

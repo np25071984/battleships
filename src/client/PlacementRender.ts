@@ -6,11 +6,11 @@ import ShipSection from '../common/ShipSection'
 class PlacementRender {
     public static readonly COLOR_FOG_OF_WAR: string = '#ffffff'
     public static readonly COLOR_HOVER: string = '#90d3de'
-    public static readonly COLOR_SHIP: string = 'green'
+    public static readonly COLOR_SHIP: string = '#6ce6b7'
     public static readonly COLOR_SHIP_SELECTED: string = 'orange'
-    public static readonly COLOR_WRACKAGE: string = 'red'
-    public static readonly COLOR_CLICKED: string = 'blue'
-    public static readonly COLOR_WATER: string = 'yellow'
+    public static readonly COLOR_WRACKAGE: string = '#fcc786'
+    public static readonly COLOR_CLICKED: string = '#7daffa'
+    public static readonly COLOR_WATER: string = '#7cebf7'
     public static readonly COLOR_SHADOW: string = 'gray'
 
     drawEmptyBoard(canvas, board) {

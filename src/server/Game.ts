@@ -7,7 +7,6 @@ import ShotResult from '../common/ShotResult'
 import Cell from '../common/Cell'
 import ShipSection from '../common/ShipSection'
 import Settings from './Settings'
-import ShipTypeFactory from '../common/ShipTypeFactory'
 import Bot from './Bot'
 
 class Game {

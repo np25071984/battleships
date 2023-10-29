@@ -137,6 +137,11 @@ class App {
             const playerId: string = this.makeId(6)
             const grid = Grid.initGrid(game.settings.gridCols, game.settings.gridRows)
 
+            if  (!req.body.ships) {
+                res.status(400).send(`No ships were placed on the grid`)
+                return
+            }
+
             const ships: Ship[] = [];
             // TODO: validate input
             for (const rawShip of req.body.ships) {
@@ -168,6 +173,7 @@ class App {
             if (ships === null) {
                 console.log("Couldn't place")
                 res.json([]) // TODO: this shouldn't ever happen
+                return
             }
 
             const shipsData: Object[] = []
@@ -189,7 +195,14 @@ class App {
             const gameList = []
             for (const gameId in this.games) {
                 const game: Game = this.games[gameId]
+
+                // only multiplayer public game
                 if (game.settings.gameType !== Settings.GAME_TYPE_MULTIPLAYER_PUBLIC) {
+                    continue
+                }
+
+                // only started game
+                if (game.players.length === 0) {
                     continue
                 }
 

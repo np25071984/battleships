@@ -127,7 +127,7 @@ class Grid {
                 }
                 const randomColOffset = Math.floor(Math.random() * maxCol)
                 for (var c = 0; c < maxCol; c++) {
-                    if (Grid.iter > row * col * 10) {
+                    if (Grid.iter > row * col * 50) {
                         throw new Error(`In ${Grid.iter} iteration we weren't able to fit all ships`)
                     }
 
