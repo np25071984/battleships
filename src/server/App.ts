@@ -89,15 +89,9 @@ class App {
                 shipTypes.push(ShipTypeFactory.getType(2))
             }
 
-            const ships: Ship[]|null = Grid.placeShips(
-                gridCols,
-                gridRows,
-                [],
-                shipTypes
-            )
+            const ships: Ship[]|null = Grid.findShipsCombination(gridCols, gridRows, shipTypes)
 
             if (ships === null) {
-                console.log("Couldn't place")
                 res.render('pages/create.ejs', {
                     'cols': gridCols,
                     'rows': gridRows,
@@ -165,10 +159,9 @@ class App {
             }
             const game = this.getGame(gameId)
 
-            var ships: Ship[]|null = Grid.placeShips(
+            var ships: Ship[]|null = Grid.findShipsCombination(
                 game.settings.gridCols,
                 game.settings.gridRows,
-                [],
                 game.settings.shipTypes
             )
 

@@ -6,6 +6,7 @@ import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import PlacedShips from './PlacedShips'
 
 class Grid {
+    static iter: number = 0
     private cells: Cell[][]
     readonly cols: number
     readonly rows: number
@@ -86,9 +87,22 @@ class Grid {
         return true
     }
 
-    static memo = {}
+    static findShipsCombination(col: number, row: number, shipsToPlace: ShipTypeAbstract[]): Ship[]|null {
+        Grid.iter = 0
+
+        var ships: Ship[]|null
+        try {
+            ships = Grid.placeShips(10, 10, [], shipsToPlace)
+        } catch (e) {
+            // took too long to find the combination
+            return null
+        }
+
+        return ships
+    }
 
     static placeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]): Ship[]|null {
+        Grid.iter++
         if (shipsToPlace.length === 0) {
             return placedShips
         }
@@ -113,6 +127,10 @@ class Grid {
                 }
                 const randomColOffset = Math.floor(Math.random() * maxCol)
                 for (var c = 0; c < maxCol; c++) {
+                    if (Grid.iter > row * col * 10) {
+                        throw new Error(`In ${Grid.iter} iteration we weren't able to fit all ships`)
+                    }
+
                     var cc = c + randomColOffset
                     if (cc >= maxCol) {
                         cc -= maxCol
