@@ -1,7 +1,7 @@
-import PlacementRender from './PlacementRender'
+import Render from './Render'
 import Position from '../common/Position'
 import Point from './Point'
-import PlacementBoard from './PlacementBoard'
+import Board from './Board'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
 import Ship from './Ship'
@@ -56,7 +56,7 @@ window.rotateShip = function(): void {
 
                 const shipsCanvas = document.getElementById("placement-board")
                 if (shipsCanvas == null) {
-                    throw Error("Can't find PlacementBboard")
+                    throw Error("Can't find Board")
                 }
 
                 window.render.refreshGrid(shipsCanvas, window.shipsBoard)
@@ -71,7 +71,7 @@ window.rotateShip = function(): void {
 window.shuffleShip = function(): void {
     const shipsCanvas = document.getElementById("placement-board")
     if (shipsCanvas == null) {
-        throw Error("Can't find PlacementBboard")
+        throw Error("Can't find Board")
     }
 
     window.shipsBoard.setReady(false)
@@ -91,7 +91,7 @@ window.shuffleShip = function(): void {
 function sendShipsRequest(): void {
     const shipsCanvas = document.getElementById("placement-board")
     if (shipsCanvas == null) {
-        throw Error("Can't find PlacementBboard")
+        throw Error("Can't find Board")
     }
 
     var xhttp = new XMLHttpRequest()
@@ -170,7 +170,7 @@ window.mouseDownEvent = (position: Position) => {
 
     const shipsCanvas = document.getElementById("placement-board")
     if (shipsCanvas == null) {
-        throw Error("Can't find PlacementBboard")
+        throw Error("Can't find Board")
     }
 
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
@@ -215,22 +215,22 @@ window.mouseUpEvent = (position: Position) => {
 
     const shipsCanvas = document.getElementById("placement-board")
     if (shipsCanvas == null) {
-        throw Error("Can't find PlacementBboard")
+        throw Error("Can't find Board")
     }
 
     window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 }
 
 window.onload = function () {
-    window.render = new PlacementRender();
+    window.render = new Render();
 
     const placementCanvas = document.getElementById("placement-board")
     if (placementCanvas == null) {
-        throw Error("Can't find PlacementBoard")
+        throw Error("Can't find Board")
     }
 
     const startPoint = new Point(40, 40)
-    window.shipsBoard = PlacementBoard.getInstance(startPoint, 40, 1, window.cols, window.rows, true)
+    window.shipsBoard = Board.getInstance(startPoint, 40, 1, window.cols, window.rows, true)
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 
     function getMousePoint(canvasRect, clientX, clientY) {

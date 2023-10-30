@@ -2,9 +2,9 @@ import BattleshipsEvent from './BattleshipsEvent'
 import Render from './Render'
 import Position from '../common/Position'
 import Point from './Point'
-import Board from './Board'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
+import Board from './Board'
 
 window.mouseClickEvent = function(position: Position) {
     const cell: Cell = window.shotsBoard.grid.getCell(position)
@@ -54,9 +54,15 @@ window.onload = function() {
 
         const startPoint = new Point(40, 40)
         window.shotsBoard = Board.initFromServerData(startPoint, 40, 1, event.shots_grid, true)
-        window.render.drawBoard(shotsCanvas, window.shotsBoard)
+        window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
+        window.shotsBoard.setReady(true)
+        window.render.drawSubstrate(shotsCanvas, window.shotsBoard)
+        window.render.refreshGrid(shotsCanvas, window.shotsBoard)
         window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.ships_grid, false)
-        window.render.drawBoard(shipsCanvas, window.shipsBoard)
+        window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
+        window.shipsBoard.setReady(true)
+        window.render.drawSubstrate(shipsCanvas, window.shipsBoard)
+        window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 
         function getMousePoint(canvasRect, clientX, clientY) {
             const x = clientX - canvasRect.left
