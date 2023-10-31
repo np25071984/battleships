@@ -27,19 +27,27 @@ class Board
     }
 
     mouseMove(point: Point): void {
-        this.grid.mouseMove(point);
+        if (this.active) {
+            this.grid.mouseMove(point)
+        }
     }
 
     mouseClick(point: Point): void {
-        this.grid.mouseClick(point);
+        if (this.active) {
+            this.grid.mouseClick(point)
+        }
     }
 
     mouseDown(point: Point): void {
-        this.grid.mouseDown(point);
+        if (this.active) {
+            this.grid.mouseDown(point)
+        }
     }
 
     mouseUp(point: Point): void {
-        this.grid.mouseUp(point);
+        if (this.active) {
+            this.grid.mouseUp(point)
+        }
     }
 
     getIsReady(): boolean {

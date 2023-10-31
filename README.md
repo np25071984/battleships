@@ -46,24 +46,21 @@ Main menu offers two options:
 | Carrier | 5 |
 | Battleship | 4 |
 | Destroyer | 3 |
-| Submarine | 3 |
 | Patrol Boat | 2 |
 
 [//]: # (do we need mine? the lucky may unveil 8 cells at once)
-[//]: # (why Destroyer and Submarine simultaneously?)
 
 ## Gameflow
-
 
 ```mermaid
 sequenceDiagram
     actor Client1
     participant Server
     actor Client2
-    Client1->>Server: Open up the game page (gameId, playerId)
+    Client1->>Server: Connect event
     Server-->>Client1: EVENT_TYPE_CONNECTED
     Server-->>Client1: EVENT_TYPE_WAITING
-    Client2->>Server: Open up the game page (gameId, playerId)
+    Client2->>Server: Connect event
     Server-->>Client2: EVENT_TYPE_CONNECTED
     Server->>Client1: EVENT_TYPE_JOINED (playerId)
     par
