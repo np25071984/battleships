@@ -88,15 +88,16 @@ class Board
 
     static getInstance(
         ltPoint: Point,
-        width: number,
+        maxSide: number,
         gap: number,
-        row: number,
         col: number,
+        row: number,
         showAgenda: boolean
     ): Board {
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap
-        const step = width + gap
+        const step: number = Math.floor((maxSide - (ltPoint.x * 2) - (gap * 2)) / Math.max(col, row))
+        const width = step - gap
         const totalWidth = gap + (step * col)
         const totalHeight = gap + (step * row)
 
@@ -125,12 +126,13 @@ class Board
         return board;
     }
 
-    static initFromServerData(ltPoint: Point, width: number, gap: number, data: any, showAgenda: boolean) {
+    static initFromServerData(ltPoint: Point, maxSide: number, gap: number, data: any, showAgenda: boolean) {
         const xSt = ltPoint.x + gap;
         const ySt = ltPoint.y + gap;
         const col = data[0].length
         const row = data.length
-        const step = width + gap;
+        const step: number = Math.floor((maxSide - (ltPoint.x * 2) - (gap * 2)) / Math.max(col, row))
+        const width = step - gap
         const totalWidth = gap + (step * col);
         const totalHeight = gap + (step * row);
 

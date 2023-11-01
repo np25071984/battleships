@@ -43,22 +43,29 @@ window.onload = function() {
     window.socket.on(BattleshipsEvent.EVENT_TYPE_INIT, function(event) {
         console.dir("init client")
 
-        const shotsCanvas = document.getElementById("shots-board")
+        const shotsCanvas = document.getElementById("shots-board") as HTMLCanvasElement
         if (shotsCanvas == null) {
             throw Error("Can't find Shots board")
         }
-        const shipsCanvas = document.getElementById("ships-board")
+        const shipsCanvas = document.getElementById("ships-board") as HTMLCanvasElement
         if (shipsCanvas == null) {
             throw Error("Can't find Ships board")
         }
 
         const startPoint = new Point(40, 40)
-        window.shotsBoard = Board.initFromServerData(startPoint, 40, 1, event.shots_grid, true)
+        shotsCanvas.width = shotsCanvas.getBoundingClientRect().width
+        shotsCanvas.height = shotsCanvas.getBoundingClientRect().height
+        const shotsCanvasMaxSide: number = Math.min(shotsCanvas.width, shotsCanvas.width)
+        window.shotsBoard = Board.initFromServerData(startPoint, shotsCanvasMaxSide, 1, event.shots_grid, true)
         window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
         window.shotsBoard.setReady(true)
         window.render.drawSubstrate(shotsCanvas, window.shotsBoard)
         window.render.refreshGrid(shotsCanvas, window.shotsBoard)
-        window.shipsBoard = Board.initFromServerData(startPoint, 40, 1, event.ships_grid, false)
+
+        shipsCanvas.width = shotsCanvas.getBoundingClientRect().width
+        shipsCanvas.height = shotsCanvas.getBoundingClientRect().height
+        const shipsCanvasMaxSide: number = Math.min(shipsCanvas.width, shipsCanvas.width)
+        window.shipsBoard = Board.initFromServerData(startPoint, shipsCanvasMaxSide, 1, event.ships_grid, false)
         window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
         window.shipsBoard.setReady(true)
         window.render.drawSubstrate(shipsCanvas, window.shipsBoard)

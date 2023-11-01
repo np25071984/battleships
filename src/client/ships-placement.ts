@@ -224,13 +224,17 @@ window.mouseUpEvent = (position: Position) => {
 window.onload = function () {
     window.render = new Render();
 
-    const placementCanvas = document.getElementById("placement-board")
+    const placementCanvas = document.getElementById("placement-board") as HTMLCanvasElement
     if (placementCanvas == null) {
         throw Error("Can't find Board")
     }
 
+    placementCanvas.width = placementCanvas.getBoundingClientRect().width
+    placementCanvas.height = placementCanvas.getBoundingClientRect().height
+    const maxSide: number = Math.min(placementCanvas.width, placementCanvas.width)
+
     const startPoint = new Point(40, 40)
-    window.shipsBoard = Board.getInstance(startPoint, 40, 1, window.cols, window.rows, true)
+    window.shipsBoard = Board.getInstance(startPoint, maxSide, 1, window.cols, window.rows, true)
     window.shipsBoard.active = true
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 
