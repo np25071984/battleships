@@ -97,6 +97,7 @@ class Board
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap
         const step: number = Math.floor((maxSide - (ltPoint.x * 2) - (gap * 2)) / Math.max(col, row))
+
         const width = step - gap
         const totalWidth = gap + (step * col)
         const totalHeight = gap + (step * row)

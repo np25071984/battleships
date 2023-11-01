@@ -229,9 +229,11 @@ window.onload = function () {
         throw Error("Can't find Board")
     }
 
-    placementCanvas.width = placementCanvas.getBoundingClientRect().width
-    placementCanvas.height = placementCanvas.getBoundingClientRect().height
-    const maxSide: number = Math.min(placementCanvas.width, placementCanvas.width)
+    placementCanvas.width = 40 * 2 + 1 * 2 + window.cols * 40
+    placementCanvas.height = 40 * 2 + 1 * 2 + window.rows * 40
+    const maxHorizontalStep: number = placementCanvas.width / window.cols
+    const maxVertiacalStep: number = placementCanvas.height / window.rows
+    const maxSide: number = (maxHorizontalStep < maxVertiacalStep) ? placementCanvas.width : placementCanvas.height
 
     const startPoint = new Point(40, 40)
     window.shipsBoard = Board.getInstance(startPoint, maxSide, 1, window.cols, window.rows, true)

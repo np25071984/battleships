@@ -53,18 +53,26 @@ window.onload = function() {
         }
 
         const startPoint = new Point(40, 40)
-        shotsCanvas.width = shotsCanvas.getBoundingClientRect().width
-        shotsCanvas.height = shotsCanvas.getBoundingClientRect().height
-        const shotsCanvasMaxSide: number = Math.min(shotsCanvas.width, shotsCanvas.width)
+        const shotsGridCols: number = event.shots_grid[0].length
+        const shotsGridRows: number = event.shots_grid.length
+        shotsCanvas.width = 40 * 2 + 1 * 2 + shotsGridCols * 40
+        shotsCanvas.height = 40 * 2 + 1 * 2 + shotsGridRows * 40
+        const shotsMaxHorizontalStep: number = shotsCanvas.width / shotsGridCols
+        const shotsMaxVertiacalStep: number = shotsCanvas.height / shotsGridRows
+        const shotsCanvasMaxSide: number = (shotsMaxHorizontalStep < shotsMaxVertiacalStep) ? shotsCanvas.width : shotsCanvas.height
         window.shotsBoard = Board.initFromServerData(startPoint, shotsCanvasMaxSide, 1, event.shots_grid, true)
         window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
         window.shotsBoard.setReady(true)
         window.render.drawSubstrate(shotsCanvas, window.shotsBoard)
         window.render.refreshGrid(shotsCanvas, window.shotsBoard)
 
-        shipsCanvas.width = shotsCanvas.getBoundingClientRect().width
-        shipsCanvas.height = shotsCanvas.getBoundingClientRect().height
-        const shipsCanvasMaxSide: number = Math.min(shipsCanvas.width, shipsCanvas.width)
+        const shipsGridCols: number = event.ships_grid[0].length
+        const shipsGridRows: number = event.ships_grid.length
+        shipsCanvas.width = 40 * 2 + 1 * 2 + shipsGridCols * 40
+        shipsCanvas.height = 40 * 2 + 1 * 2 + shipsGridRows * 40
+        const shipsMaxHorizontalStep: number = shipsCanvas.width / shipsGridCols
+        const shipsMaxVertiacalStep: number = shipsCanvas.height / shipsGridRows
+        const shipsCanvasMaxSide: number = (shipsMaxHorizontalStep < shipsMaxVertiacalStep) ? shipsCanvas.width : shipsCanvas.height
         window.shipsBoard = Board.initFromServerData(startPoint, shipsCanvasMaxSide, 1, event.ships_grid, false)
         window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
         window.shipsBoard.setReady(true)

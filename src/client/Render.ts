@@ -115,7 +115,6 @@ class Render {
             board.ships.forEach((ship: Ship) => {
                 ship.sections.forEach((section: ShipSection) => {
                     const type = ship.isSelected() ? Cell.CELL_TYPE_SHIP_SELECTED : Cell.CELL_TYPE_SHIP
-                    console.log(section.position)
                     board.grid.getCell(section.position).setType(type)
                 })
             })
