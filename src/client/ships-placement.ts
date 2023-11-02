@@ -222,7 +222,7 @@ window.mouseUpEvent = (position: Position) => {
 }
 
 window.onload = function () {
-    window.render = new Render();
+    window.render = new Render()
 
     const placementCanvas = document.getElementById("placement-board") as HTMLCanvasElement
     if (placementCanvas == null) {
@@ -231,12 +231,12 @@ window.onload = function () {
 
     placementCanvas.width = 40 * 2 + 1 * 2 + window.cols * 40
     placementCanvas.height = 40 * 2 + 1 * 2 + window.rows * 40
-    const maxHorizontalStep: number = placementCanvas.width / window.cols
-    const maxVertiacalStep: number = placementCanvas.height / window.rows
-    const maxSide: number = (maxHorizontalStep < maxVertiacalStep) ? placementCanvas.width : placementCanvas.height
+    const maxWidth: number = Math.min(window.innerWidth - 200, placementCanvas.width)
+    console.log(`Window width: ${window.innerWidth}`)
+    console.log(`maxSide: ${maxWidth}`)
 
     const startPoint = new Point(40, 40)
-    window.shipsBoard = Board.getInstance(startPoint, maxSide, 1, window.cols, window.rows, true)
+    window.shipsBoard = Board.getInstance(startPoint, maxWidth, 1, window.cols, window.rows, true)
     window.shipsBoard.active = true
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 

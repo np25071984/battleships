@@ -10,7 +10,7 @@ window.mouseClickEvent = function(position: Position) {
     const cell: Cell = window.shotsBoard.grid.getCell(position)
     // only shot at CELL_TYPE_FOG_OF_WAR makes sense
     if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
-        return;
+        return
     }
 
     window.shotsBoard.active = false
@@ -57,10 +57,9 @@ window.onload = function() {
         const shotsGridRows: number = event.shots_grid.length
         shotsCanvas.width = 40 * 2 + 1 * 2 + shotsGridCols * 40
         shotsCanvas.height = 40 * 2 + 1 * 2 + shotsGridRows * 40
-        const shotsMaxHorizontalStep: number = shotsCanvas.width / shotsGridCols
-        const shotsMaxVertiacalStep: number = shotsCanvas.height / shotsGridRows
-        const shotsCanvasMaxSide: number = (shotsMaxHorizontalStep < shotsMaxVertiacalStep) ? shotsCanvas.width : shotsCanvas.height
-        window.shotsBoard = Board.initFromServerData(startPoint, shotsCanvasMaxSide, 1, event.shots_grid, true)
+        const shotsCanvasMaxWide: number = Math.min((window.innerWidth - 200) / 2, shotsCanvas.width)
+        window.shotsBoard = Board.getInstance(startPoint, shotsCanvasMaxWide, 1, shotsGridCols, shotsGridRows, true)
+        window.shotsBoard.loadData(event.shots_grid)
         window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
         window.shotsBoard.setReady(true)
         window.render.drawSubstrate(shotsCanvas, window.shotsBoard)
@@ -70,10 +69,9 @@ window.onload = function() {
         const shipsGridRows: number = event.ships_grid.length
         shipsCanvas.width = 40 * 2 + 1 * 2 + shipsGridCols * 40
         shipsCanvas.height = 40 * 2 + 1 * 2 + shipsGridRows * 40
-        const shipsMaxHorizontalStep: number = shipsCanvas.width / shipsGridCols
-        const shipsMaxVertiacalStep: number = shipsCanvas.height / shipsGridRows
-        const shipsCanvasMaxSide: number = (shipsMaxHorizontalStep < shipsMaxVertiacalStep) ? shipsCanvas.width : shipsCanvas.height
-        window.shipsBoard = Board.initFromServerData(startPoint, shipsCanvasMaxSide, 1, event.ships_grid, false)
+        const shipsCanvasMaxWide: number = Math.min((window.innerWidth - 200) / 2, shipsCanvas.width)
+        window.shipsBoard = Board.getInstance(startPoint, shipsCanvasMaxWide, 1, shipsGridCols, shipsGridRows, false)
+        window.shipsBoard.loadData(event.ships_grid)
         window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
         window.shipsBoard.setReady(true)
         window.render.drawSubstrate(shipsCanvas, window.shipsBoard)

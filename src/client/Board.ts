@@ -68,8 +68,8 @@ class Board
     }
 
     roundStart(number: number) {
-        this.active = true;
-        this.round = number;
+        this.active = true
+        this.round = number
     }
 
     loadShip(ship: Ship): void {
@@ -86,9 +86,22 @@ class Board
         this.ships = []
     }
 
+    loadData(data: any) {
+        for (var r = 0; r < data.length; r++) {
+            for (var c = 0; c < data[r].length; c++) {
+                if (data[r][c] === Cell.CELL_TYPE_FOG_OF_WAR) {
+                    continue
+                }
+                const p = new Position(c, r)
+                const cell = this.grid.getCell(p)
+                cell.setType(data[r][c])
+            }
+        }
+    }
+
     static getInstance(
         ltPoint: Point,
-        maxSide: number,
+        maxWide: number,
         gap: number,
         col: number,
         row: number,
@@ -96,7 +109,7 @@ class Board
     ): Board {
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap
-        const step: number = Math.floor((maxSide - (ltPoint.x * 2) - (gap * 2)) / Math.max(col, row))
+        const step: number = Math.floor((maxWide - (ltPoint.x * 2) - (gap * 2)) / col)
 
         const width = step - gap
         const totalWidth = gap + (step * col)
@@ -125,41 +138,6 @@ class Board
         const board = new Board(boardOuterRect, grid, showAgenda)
 
         return board;
-    }
-
-    static initFromServerData(ltPoint: Point, maxSide: number, gap: number, data: any, showAgenda: boolean) {
-        const xSt = ltPoint.x + gap;
-        const ySt = ltPoint.y + gap;
-        const col = data[0].length
-        const row = data.length
-        const step: number = Math.floor((maxSide - (ltPoint.x * 2) - (gap * 2)) / Math.max(col, row))
-        const width = step - gap
-        const totalWidth = gap + (step * col);
-        const totalHeight = gap + (step * row);
-
-        const cells: Cell[][] = []
-        var positionY = 0;
-        for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
-            var positionX = 0;
-            const gridRow: Cell[] = []
-            for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
-                const ltP = new Point(x, y)
-                const pos = new Position(positionX, positionY)
-                const rbP = new Point(x + width, y + width)
-                const outerRect = new Rect(ltP, rbP)
-                gridRow[positionX] = new Cell(outerRect, pos, false, data[positionY][positionX], false)
-                positionX++
-            }
-            cells[positionY] = gridRow
-            positionY++
-        }
-
-        const grid = new Grid(cells)
-        const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight)
-        const boardOuterRect = new Rect(ltPoint, rbPoint)
-        const board = new Board(boardOuterRect, grid, showAgenda)
-
-        return board
     }
 }
 
