@@ -232,8 +232,6 @@ window.onload = function () {
     placementCanvas.width = 40 * 2 + 1 * 2 + window.cols * 40
     placementCanvas.height = 40 * 2 + 1 * 2 + window.rows * 40
     const maxWidth: number = Math.min(window.innerWidth - 200, placementCanvas.width)
-    console.log(`Window width: ${window.innerWidth}`)
-    console.log(`maxSide: ${maxWidth}`)
 
     const startPoint = new Point(40, 40)
     window.shipsBoard = Board.getInstance(startPoint, maxWidth, 1, window.cols, window.rows, true)

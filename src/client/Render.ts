@@ -72,27 +72,6 @@ class Render {
         }
     }
 
-    getCellColor(cell: Cell) {
-        switch (cell.getType()) {
-            case Cell.CELL_TYPE_FOG_OF_WAR:
-                return cell.isHover ? Render.COLOR_HOVER : Render.COLOR_FOG_OF_WAR;
-            case Cell.CELL_TYPE_SHIP:
-                return Render.COLOR_SHIP;
-            case Cell.CELL_TYPE_SHIP_SELECTED:
-                return Render.COLOR_SHIP_SELECTED
-            case Cell.CELL_TYPE_WRACKAGE:
-                return Render.COLOR_WRACKAGE;
-            case Cell.CELL_TYPE_CLICKED:
-                return Render.COLOR_CLICKED;
-            case Cell.CELL_TYPE_WATER:
-                return Render.COLOR_WATER;
-            case Cell.CELL_TYPE_SHADOW:
-                return Render.COLOR_SHADOW
-                default:
-                throw new Error('Unknown cell type');
-        }
-    }
-
     refreshGrid(canvas, board) {
         const context = canvas.getContext("2d")
 
@@ -132,6 +111,12 @@ class Render {
             })
         }
 
+        this.render(canvas, board)
+    }
+
+    private render(canvas, board) {
+        const context = canvas.getContext("2d")
+
         for (var r = 0; r < board.grid.rows; r++) {
             for (var c = 0; c < board.grid.cols; c++) {
                 const pos = new Position(c, r)
@@ -146,6 +131,27 @@ class Render {
                 context.closePath()
                 cell.save()
             }
+        }
+    }
+
+    private getCellColor(cell: Cell) {
+        switch (cell.getType()) {
+            case Cell.CELL_TYPE_FOG_OF_WAR:
+                return cell.isHover ? Render.COLOR_HOVER : Render.COLOR_FOG_OF_WAR;
+            case Cell.CELL_TYPE_SHIP:
+                return Render.COLOR_SHIP;
+            case Cell.CELL_TYPE_SHIP_SELECTED:
+                return Render.COLOR_SHIP_SELECTED
+            case Cell.CELL_TYPE_WRACKAGE:
+                return Render.COLOR_WRACKAGE;
+            case Cell.CELL_TYPE_CLICKED:
+                return Render.COLOR_CLICKED;
+            case Cell.CELL_TYPE_WATER:
+                return Render.COLOR_WATER;
+            case Cell.CELL_TYPE_SHADOW:
+                return Render.COLOR_SHADOW
+                default:
+                throw new Error('Unknown cell type');
         }
     }
 }
