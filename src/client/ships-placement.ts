@@ -75,7 +75,7 @@ window.shuffleShip = function(): void {
     }
 
     window.shipsBoard.setReady(false)
-    window.render.drawSubstrate(shipsCanvas, window.shipsBoard)
+    window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
     window.shipsBoard.resetShips()
 
     sendShipsRequest()
@@ -106,7 +106,7 @@ function sendShipsRequest(): void {
             })
 
             window.shipsBoard.setReady(true)
-            window.render.drawSubstrate(shipsCanvas, window.shipsBoard)
+            window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
             window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 
             const shuffleButton = document.getElementById("shuffle-button") as HTMLButtonElement

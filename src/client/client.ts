@@ -60,9 +60,8 @@ window.onload = function() {
         const shotsCanvasMaxWide: number = Math.min((window.innerWidth - 200) / 2, shotsCanvas.width)
         window.shotsBoard = Board.getInstance(startPoint, shotsCanvasMaxWide, 1, shotsGridCols, shotsGridRows, true)
         window.shotsBoard.loadData(event.shots_grid)
-        window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
         window.shotsBoard.setReady(true)
-        window.render.drawSubstrate(shotsCanvas, window.shotsBoard)
+        window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
         window.render.refreshGrid(shotsCanvas, window.shotsBoard)
 
         const shipsGridCols: number = event.ships_grid[0].length
@@ -72,9 +71,8 @@ window.onload = function() {
         const shipsCanvasMaxWide: number = Math.min((window.innerWidth - 200) / 2, shipsCanvas.width)
         window.shipsBoard = Board.getInstance(startPoint, shipsCanvasMaxWide, 1, shipsGridCols, shipsGridRows, false)
         window.shipsBoard.loadData(event.ships_grid)
-        window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
         window.shipsBoard.setReady(true)
-        window.render.drawSubstrate(shipsCanvas, window.shipsBoard)
+        window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
         window.render.refreshGrid(shipsCanvas, window.shipsBoard)
 
         function getMousePoint(canvasRect, clientX, clientY) {
