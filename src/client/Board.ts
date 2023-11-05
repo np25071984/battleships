@@ -107,7 +107,7 @@ class Board
         const gap: number = 1
         const ltPoint = new Point(40, 40)
         const normalWidth = 40 * 2 + gap * 2 + col * 40
-        const maxWide: number = Math.min(window.innerWidth - 200, normalWidth)
+        const maxWide: number = Math.min(window.innerWidth * 0.9, normalWidth)
 
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap
