@@ -14,8 +14,11 @@ class Render {
     public static readonly COLOR_WATER: string = '#e8faf7'
     public static readonly COLOR_SHADOW: string = 'gray'
 
-    drawEmptyBoard(canvas, board: Board) {
+    drawEmptyBoard(canvas: HTMLCanvasElement, board: Board) {
         const context = canvas.getContext("2d")
+        if (!context) {
+            throw Error("Can't get context")
+        }
         canvas.width = board.rect.getWidth() + 80
         canvas.height = board.rect.getHeight() + 80
         context.clearRect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight())
@@ -44,8 +47,11 @@ class Render {
         }
     }
 
-    drawAgenda(canvas, board) {
+    drawAgenda(canvas: HTMLCanvasElement, board: Board) {
         const context = canvas.getContext("2d")
+        if (!context) {
+            throw Error("Can't get context")
+        }
 
         const cellWidth = board.rect.getWidth() / board.grid.cols
         const fontWidth = Math.round(cellWidth / 3)
@@ -63,18 +69,16 @@ class Render {
         context.closePath()
 
         context.beginPath()
-        context.textAlign = 'middle'
+        // context.textAlign = 'middle'
         context.textBaseline = 'bottom'
         for (var i = 0; i < board.grid.cols; i++) {
             const curShift = board.rect.ltPoint.x + cellWidth*i + cellWidth/2 + fontWidth/2
-            context.fillText(i + 1, curShift, board.rect.ltPoint.y)
+            context.fillText((i + 1).toString(), curShift, board.rect.ltPoint.y)
         }
         context.closePath()
     }
 
-    refreshGrid(canvas, board) {
-        const context = canvas.getContext("2d")
-
+    refreshGrid(canvas: HTMLCanvasElement, board: Board) {
         if (!board.getIsReady()) {
             this.drawEmptyBoard(canvas, board)
             return
@@ -114,14 +118,17 @@ class Render {
         this.render(canvas, board)
     }
 
-    private render(canvas, board) {
+    private render(canvas: HTMLCanvasElement, board: Board) {
         const context = canvas.getContext("2d")
+        if (!context) {
+            throw Error("Can't get context")
+        }
 
         for (var r = 0; r < board.grid.rows; r++) {
             for (var c = 0; c < board.grid.cols; c++) {
                 const pos = new Position(c, r)
-                const cell = board.grid.getCell(pos)
-                if (!cell.changed) {
+                const cell: Cell = board.grid.getCell(pos)
+                if (!cell.isChanged()) {
                     continue
                 }
                 context.beginPath()

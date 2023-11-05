@@ -100,13 +100,15 @@ class Board
     }
 
     static getInstance(
-        ltPoint: Point,
-        maxWide: number,
-        gap: number,
         col: number,
         row: number,
         showAgenda: boolean
     ): Board {
+        const gap: number = 1
+        const ltPoint = new Point(40, 40)
+        const normalWidth = 40 * 2 + gap * 2 + col * 40
+        const maxWide: number = Math.min(window.innerWidth - 200, normalWidth)
+
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap
         const step: number = Math.floor((maxWide - (ltPoint.x * 2) - (gap * 2)) / col)

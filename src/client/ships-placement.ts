@@ -150,7 +150,7 @@ window.mouseDownEvent = (position: Position) => {
             ship.deselect()
         }
 
-        // enable/disable Rotate button when a Ship was/wasn't selected
+        // enable/disable Rotate button when a Ship is/isn't selected
         var isSelectetShip: boolean = false
         for (const ship of window.shipsBoard.ships) {
             if (ship.isSelected()) {
@@ -168,7 +168,7 @@ window.mouseDownEvent = (position: Position) => {
         rotateButton.disabled = !isSelectetShip
     }
 
-    const shipsCanvas = document.getElementById("placement-board")
+    const shipsCanvas = document.getElementById("placement-board") as HTMLCanvasElement
     if (shipsCanvas == null) {
         throw Error("Can't find Board")
     }
@@ -229,12 +229,9 @@ window.onload = function () {
         throw Error("Can't find Board")
     }
 
-    placementCanvas.width = 40 * 2 + 1 * 2 + window.cols * 40
-    placementCanvas.height = 40 * 2 + 1 * 2 + window.rows * 40
-    const maxWidth: number = Math.min(window.innerWidth - 200, placementCanvas.width)
-
-    const startPoint = new Point(40, 40)
-    window.shipsBoard = Board.getInstance(startPoint, maxWidth, 1, window.cols, window.rows, true)
+    window.shipsBoard = Board.getInstance(window.cols, window.rows, true)
+    placementCanvas.width = window.shipsBoard.rect.getWidth()
+    placementCanvas.height = window.shipsBoard.rect.getHeight()
     window.shipsBoard.active = true
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 

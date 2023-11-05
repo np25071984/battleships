@@ -52,13 +52,11 @@ window.onload = function() {
             throw Error("Can't find Ships board")
         }
 
-        const startPoint = new Point(40, 40)
         const shotsGridCols: number = event.shots_grid[0].length
         const shotsGridRows: number = event.shots_grid.length
-        shotsCanvas.width = 40 * 2 + 1 * 2 + shotsGridCols * 40
-        shotsCanvas.height = 40 * 2 + 1 * 2 + shotsGridRows * 40
-        const shotsCanvasMaxWide: number = Math.min((window.innerWidth - 200) / 2, shotsCanvas.width)
-        window.shotsBoard = Board.getInstance(startPoint, shotsCanvasMaxWide, 1, shotsGridCols, shotsGridRows, true)
+        window.shotsBoard = Board.getInstance(shotsGridCols, shotsGridRows, true)
+        shotsCanvas.width = window.shotsBoard.rect.getWidth()
+        shotsCanvas.height = window.shotsBoard.rect.getHeight()
         window.shotsBoard.loadData(event.shots_grid)
         window.shotsBoard.setReady(true)
         window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
@@ -66,10 +64,9 @@ window.onload = function() {
 
         const shipsGridCols: number = event.ships_grid[0].length
         const shipsGridRows: number = event.ships_grid.length
-        shipsCanvas.width = 40 * 2 + 1 * 2 + shipsGridCols * 40
-        shipsCanvas.height = 40 * 2 + 1 * 2 + shipsGridRows * 40
-        const shipsCanvasMaxWide: number = Math.min((window.innerWidth - 200) / 2, shipsCanvas.width)
-        window.shipsBoard = Board.getInstance(startPoint, shipsCanvasMaxWide, 1, shipsGridCols, shipsGridRows, false)
+        window.shipsBoard = Board.getInstance(shipsGridCols, shipsGridRows, false)
+        shipsCanvas.width = window.shipsBoard.rect.getWidth()
+        shipsCanvas.height = window.shipsBoard.rect.getHeight()
         window.shipsBoard.loadData(event.ships_grid)
         window.shipsBoard.setReady(true)
         window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
