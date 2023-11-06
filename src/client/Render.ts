@@ -19,8 +19,8 @@ class Render {
         if (!context) {
             throw Error("Can't get context")
         }
-        canvas.width = board.rect.getWidth() + 80
-        canvas.height = board.rect.getHeight() + 80
+        canvas.width = board.rect.getWidth() + (board.fontSize + 2) * 2
+        canvas.height = board.rect.getHeight() + (board.fontSize + 2) * 2
         context.clearRect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight())
 
         // substrate

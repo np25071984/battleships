@@ -10,15 +10,17 @@ class Board
 {
     public rect: Rect
     public grid: Grid
+    public fontSize: number
     public round: number | undefined
     public active: boolean
     public showAgenda: boolean
     public ships: Ship[]
     private isReady: boolean
 
-    constructor(outerRect: Rect, grid: Grid, showAgenda: boolean) {
+    constructor(outerRect: Rect, grid: Grid, fontSize: number, showAgenda: boolean) {
         this.rect = outerRect
         this.grid = grid
+        this.fontSize = fontSize
         this.round = undefined
         this.active = false
         this.showAgenda = showAgenda
@@ -105,9 +107,10 @@ class Board
         showAgenda: boolean
     ): Board {
         const gap: number = 1
-        const ltPoint = new Point(40, 40)
-        const normalWidth = 40 * 2 + gap * 2 + col * 40
-        const maxWide: number = Math.min(window.innerWidth * 0.9, normalWidth)
+        const normalWidth = 14 * 2 + gap * 2 + col * 40
+        const maxWide: number = Math.min(window.innerWidth, normalWidth)
+        const fontSize: number = Math.floor(maxWide/(col*3))
+        const ltPoint = new Point(fontSize, fontSize)
 
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap
@@ -137,7 +140,7 @@ class Board
         const grid = new Grid(cells)
         const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight)
         const boardOuterRect = new Rect(ltPoint, rbPoint)
-        const board = new Board(boardOuterRect, grid, showAgenda)
+        const board = new Board(boardOuterRect, grid, fontSize, showAgenda)
 
         return board;
     }
