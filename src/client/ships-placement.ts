@@ -82,7 +82,7 @@ window.shuffleShip = function(): void {
 
     const shuffleButton = document.getElementById("shuffle-button") as HTMLButtonElement
     if (shuffleButton == null) {
-        throw Error("Can't find Shubble button")
+        throw Error("Can't find Shuffle button")
     }
 
     shuffleButton.disabled = true
@@ -132,7 +132,6 @@ window.mouseDownEvent = (position: Position) => {
             }
 
             window.mouseMoveEvent = (position: Position) => {
-                const cell = window.shipsBoard.grid.getCell(position)
                 for (const ship of window.shipsBoard.ships) {
                     if (ship.isSelected()) {
                         const actualPosition = new Position(
@@ -140,7 +139,11 @@ window.mouseDownEvent = (position: Position) => {
                             position.row - window.offset.row
                         )
 
-                        const shade: Ship = new Ship(actualPosition, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
+                        const shade: Ship = new Ship(
+                            actualPosition,
+                            ship.orientation,
+                            ShipTypeFactory.getType(ship.type.getSize())
+                        )
                         window.shadeShip = shade
                         break
                     }
@@ -151,10 +154,10 @@ window.mouseDownEvent = (position: Position) => {
         }
 
         // enable/disable Rotate button when a Ship is/isn't selected
-        var isSelectetShip: boolean = false
+        var isSelectedShip: boolean = false
         for (const ship of window.shipsBoard.ships) {
             if (ship.isSelected()) {
-                isSelectetShip = true
+                isSelectedShip = true
                 break
             }
         }
@@ -165,7 +168,7 @@ window.mouseDownEvent = (position: Position) => {
         }
 
         // TODO: check if it is possible to rotate the ship
-        rotateButton.disabled = !isSelectetShip
+        rotateButton.disabled = !isSelectedShip
     }
 
     const shipsCanvas = document.getElementById("placement-board") as HTMLCanvasElement

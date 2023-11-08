@@ -7,10 +7,8 @@
 
 * two players
 * there should be at least one cell gap between ships
-* the ships combination is the same for each player
-* each round lasts a given amount of time
-* both players make a shot each round; there isn't first or last shot; there is only round shot
-* if a player run out of time they skip the round
+* the ships combination (number and types) is the same for each player
+* both players make a shot each round; there isn't the first and the last who shot
 
 ## Game navigation
 
@@ -19,27 +17,35 @@
 title: Game navigation
 ---
 flowchart LR
-    menu{Game menu} -->|Create game| create[Create page]
-    menu{Game menu} -->|Join game| select[Select page]
+    menu{Game menu} --> create[Create game page]
+    menu{Game menu} --> select[Select game page]
     create -->|gameId| join
     select -->|gameId| join
-    join[Join page]
+    join[Join game page]
     join -->|gameId, playerId| game
 
 ```
 
 Main menu offers two options:
 * Create game - create new game with desirable settings
-* Join game - join an existing game
+* Join game - join an existing game which was created by somebody else
 
-## Game setting
+## Create game page
 
-* visibility (public/private)
+### Game types
+* single game - game with a AI
+* multiplayer - game with another person
+    * public - this game will appear on "Join game" page
+    * private - this game won't be visible on "Join game" page
+
+### Game settings
+
+You can choose between hardcoded and custom game settings values
+
 * board size
-* ships configuration
-* round timeout
+* ships configuration - how many and which ships will be in the game
 
-## Ship types
+#### Ship types
 
 | Ship | Size |
 | -------- | ------- |
@@ -49,6 +55,10 @@ Main menu offers two options:
 | Patrol Boat | 2 |
 
 [//]: # (do we need mine? the lucky may unveil 8 cells at once)
+
+## Join game page
+
+Once the game was created it is known information which ships are there and the board size. It is time to put the ships in place. You can move them around the board and rotate. Also `Shuffle` feature is available which lets to get randomly placed ships.
 
 ## Gameflow
 

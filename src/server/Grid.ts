@@ -3,7 +3,6 @@ import Position from '../common/Position'
 import Ship from '../common/Ship'
 import ShipSection from '../common/ShipSection'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
-import PlacedShips from './PlacedShips'
 
 class Grid {
     static iter: number = 0

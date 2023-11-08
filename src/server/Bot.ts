@@ -47,7 +47,6 @@ class Bot extends Player {
                         availableForShot.push(position)
                     } else {
                         const c = this.decisionGrid.getCell(position)
-                        console.log(`Mark cell ${position.col}x${position.row} as water`)
                         c.setType(Cell.CELL_TYPE_WATER)
                     }
                 }
