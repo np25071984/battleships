@@ -110,7 +110,7 @@ class Board
         const normalWidth = 14 * 2 + gap * 2 + col * 40
         const maxWide: number = Math.min(window.innerWidth, normalWidth)
         const fontSize: number = Math.floor(maxWide/(col*3))
-        const ltPoint = new Point(fontSize, fontSize)
+        const ltPoint = new Point(fontSize + 2, fontSize + 2)
 
         const xSt = ltPoint.x + gap
         const ySt = ltPoint.y + gap

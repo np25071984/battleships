@@ -104,7 +104,8 @@ sequenceDiagram
 ```
 
 ## TODO
-* Improve AI (mark "dead" cells)
+* Support touch screens (drag ships)
+* Improve AI (make shots into intersections which have most ship probability)
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)

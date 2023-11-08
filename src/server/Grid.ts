@@ -78,6 +78,9 @@ class Grid {
 
     canPlaceShip(ship: Ship): boolean {
         for (const section of ship.sections) {
+            if (!this.doesCellExist(section.position)) {
+                return false
+            }
             const cell = this.getCell(section.position)
             if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
                 return false

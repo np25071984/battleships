@@ -23,16 +23,32 @@ class Bot extends Player {
         })
     }
 
-    makeShot(round: number) {
+    makeShot(round: number): void {
         const availableForShot: Position[] = []
         const damagedSections = this.targetedShipSections.length
         if (damagedSections === 0) {
+            var smallestShipType: ShipTypeAbstract
+            this.enemyShipTypes.forEach((shipType: ShipTypeAbstract) => {
+                const shipSize: number = shipType.getSize()
+                if (!smallestShipType || (smallestShipType.getSize() > shipType.getSize())) {
+                    smallestShipType = shipType
+                }
+            })
+
             for (var r = 0; r < this.decisionGrid.rows; r++) {
                 for (var c = 0; c < this.decisionGrid.cols; c++) {
-                    const p = new Position(c, r)
-                    const cell = this.decisionGrid.getCell(p)
-                    if (cell.getType() === Cell.CELL_TYPE_FOG_OF_WAR) {
-                        availableForShot.push(p)
+                    const position: Position = new Position(c, r)
+                    const cell = this.decisionGrid.getCell(position)
+                    if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
+                        continue
+                    }
+
+                    if (this.doesPositionMakeSense(position, smallestShipType)) {
+                        availableForShot.push(position)
+                    } else {
+                        const c = this.decisionGrid.getCell(position)
+                        console.log(`Mark cell ${position.col}x${position.row} as water`)
+                        c.setType(Cell.CELL_TYPE_WATER)
                     }
                 }
             }
@@ -82,10 +98,33 @@ class Bot extends Player {
             }
         }
 
-        // TODO: try to fit the smallest of the ships into those positions
-        const randomPosition = availableForShot[Math.floor(Math.random() * availableForShot.length)]
-        this.shots[round] = new Position(randomPosition.col, randomPosition.row)
+        const randomIndex = Math.floor(Math.random() * availableForShot.length)
+        const randomPosition = availableForShot[randomIndex]
+        this.shots[round] = randomPosition
     }
+
+    private doesPositionMakeSense(position: Position, shipType: ShipTypeAbstract): boolean {
+        for (var i = 0; i < shipType.getSize(); i++) {
+            if (position.col - i >= 0) {
+                const ph = new Position(position.col - i, position.row)
+                const horizontalShip: Ship = new Ship(ph, Ship.SHIP_ORIENTATION_HORIZONTAL, shipType)
+                if (this.decisionGrid.canPlaceShip(horizontalShip)) {
+                    return true
+                }
+            }
+
+            if (position.row - i >= 0) {
+                const pv = new Position(position.col, position.row - i)
+                const verticalShip: Ship = new Ship(pv, Ship.SHIP_ORIENTATION_VERTICAL, shipType)
+                if (this.decisionGrid.canPlaceShip(verticalShip)) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
 
     syncDecisionBoard(result: ShotResult, updates): void {
         updates.forEach((upd) => {

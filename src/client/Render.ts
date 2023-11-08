@@ -54,17 +54,16 @@ class Render {
         }
 
         const cellWidth = board.rect.getWidth() / board.grid.cols
-        const fontWidth = Math.round(cellWidth / 3)
 
         context.beginPath()
         context.fillStyle = '#000000'
-        context.font = `${fontWidth}px serif`
+        context.font = `${board.fontSize}px serif`
         context.textAlign = 'center'
         context.textBaseline = 'middle'
         for (var i = 0; i < board.grid.rows; i++) {
             const label = String.fromCharCode(97 + i).toUpperCase()
             const curShift = board.rect.ltPoint.y + cellWidth*i + cellWidth/2
-            context.fillText(label, board.rect.ltPoint.x - fontWidth/2 - 2, curShift)
+            context.fillText(label, board.rect.ltPoint.x - board.fontSize/2 - 2, curShift)
         }
         context.closePath()
 
@@ -72,7 +71,7 @@ class Render {
         // context.textAlign = 'middle'
         context.textBaseline = 'bottom'
         for (var i = 0; i < board.grid.cols; i++) {
-            const curShift = board.rect.ltPoint.x + cellWidth*i + cellWidth/2 + fontWidth/2
+            const curShift = board.rect.ltPoint.x + cellWidth*i + cellWidth/2 + board.fontSize/2
             context.fillText((i + 1).toString(), curShift, board.rect.ltPoint.y)
         }
         context.closePath()
