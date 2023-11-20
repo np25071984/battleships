@@ -13,7 +13,7 @@ const server = app.express.listen(port, (err) => {
         return console.log(err)
     }
 
-    return console.log(`Server v 0.3 is listening on ${port}`)
+    return console.log(`Server is listening on ${port}`)
 })
 
 global.io = new Server(server, {cookie: true})

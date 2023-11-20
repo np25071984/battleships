@@ -269,6 +269,19 @@ window.onload = function () {
         window.render.refreshGrid(this, board)
     }.bind(placementCanvas, window.shipsBoard))
 
+    placementCanvas.addEventListener('touchmove', function (board, e) {
+        for (const ship of window.shipsBoard.ships) {
+            if (ship.isSelected()) {
+                e.preventDefault()
+            }
+        }
+
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.touches[0].clientX, e.touches[0].clientY)
+        board.mouseMove(mousePoint)
+        window.render.refreshGrid(this, board)
+    }.bind(placementCanvas, window.shipsBoard))
+
     placementCanvas.addEventListener('click', function(board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
@@ -281,9 +294,21 @@ window.onload = function () {
         board.mouseDown(mousePoint)
     }.bind(placementCanvas, window.shipsBoard))
 
+    placementCanvas.addEventListener('touchstart', function (board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.touches[0].clientX, e.touches[0].clientY)
+        board.mouseDown(mousePoint)
+    }.bind(placementCanvas, window.shipsBoard))
+
     placementCanvas.addEventListener('mouseup', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
+        board.mouseUp(mousePoint)
+    }.bind(placementCanvas, window.shipsBoard))
+
+    placementCanvas.addEventListener('touchend', function (board, e) {
+        const rect = this.getBoundingClientRect()
+        const mousePoint = getMousePoint(rect, e.changedTouches[0].clientX, e.changedTouches[0].clientY)
         board.mouseUp(mousePoint)
     }.bind(placementCanvas, window.shipsBoard))
 
