@@ -9,7 +9,6 @@ import Settings from './Settings'
 import Game from './Game'
 import { GameCreateValidator } from './Validators'
 import { validationResult } from 'express-validator'
-// import { version } from '../../package.json'
 
 class App {
     public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
