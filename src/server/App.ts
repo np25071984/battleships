@@ -9,6 +9,7 @@ import Settings from './Settings'
 import Game from './Game'
 import { GameCreateValidator } from './Validators'
 import { validationResult } from 'express-validator'
+// import { version } from '../../package.json'
 
 class App {
     public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
@@ -42,8 +43,12 @@ class App {
                 console.log('favicon requested')
                 return
             }
-            res.render('pages/main.ejs')
+
+            const { version } = require('../../package.json')
+
+            res.render('pages/main.ejs', {'version': version})
         })
+
         router.get('/create', (req, res) => {
             res.render('pages/create.ejs', {
                 'cols': 10,
@@ -56,6 +61,7 @@ class App {
                 'type': 'single',
             })
         })
+
         router.post('/create', GameCreateValidator, (req, res) => {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
@@ -113,6 +119,7 @@ class App {
             this.addGame(game)
             res.redirect(`/join/${gameId}`)
         })
+
         router.get('/join/:gameId', (req, res) => {
             const gameId: string = req.params.gameId
             if (!this.doesGameExist(gameId)) {
@@ -127,6 +134,7 @@ class App {
                 'rows': game.settings.gridRows,
             })
         })
+
         router.post('/join/:gameId', (req, res) => {
             const gameId: string = req.params.gameId
             if (!this.doesGameExist(gameId)) {
@@ -156,6 +164,7 @@ class App {
             game.joinPlayer(player)
             res.redirect(`/${gameId}?playerId=${player.id}`)
         })
+
         router.get('/shuffle/:gameId', (req, res) => {
             const gameId: string = req.params.gameId
             if (!this.doesGameExist(gameId)) {
@@ -188,9 +197,11 @@ class App {
 
             res.json(shipsData)
         })
+
         router.get('/list', (req, res) => {
             res.render('pages/list.ejs')
         })
+
         router.get('/games', (req, res) => {
             const gameList = []
             for (const gameId in this.games) {
@@ -228,18 +239,18 @@ class App {
             }
             res.json(gameList);
         })
+
         router.get('/:gameId', (req, res) => {
             const gameId: string = req.params.gameId
             if (!(gameId in this.games)) {
+                // TODO: redirect on Join page
                 res.send(`Game '${gameId}' not found`)
                 return
             }
 
-            // TODO: redirect on Join page
-
-            // TODO: how to handle this in a proper way
             res.render('pages/game.ejs', {'gameId': req.params.gameId})
         })
+
         this.express.use(express.urlencoded({extended: true}));
         this.express.use(express.json()) // To parse the incoming requests with JSON payloads
         this.express.use('/static', express.static('build/client'))
