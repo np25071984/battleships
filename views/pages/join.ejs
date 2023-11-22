@@ -21,6 +21,18 @@
             </ol>
         </nav>
 
+        <% if (showLink) { %>
+        <div class="row">
+            <div class="col">
+                <p>
+                    This game is private and won't be shown in <a href="/list">Join game</a> page.<br />
+                    You have to invite your partner yourself by sharing the link: <i id="share_link"></i>
+                    <a href="#" onclick="navigator.clipboard.writeText(document.getElementById('share_link').innerText)">📋</a>
+                </p>
+            </div>
+        </div>
+        <% } %>
+
         <div class="row text-center mb-3">
             <div class="col">
                 <canvas style="background-color: azure;" id="placement-board"></canvas>
@@ -43,6 +55,10 @@
         window.gameId = '<%- gameId %>'
         window.cols = '<%- cols %>'
         window.rows = '<%- rows %>'
+        const shareLinkElement = document.getElementById("share_link")
+        if (shareLinkElement) {
+            shareLinkElement.innerText = window.location.href
+        }
     </script>
 </body>
 </html>

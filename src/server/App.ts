@@ -126,11 +126,14 @@ class App {
                 return
             }
             const game = this.getGame(gameId)
-
+            const isMultiplayerPrivate: boolean = game.settings.gameType === Settings.GAME_TYPE_MULTIPLAYER_PRIVATE
+            const isHostPlayer: boolean = game.players.length === 0 // show "share" message only for host player
+            const showLink = (isMultiplayerPrivate && isHostPlayer) ? true : false
             res.render('pages/join.ejs', {
                 'gameId': req.params.gameId,
                 'cols': game.settings.gridCols,
                 'rows': game.settings.gridRows,
+                'showLink': showLink,
             })
         })
 
