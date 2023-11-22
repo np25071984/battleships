@@ -121,54 +121,62 @@ function sendShipsRequest(): void {
     xhttp.send()
 }
 
+function checkIfShipCanBeRotated(ship: Ship): boolean {
+    const rotatedOrientation = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ?
+        Ship.SHIP_ORIENTATION_VERTICAL :
+        Ship.SHIP_ORIENTATION_HORIZONTAL
+    const rotatedShip: Ship = new Ship(ship.position, rotatedOrientation, ship.type)
+
+    return window.canPlace(rotatedShip, rotatedShip.position)
+}
+
 window.mouseDownEvent = (position: Position) => {
+    var selectedShip: Ship|null = null
+
     for (const ship of window.shipsBoard.ships) {
-        if (ship.isLocatedAt(position)) {
-            ship.select()
+        if (!ship.isLocatedAt(position)) {
+            ship.deselect()
+            continue
+        }
 
-            window.offset = {
-                col: position.col - ship.position.col,
-                row: position.row - ship.position.row,
-            }
+        // ship clicked
+        ship.select()
+        selectedShip = ship
 
-            window.mouseMoveEvent = (position: Position) => {
-                for (const ship of window.shipsBoard.ships) {
-                    if (ship.isSelected()) {
-                        const actualPosition = new Position(
-                            position.col - window.offset.col,
-                            position.row - window.offset.row
-                        )
+        window.offset = {
+            col: position.col - ship.position.col,
+            row: position.row - ship.position.row,
+        }
 
-                        const shade: Ship = new Ship(
-                            actualPosition,
-                            ship.orientation,
-                            ShipTypeFactory.getType(ship.type.getSize())
-                        )
-                        window.shadeShip = shade
-                        break
-                    }
+        window.mouseMoveEvent = (position: Position) => {
+            for (const ship of window.shipsBoard.ships) {
+                if (ship.isSelected()) {
+                    const actualPosition = new Position(
+                        position.col - window.offset.col,
+                        position.row - window.offset.row
+                    )
+
+                    const shade: Ship = new Ship(
+                        actualPosition,
+                        ship.orientation,
+                        ShipTypeFactory.getType(ship.type.getSize())
+                    )
+                    window.shadeShip = shade
+                    break
                 }
             }
-        } else {
-            ship.deselect()
         }
+    }
 
-        // enable/disable Rotate button when a Ship is/isn't selected
-        var isSelectedShip: boolean = false
-        for (const ship of window.shipsBoard.ships) {
-            if (ship.isSelected()) {
-                isSelectedShip = true
-                break
-            }
-        }
+    const rotateButton = document.getElementById("rotate-ship") as HTMLButtonElement
+    if (rotateButton == null) {
+        throw Error("Can't find Rotate button")
+    }
 
-        const rotateButton = document.getElementById("rotate-ship") as HTMLButtonElement
-        if (rotateButton == null) {
-            throw Error("Can't find Rotate button")
-        }
-
-        // TODO: check if it is possible to rotate the ship
-        rotateButton.disabled = !isSelectedShip
+    if (selectedShip) {
+        rotateButton.disabled = !checkIfShipCanBeRotated(selectedShip)
+    } else {
+        rotateButton.disabled = true
     }
 
     const shipsCanvas = document.getElementById("placement-board") as HTMLCanvasElement
@@ -207,6 +215,13 @@ window.mouseUpEvent = (position: Position) => {
                 })
 
                 ship.move(actualPosition)
+
+                const rotateButton = document.getElementById("rotate-ship") as HTMLButtonElement
+                if (rotateButton == null) {
+                    throw Error("Can't find Rotate button")
+                }
+
+                rotateButton.disabled = !checkIfShipCanBeRotated(ship)
             } else {
                 console.log(`Ship can't be placed at ${position.col}x${position.row}`)
                 if (!ship.isLocatedAt(position)) {
