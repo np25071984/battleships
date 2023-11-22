@@ -103,7 +103,7 @@ class Render {
         }
 
         if (window.shadeShip) {
-            const canPlace: boolean = window.canPlace(window.shadeShip, window.shadeShip.position)
+            const canPlace: boolean = board.grid.canPlace(window.shadeShip, window.shadeShip.position)
             const type: number = canPlace ? Cell.CELL_TYPE_SHADOW : Cell.CELL_TYPE_WRACKAGE
             window.shadeShip.sections.forEach((section: ShipSection) => {
                 if (!board.grid.doesCellExist(section.position)) {

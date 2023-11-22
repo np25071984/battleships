@@ -9,62 +9,14 @@ import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipSection from '../common/ShipSection'
 import ShipTypeFactory from '../common/ShipTypeFactory'
 
-window.canPlace = function(ship: Ship, position: Position): boolean {
-    const tmpShip = new Ship(position, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
-
-    if (ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL) {
-        const rightSectionCol: number = tmpShip.position.col + tmpShip.type.getSize()
-        if (rightSectionCol > window.shipsBoard.grid.cols) {
-            return false
-        }
-    }
-
-    if (ship.orientation === Ship.SHIP_ORIENTATION_VERTICAL) {
-        const bottomSectionRow: number = tmpShip.position.row + tmpShip.type.getSize()
-        if (bottomSectionRow > window.shipsBoard.grid.rows) {
-            return false
-        }
-    }
-
-    for (const placedShip of window.shipsBoard.ships) {
-        if (!placedShip.isSelected()) {
-            for (const key in tmpShip.sections) {
-                const section: ShipSection = tmpShip.sections[key]
-                if (placedShip.occupies(section.position)) {
-                    return false
-                }
-            }
-        }
-    }
-
-    return true
-}
-
 window.rotateShip = function(): void {
-    for (const ship of window.shipsBoard.ships) {
-        if (ship.isSelected()) {
-            const oppositeOrientation: number = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? Ship.SHIP_ORIENTATION_VERTICAL : Ship.SHIP_ORIENTATION_HORIZONTAL
-            const rotatedShip = new Ship(ship.position, oppositeOrientation, ShipTypeFactory.getType(ship.type.getSize()))
-            if (window.canPlace(rotatedShip, rotatedShip.position)) {
-                // clean up previously occupied space
-                ship.sections.forEach((section: ShipSection) => {
-                    window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
-                })
-
-                ship.orientation = oppositeOrientation
-                ship.move(ship.position)
-
-                const shipsCanvas = document.getElementById("placement-board")
-                if (shipsCanvas == null) {
-                    throw Error("Can't find Board")
-                }
-
-                window.render.refreshGrid(shipsCanvas, window.shipsBoard)
-            } else {
-                console.log("this ship can't be rotated")
-            }
-            break
+    if (window.shipsBoard.rotateShip()) {
+        const shipsCanvas = document.getElementById("placement-board")
+        if (shipsCanvas == null) {
+            throw Error("Can't find Board")
         }
+
+        window.render.refreshGrid(shipsCanvas, window.shipsBoard)
     }
 }
 
@@ -127,7 +79,7 @@ function checkIfShipCanBeRotated(ship: Ship): boolean {
         Ship.SHIP_ORIENTATION_HORIZONTAL
     const rotatedShip: Ship = new Ship(ship.position, rotatedOrientation, ship.type)
 
-    return window.canPlace(rotatedShip, rotatedShip.position)
+    return window.shipsBoard.grid.canPlace(rotatedShip, rotatedShip.position)
 }
 
 window.mouseDownEvent = (position: Position) => {
@@ -209,7 +161,7 @@ window.mouseUpEvent = (position: Position) => {
                 position.row - window.offset.row
             )
 
-            if (window.canPlace(ship, actualPosition)) {
+            if (window.shipsBoard.grid.canPlace(ship, actualPosition)) {
                 ship.sections.forEach((section: ShipSection) => {
                     window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
                 })

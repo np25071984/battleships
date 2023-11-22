@@ -1,4 +1,4 @@
-import Ship from '../../common/Ship'
+import Ship from '../Ship'
 
 declare global {
     interface Window {
@@ -17,7 +17,6 @@ declare global {
         mouseClickEvent: any
         offset: any
         shadeShip: Ship|null
-        canPlace: any
         rotateShip: any
         shuffleShip: any
         cols: number

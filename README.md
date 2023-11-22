@@ -116,7 +116,6 @@ sequenceDiagram
 ```
 
 ## TODO
-* Disable Rotate button when it isn't possible to rotate the ship
 * Improve AI (make shots into intersections which have most ship probability)
 * Implement round timer (?)
 * Add Restart Game feature (?)
