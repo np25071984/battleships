@@ -57,11 +57,11 @@ class Ship
         throw new Error(`Couldn't hit the ship at ${position.col}x${position.row}`)
     }
 
-    getSurraund(): Position[] {
+    getSurrounding(): Position[] {
         const intermediateRes = {};
         for (const section of this.sections) {
-            const surround = section.position.getSurraund();
-            for (const position of surround) {
+            const surrounding = section.position.getSurrounding()
+            for (const position of surrounding) {
                 const key = position.generateKey()
                 if(!(key in intermediateRes) && !this.isLocatedAt(position)) {
                     intermediateRes[key] = position;

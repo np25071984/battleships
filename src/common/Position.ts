@@ -24,7 +24,7 @@ class Position
         return `${this.col}_${this.row}`
     }
 
-    getSurraund(): Position[] {
+    getSurrounding(): Position[] {
         const res = this.getAdjacents()
         if (this.row > 0) {
             var rt = new Position(this.col + 1, this.row - 1)

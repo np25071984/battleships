@@ -38,7 +38,7 @@ class Ship extends BaseShip {
             }
         }
 
-        for (const p of this.getSurraund()) {
+        for (const p of this.getSurrounding()) {
             if (p.isEqual(position)) {
                 return true
             }

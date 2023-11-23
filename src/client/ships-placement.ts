@@ -157,7 +157,8 @@ window.mouseUpEvent = (position: Position) => {
                 position.row - window.offset.row
             )
 
-            if (window.shipsBoard.grid.canPlace(ship, actualPosition)) {
+            const tmpShip = new Ship(actualPosition, ship.isHorizontal, ship.type)
+            if (window.shipsBoard.grid.canPlace(tmpShip)) {
                 ship.sections.forEach((section: ShipSection) => {
                     window.shipsBoard.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
                 })

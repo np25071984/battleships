@@ -110,7 +110,7 @@ class Game {
                     cell.setType(type)
                 }
             } else {
-                for (const p of ship.getSurraund()) {
+                for (const p of ship.getSurrounding()) {
                     if (grid.doesCellExist(p)) {
                         const cell = grid.getCell(p)
                         cell.setType(Cell.CELL_TYPE_WATER)
@@ -202,7 +202,7 @@ class Game {
                 shotResult = ship.hit(shotPosition)
                 if (shotResult === ShotResult.HIT_RESULT_SUNK) {
                     opponent.shipsCount--
-                    surraund = ship.getSurraund()
+                    surraund = ship.getSurrounding()
                 }
                 break
             }

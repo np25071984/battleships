@@ -43,9 +43,8 @@ class Grid extends AbstractGrid
             cell.setType(type)
         }, this)
 
-        const surround = ship.getSurraund();
-        for (const k in surround) {
-            const s = surround[k]
+        const surrounding = ship.getSurrounding()
+        for (const s of surrounding) {
             if (this.doesCellExist(s)) {
                 this.getCell(s).setType(Cell.CELL_TYPE_WATER)
             }
