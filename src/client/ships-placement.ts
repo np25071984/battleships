@@ -53,7 +53,7 @@ function sendShipsRequest(): void {
             shipsData.forEach((shipData) => {
                 const p: Position = new Position(shipData.col, shipData.row)
                 const t: ShipTypeAbstract = ShipTypeFactory.getType(shipData.size)
-                const s = new Ship(p, shipData.orientation, t)
+                const s = new Ship(p, shipData.isHorizontal, t)
                 window.shipsBoard.loadShip(s)
             })
 
@@ -74,11 +74,7 @@ function sendShipsRequest(): void {
 }
 
 function checkIfShipCanBeRotated(ship: Ship): boolean {
-    const rotatedOrientation = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ?
-        Ship.SHIP_ORIENTATION_VERTICAL :
-        Ship.SHIP_ORIENTATION_HORIZONTAL
-    const rotatedShip: Ship = new Ship(ship.position, rotatedOrientation, ship.type)
-
+    const rotatedShip: Ship = new Ship(ship.position, !ship.isHorizontal, ship.type)
     return window.shipsBoard.grid.canPlace(rotatedShip, rotatedShip.position)
 }
 
@@ -110,7 +106,7 @@ window.mouseDownEvent = (position: Position) => {
 
                     const shade: Ship = new Ship(
                         actualPosition,
-                        ship.orientation,
+                        ship.isHorizontal,
                         ShipTypeFactory.getType(ship.type.getSize())
                     )
                     window.shadeShip = shade
@@ -290,7 +286,7 @@ window.onload = function () {
                 'col': ship.position.col,
                 'row': ship.position.row,
                 'type': ship.type.getSize(),
-                'orientation': ship.orientation,
+                'isHorizontal': ship.isHorizontal,
             })
             var input = document.createElement('input')
             input.setAttribute('name', "ships[]")

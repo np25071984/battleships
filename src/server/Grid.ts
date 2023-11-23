@@ -115,12 +115,10 @@ class Grid {
 
         const types = [...shipsToPlace]
         const shipType = types.pop()
-        const orientations = Math.random() > 0.5
-            ? [Ship.SHIP_ORIENTATION_VERTICAL, Ship.SHIP_ORIENTATION_HORIZONTAL]
-            : [Ship.SHIP_ORIENTATION_HORIZONTAL, Ship.SHIP_ORIENTATION_VERTICAL]
-        for (const orientation of orientations) {
-            const maxCol = orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? grid.cols - shipType.getSize() : grid.cols
-            const maxRow = orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ? grid.rows : grid.rows - shipType.getSize()
+        const orientations = Math.random() > 0.5 ? [true, false] : [false, true]
+        for (const isHorizontal of orientations) {
+            const maxCol = isHorizontal ? grid.cols - shipType.getSize() : grid.cols
+            const maxRow = isHorizontal ? grid.rows : grid.rows - shipType.getSize()
             const randomRowOffset = Math.floor(Math.random() * maxRow)
             for (var r = 0; r < maxRow; r++) {
                 var rr = r + randomRowOffset
@@ -137,7 +135,7 @@ class Grid {
                     if (cc >= maxCol) {
                         cc -= maxCol
                     }
-                    const ship = new Ship(new Position(cc, rr), orientation, shipType)
+                    const ship = new Ship(new Position(cc, rr), isHorizontal, shipType)
 
                     if (grid.canPlaceShip(ship) === true) {
                         const pl = [...placedShips]

@@ -116,6 +116,7 @@ sequenceDiagram
 ```
 
 ## TODO
+* `findShipsCombination` blocks entire process; we have to find a solution how to avoid this
 * Improve AI (make shots into intersections which have most ship probability)
 * Implement round timer (?)
 * Add Restart Game feature (?)

@@ -31,17 +31,14 @@ class Board
     rotateShip(): boolean {
         for (const ship of this.ships) {
             if (ship.isSelected()) {
-                const oppositeOrientation: number = ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL ?
-                    Ship.SHIP_ORIENTATION_VERTICAL :
-                    Ship.SHIP_ORIENTATION_HORIZONTAL
-                const rotatedShip = new Ship(ship.position, oppositeOrientation, ship.type)
-                if (this.grid.canPlace(rotatedShip, rotatedShip.position)) {
+                const rotatedShip = new Ship(ship.position, !ship.isHorizontal, ship.type)
+                if (this.grid.canPlace(rotatedShip)) {
                     // clean up previously occupied space
                     ship.sections.forEach((section: ShipSection) => {
                         this.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
                     })
 
-                    ship.orientation = oppositeOrientation
+                    ship.isHorizontal = !ship.isHorizontal
                     ship.move(ship.position)
 
                     return true

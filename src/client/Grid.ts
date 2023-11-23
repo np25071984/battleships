@@ -2,8 +2,6 @@ import Point from './Point'
 import Cell from './Cell'
 import Position from '../common/Position'
 import Ship from './Ship'
-import ShipSection from '../common/ShipSection'
-import ShipTypeFactory from '../common/ShipTypeFactory'
 
 class Grid {
     private cells: Cell[][]
@@ -16,27 +14,22 @@ class Grid {
         this.rows = cells.length
     }
 
-    canPlace(ship: Ship, position: Position): boolean {
-        const tmpShip = new Ship(position, ship.orientation, ShipTypeFactory.getType(ship.type.getSize()))
-
-        if (ship.orientation === Ship.SHIP_ORIENTATION_HORIZONTAL) {
-            const rightSectionCol: number = tmpShip.position.col + tmpShip.type.getSize()
-            if (rightSectionCol > window.shipsBoard.grid.cols) {
+    canPlace(ship: Ship): boolean {
+        if (ship.isHorizontal) {
+            const rightSectionCol: number = ship.position.col + ship.type.getSize()
+            if (rightSectionCol > this.cols) {
                 return false
             }
-        }
-
-        if (ship.orientation === Ship.SHIP_ORIENTATION_VERTICAL) {
-            const bottomSectionRow: number = tmpShip.position.row + tmpShip.type.getSize()
-            if (bottomSectionRow > window.shipsBoard.grid.rows) {
+        } else {
+            const bottomSectionRow: number = ship.position.row + ship.type.getSize()
+            if (bottomSectionRow > this.rows) {
                 return false
             }
         }
 
         for (const placedShip of window.shipsBoard.ships) {
             if (!placedShip.isSelected()) {
-                for (const key in tmpShip.sections) {
-                    const section: ShipSection = tmpShip.sections[key]
+                for (const section of ship.sections) {
                     if (placedShip.occupies(section.position)) {
                         return false
                     }

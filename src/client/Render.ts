@@ -68,7 +68,6 @@ class Render {
         context.closePath()
 
         context.beginPath()
-        // context.textAlign = 'middle'
         context.textBaseline = 'bottom'
         for (var i = 0; i < board.grid.cols; i++) {
             const curShift = board.rect.ltPoint.x + cellWidth*i + cellWidth/2 + board.fontSize/2
@@ -103,7 +102,7 @@ class Render {
         }
 
         if (window.shadeShip) {
-            const canPlace: boolean = board.grid.canPlace(window.shadeShip, window.shadeShip.position)
+            const canPlace: boolean = board.grid.canPlace(window.shadeShip)
             const type: number = canPlace ? Cell.CELL_TYPE_SHADOW : Cell.CELL_TYPE_WRACKAGE
             window.shadeShip.sections.forEach((section: ShipSection) => {
                 if (!board.grid.doesCellExist(section.position)) {

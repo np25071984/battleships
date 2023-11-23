@@ -21,15 +21,10 @@ class Ship extends BaseShip {
         this.position = position
         this.sections = []
         for (var i = 0; i < this.type.getSize(); i++) {
-            switch (this.orientation) {
-                case Ship.SHIP_ORIENTATION_VERTICAL:
-                    var c = new Position(position.col, position.row + i)
-                    break
-                case Ship.SHIP_ORIENTATION_HORIZONTAL:
-                    var c = new Position(position.col + i, position.row)
-                    break
-                default:
-                    throw new Error(`Unknown ship orientation(${this.orientation})`)
+            if (this.isHorizontal) {
+                var c = new Position(position.col + i, position.row)
+            } else {
+                var c = new Position(position.col, position.row + i)
             }
             const s = new ShipSection(c, true)
             this.sections.push(s)

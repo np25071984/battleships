@@ -158,7 +158,7 @@ class App {
                 const raw = JSON.parse(rawShip)
                 const p = new Position(raw.col, raw.row)
                 var type: ShipTypeAbstract = ShipTypeFactory.getType(raw.type)
-                const ship = new Ship(p, raw.orientation, type)
+                const ship = new Ship(p, raw.isHorizontal, type)
                 ships.push(ship)
             }
             const player = new Player(playerId, grid, ships)
@@ -192,7 +192,7 @@ class App {
                 shipsData.push({
                     'col': ship.position.col,
                     'row': ship.position.row,
-                    'orientation': ship.orientation,
+                    'isHorizontal': ship.isHorizontal,
                     'size': ship.type.getSize(),
                 })
             })

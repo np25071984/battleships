@@ -1,7 +1,6 @@
 import Ship from '../common/Ship'
 import Grid from './Grid'
 import Position from '../common/Position'
-import ShipSection from '../common/ShipSection'
 
 interface Shots {
     [round: string]: Position
@@ -55,8 +54,7 @@ class Player {
         for (const s in this.ships) {
             const ship: Ship = this.ships[s]
             if (ship.alive) {
-                for (const secId in ship.sections) {
-                    const section: ShipSection = ship.sections[secId]
+                for (const section of ship.sections) {
                     if (section.isAlive) {
                         aliveSections.push({
                             'col': section.position.col,
