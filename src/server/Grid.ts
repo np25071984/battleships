@@ -12,10 +12,10 @@ class Grid extends AbstractGrid
     static initGrid(col: number, row: number): Grid {
         const grid: Cell[][] = [];
         for (var r: number = 0; r < row; r++) {
-            const rowItems: Cell[] = [];
+            const rowItems: Cell[] = []
             for (var c: number = 0; c < col; c++) {
                 const p = new Position(c, r)
-                rowItems[c] = new Cell(p);
+                rowItems[c] = new Cell(p)
             }
             grid[r] = rowItems
         }
@@ -24,9 +24,9 @@ class Grid extends AbstractGrid
     }
 
     typesOnly(): number[][] {
-        const grid: number[][] = [];
+        const grid: number[][] = []
         for (var r = 0; r < this.cells.length; r++) {
-            const row: number[] = [];
+            const row: number[] = []
             for (var c = 0; c < this.cells[r].length; c++) {
                 row[c] = this.cells[r][c].getType()
             }
@@ -67,6 +67,7 @@ class Grid extends AbstractGrid
     }
 
     static findShipsCombination(col: number, row: number, shipsToPlace: ShipTypeAbstract[]): Ship[]|null {
+        // TODO: order shipsToPlace by size desc
         Grid.iter = 0
 
         var ships: Ship[]|null

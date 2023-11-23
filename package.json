@@ -1,6 +1,6 @@
 {
     "name": "battleships",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "description": "Battleships game",
     "dependencies": {
         "ejs": "^3.1.9",

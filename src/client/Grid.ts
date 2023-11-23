@@ -2,9 +2,28 @@ import Point from './Point'
 import Position from '../common/Position'
 import Ship from './Ship'
 import AbstractGrid from '../common/AbstractGrid'
+import Cell from '../common/Cell'
+import ShipSection from '../common/ShipSection'
+
 
 class Grid extends AbstractGrid
 {
+    public ships: Ship[] = []
+
+    loadShip(ship: Ship): void {
+        this.ships.push(ship)
+    }
+
+    resetShips(): void {
+        this.ships.forEach((ship: Ship) => {
+            ship.sections.forEach((section: ShipSection) => {
+                this.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
+            })
+        })
+
+        this.ships = []
+    }
+
     canPlace(ship: Ship): boolean {
         if (ship.isHorizontal) {
             const rightSectionCol: number = ship.position.col + ship.type.getSize()
@@ -18,7 +37,7 @@ class Grid extends AbstractGrid
             }
         }
 
-        for (const placedShip of window.shipsBoard.ships) {
+        for (const placedShip of this.ships) {
             if (!placedShip.isSelected()) {
                 for (const section of ship.sections) {
                     if (placedShip.occupies(section.position)) {

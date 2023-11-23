@@ -28,7 +28,7 @@ window.shuffleShip = function(): void {
 
     window.shipsBoard.setReady(false)
     window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
-    window.shipsBoard.resetShips()
+    window.shipsBoard.grid.resetShips()
 
     sendShipsRequest()
 
@@ -54,7 +54,7 @@ function sendShipsRequest(): void {
                 const p: Position = new Position(shipData.col, shipData.row)
                 const t: ShipTypeAbstract = ShipTypeFactory.getType(shipData.size)
                 const s = new Ship(p, shipData.isHorizontal, t)
-                window.shipsBoard.loadShip(s)
+                window.shipsBoard.grid.loadShip(s)
             })
 
             window.shipsBoard.setReady(true)
@@ -81,7 +81,7 @@ function checkIfShipCanBeRotated(ship: Ship): boolean {
 window.mouseDownEvent = (position: Position) => {
     var selectedShip: Ship|null = null
 
-    for (const ship of window.shipsBoard.ships) {
+    for (const ship of window.shipsBoard.grid.ships) {
         if (!ship.isLocatedAt(position)) {
             ship.deselect()
             continue
@@ -97,7 +97,7 @@ window.mouseDownEvent = (position: Position) => {
         }
 
         window.mouseMoveEvent = (position: Position) => {
-            for (const ship of window.shipsBoard.ships) {
+            for (const ship of window.shipsBoard.grid.ships) {
                 if (ship.isSelected()) {
                     const actualPosition = new Position(
                         position.col - window.offset.col,
@@ -150,7 +150,7 @@ window.mouseUpEvent = (position: Position) => {
         window.shadeShip = null
     }
 
-    for (const ship of window.shipsBoard.ships) {
+    for (const ship of window.shipsBoard.grid.ships) {
         if (ship.isSelected()) {
             const actualPosition = new Position(
                 position.col - window.offset.col,
@@ -234,7 +234,7 @@ window.onload = function () {
     }.bind(placementCanvas, window.shipsBoard))
 
     placementCanvas.addEventListener('touchmove', function (board, e) {
-        for (const ship of window.shipsBoard.ships) {
+        for (const ship of window.shipsBoard.grid.ships) {
             if (ship.isSelected()) {
                 e.preventDefault()
             }
@@ -282,7 +282,7 @@ window.onload = function () {
     }
 
     submitButton.addEventListener('click', function (event) {
-        window.shipsBoard.ships.forEach((ship: Ship) => {
+        window.shipsBoard.grid.ships.forEach((ship: Ship) => {
             const sh: string = JSON.stringify({
                 'col': ship.position.col,
                 'row': ship.position.row,

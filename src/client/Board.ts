@@ -14,7 +14,6 @@ class Board
     public round: number | undefined
     public active: boolean
     public showAgenda: boolean
-    public ships: Ship[]
     private isReady: boolean
 
     constructor(outerRect: Rect, grid: Grid, fontSize: number, showAgenda: boolean) {
@@ -24,12 +23,11 @@ class Board
         this.round = undefined
         this.active = false
         this.showAgenda = showAgenda
-        this.ships = []
         this.isReady = false
     }
 
     rotateShip(): boolean {
-        for (const ship of this.ships) {
+        for (const ship of this.grid.ships) {
             if (ship.isSelected()) {
                 const rotatedShip = new Ship(ship.position, !ship.isHorizontal, ship.type)
                 if (this.grid.canPlace(rotatedShip)) {
@@ -95,20 +93,6 @@ class Board
     roundStart(number: number) {
         this.active = true
         this.round = number
-    }
-
-    loadShip(ship: Ship): void {
-        this.ships.push(ship)
-    }
-
-    resetShips(): void {
-        this.ships.forEach((ship: Ship) => {
-            ship.sections.forEach((section: ShipSection) => {
-                this.grid.getCell(section.position).setType(Cell.CELL_TYPE_FOG_OF_WAR)
-            })
-        })
-
-        this.ships = []
     }
 
     loadData(data: any) {
