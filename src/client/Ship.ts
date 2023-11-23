@@ -32,8 +32,7 @@ class Ship extends BaseShip {
     }
 
     occupies(position: Position): boolean {
-        for (var i = 0; i < this.sections.length; i++) {
-            const section = this.sections[i]
+        for (const section of this.sections) {
             if (section.isLocatedAt(position)) {
                 return true
             }

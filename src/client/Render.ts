@@ -125,7 +125,7 @@ class Render {
         for (var r = 0; r < board.grid.rows; r++) {
             for (var c = 0; c < board.grid.cols; c++) {
                 const pos = new Position(c, r)
-                const cell: Cell = board.grid.getCell(pos)
+                const cell: Cell = this.getClientCell(board, pos)
                 if (!cell.isChanged()) {
                     continue
                 }
@@ -137,6 +137,15 @@ class Render {
                 cell.save()
             }
         }
+    }
+
+    private getClientCell(board: Board, pos: Position): Cell {
+        const cell = board.grid.getCell(pos)
+        if (!(cell instanceof Cell)) {
+            throw new Error("Unexpected Cell type")
+        }
+
+        return cell
     }
 
     private getCellColor(cell: Cell) {

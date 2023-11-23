@@ -107,7 +107,7 @@ class Bot extends Player {
             if (position.col - i >= 0) {
                 const ph = new Position(position.col - i, position.row)
                 const horizontalShip: Ship = new Ship(ph, true, shipType)
-                if (this.decisionGrid.canPlaceShip(horizontalShip)) {
+                if (this.decisionGrid.canPlace(horizontalShip)) {
                     return true
                 }
             }
@@ -115,7 +115,7 @@ class Bot extends Player {
             if (position.row - i >= 0) {
                 const pv = new Position(position.col, position.row - i)
                 const verticalShip: Ship = new Ship(pv, false, shipType)
-                if (this.decisionGrid.canPlaceShip(verticalShip)) {
+                if (this.decisionGrid.canPlace(verticalShip)) {
                     return true
                 }
             }

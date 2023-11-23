@@ -3,18 +3,11 @@ import Position from '../common/Position'
 import Ship from '../common/Ship'
 import ShipSection from '../common/ShipSection'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
+import AbstractGrid from '../common/AbstractGrid'
 
-class Grid {
+class Grid extends AbstractGrid
+{
     static iter: number = 0
-    private cells: Cell[][]
-    readonly cols: number
-    readonly rows: number
-
-    constructor(cells: Cell[][]) {
-        this.cells = cells
-        this.cols = cells[0].length
-        this.rows = cells.length
-    }
 
     static initGrid(col: number, row: number): Grid {
         const grid: Cell[][] = [];
@@ -28,22 +21,6 @@ class Grid {
         }
 
         return new Grid(grid)
-    }
-
-    doesCellExist(position: Position): boolean {
-        if (!(position.row in this.cells)) {
-            return false
-        }
-
-        if (!(position.col in this.cells[position.row])) {
-            return false
-        }
-
-        return true
-    }
-
-    getCell(position: Position): Cell {
-        return this.cells[position.row][position.col]
     }
 
     typesOnly(): number[][] {
@@ -75,11 +52,12 @@ class Grid {
         }
     }
 
-    canPlaceShip(ship: Ship): boolean {
+    canPlace(ship: Ship): boolean {
         for (const section of ship.sections) {
             if (!this.doesCellExist(section.position)) {
                 return false
             }
+
             const cell = this.getCell(section.position)
             if (cell.getType() !== Cell.CELL_TYPE_FOG_OF_WAR) {
                 return false
@@ -137,7 +115,7 @@ class Grid {
                     }
                     const ship = new Ship(new Position(cc, rr), isHorizontal, shipType)
 
-                    if (grid.canPlaceShip(ship) === true) {
+                    if (grid.canPlace(ship) === true) {
                         const pl = [...placedShips]
                         pl.push(ship)
                         const res = Grid.placeShips(col, row, pl, [...types])
