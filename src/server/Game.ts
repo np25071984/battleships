@@ -8,6 +8,7 @@ import Cell from '../common/Cell'
 import ShipSection from '../common/ShipSection'
 import Settings from './Settings'
 import Bot from './Bot'
+import Randomizer from './Randomizer'
 
 class Game {
     public id: string
@@ -43,20 +44,20 @@ class Game {
             const playerId: string = 'bot'
             const grid = Grid.initGrid(this.settings.gridCols, this.settings.gridRows)
 
-            var ships: Ship[]|null = Grid.placeShips(
+            const randomizer: Randomizer = new Randomizer()
+            randomizer.findShipsCombination(
                 this.settings.gridCols,
                 this.settings.gridRows,
-                [],
                 this.settings.shipTypes
-            )
+            ).then((ships: Ship[]|null) => {
+                if (ships === null) {
+                    throw new Error("Couldn't place for BOT")
+                }
 
-            if (ships === null) {
-                throw new Error("Couldn't place for BOT")
-            }
-
-            const bot = new Bot(playerId, grid, ships)
-            bot.updateSocketId('null-socket')
-            this.players.push(bot)
+                const bot = new Bot(playerId, grid, ships)
+                bot.updateSocketId('null-socket')
+                this.players.push(bot)
+            })
         }
     }
 

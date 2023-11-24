@@ -7,6 +7,7 @@ import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import ShipTypeFactory from '../common/ShipTypeFactory'
 import Settings from './Settings'
 import Game from './Game'
+import Randomizer from './Randomizer'
 import { GameCreateValidator } from './Validators'
 import { validationResult } from 'express-validator'
 
@@ -94,29 +95,31 @@ class App {
                 shipTypes.push(ShipTypeFactory.getType(2))
             }
 
-            const ships: Ship[]|null = Grid.findShipsCombination(gridCols, gridRows, shipTypes)
+            const randomizer: Randomizer = new Randomizer()
+            randomizer.findShipsCombination(gridCols, gridRows, shipTypes)
+                .then((ships: Ship[]|null) => {
+                    if (ships === null) {
+                        res.render('pages/create.ejs', {
+                            'cols': gridCols,
+                            'rows': gridRows,
+                            'carrier': carrierAmount,
+                            'battleship': battleshipAmount,
+                            'destroyer': destroyerAmount,
+                            'patrolboat': patrolBoatAmount,
+                            'type': gameType,
+                            'mode': gameMode,
+                            'error': "The grid is too small to fit all the ships!"
+                        })
+                        return
+                    }
 
-            if (ships === null) {
-                res.render('pages/create.ejs', {
-                    'cols': gridCols,
-                    'rows': gridRows,
-                    'carrier': carrierAmount,
-                    'battleship': battleshipAmount,
-                    'destroyer': destroyerAmount,
-                    'patrolboat': patrolBoatAmount,
-                    'type': gameType,
-                    'mode': gameMode,
-                    'error': "The grid is too small to fit all the ships!"
+                    const settings: Settings = new Settings(gridCols, gridRows, gameType, gameMode, shipTypes)
+
+                    const gameId: string = this.makeId(6)
+                    const game: Game = new Game(gameId, 1, settings)
+                    this.addGame(game)
+                    res.redirect(`/join/${gameId}`)
                 })
-                return
-            }
-
-            const settings = new Settings(gridCols, gridRows, gameType, gameMode, shipTypes)
-
-            const gameId = this.makeId(6)
-            const game: Game = new Game(gameId, 1, settings)
-            this.addGame(game)
-            res.redirect(`/join/${gameId}`)
         })
 
         router.get('/join/:gameId', (req, res) => {
@@ -125,10 +128,10 @@ class App {
                 res.send(`Game '${gameId}' not found`)
                 return
             }
-            const game = this.getGame(gameId)
+            const game: Game = this.getGame(gameId)
             const isMultiplayerPrivate: boolean = game.settings.gameType === Settings.GAME_TYPE_MULTIPLAYER_PRIVATE
             const isHostPlayer: boolean = game.players.length === 0 // show "share" message only for host player
-            const showLink = (isMultiplayerPrivate && isHostPlayer) ? true : false
+            const showLink: boolean = (isMultiplayerPrivate && isHostPlayer) ? true : false
             res.render('pages/join.ejs', {
                 'gameId': req.params.gameId,
                 'cols': game.settings.gridCols,
@@ -143,7 +146,7 @@ class App {
                 res.send(`Game '${gameId}' not found`)
                 return
             }
-            const game = this.getGame(gameId)
+            const game: Game = this.getGame(gameId)
             const playerId: string = this.makeId(6)
             const grid = Grid.initGrid(game.settings.gridCols, game.settings.gridRows)
 
@@ -156,12 +159,12 @@ class App {
             // TODO: validate input
             for (const rawShip of req.body.ships) {
                 const raw = JSON.parse(rawShip)
-                const p = new Position(raw.col, raw.row)
+                const p: Position = new Position(raw.col, raw.row)
                 var type: ShipTypeAbstract = ShipTypeFactory.getType(raw.type)
-                const ship = new Ship(p, raw.isHorizontal, type)
+                const ship: Ship = new Ship(p, raw.isHorizontal, type)
                 ships.push(ship)
             }
-            const player = new Player(playerId, grid, ships)
+            const player: Player = new Player(playerId, grid, ships)
 
             game.joinPlayer(player)
             res.redirect(`/${gameId}?playerId=${player.id}`)
@@ -173,31 +176,34 @@ class App {
                 res.send(`Game '${gameId}' not found`)
                 return
             }
-            const game = this.getGame(gameId)
+            const game: Game = this.getGame(gameId)
 
-            var ships: Ship[]|null = Grid.findShipsCombination(
+            const randomizer: Randomizer = new Randomizer()
+            randomizer.findShipsCombination(
                 game.settings.gridCols,
                 game.settings.gridRows,
                 game.settings.shipTypes
+            ).then(
+                (ships: Ship[]|null) => {
+                    if (ships === null) {
+                        console.log("Couldn't place")
+                        res.json([]) // TODO: this shouldn't ever happen
+                        return
+                    }
+
+                    const shipsData: Object[] = []
+                    ships.forEach((ship: Ship) => {
+                        shipsData.push({
+                            'col': ship.position.col,
+                            'row': ship.position.row,
+                            'isHorizontal': ship.isHorizontal,
+                            'size': ship.type.getSize(),
+                        })
+                    })
+
+                    res.json(shipsData)
+                }
             )
-
-            if (ships === null) {
-                console.log("Couldn't place")
-                res.json([]) // TODO: this shouldn't ever happen
-                return
-            }
-
-            const shipsData: Object[] = []
-            ships.forEach((ship: Ship) => {
-                shipsData.push({
-                    'col': ship.position.col,
-                    'row': ship.position.row,
-                    'isHorizontal': ship.isHorizontal,
-                    'size': ship.type.getSize(),
-                })
-            })
-
-            res.json(shipsData)
         })
 
         router.get('/list', (req, res) => {
@@ -259,11 +265,11 @@ class App {
         this.express.use('/', router)
     }
 
-    public makeId(length: number) {
-        let result = ''
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        const charactersLength = characters.length
-        let counter = 0
+    public makeId(length: number): string {
+        let result: string = ''
+        const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        const charactersLength: number = characters.length
+        let counter: number = 0
         while (counter < length) {
           result += characters.charAt(Math.floor(Math.random() * charactersLength))
           counter += 1
