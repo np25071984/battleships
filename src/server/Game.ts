@@ -44,14 +44,15 @@ class Game {
             const playerId: string = 'bot'
             const grid = Grid.initGrid(this.settings.gridCols, this.settings.gridRows)
 
-            const randomizer: Randomizer = new Randomizer()
+            const maxIterations: number = this.settings.gridCols * this.settings.gridRows * 100
+            const randomizer: Randomizer = new Randomizer(maxIterations)
             randomizer.findShipsCombination(
                 this.settings.gridCols,
                 this.settings.gridRows,
                 this.settings.shipTypes
             ).then((ships: Ship[]|null) => {
                 if (ships === null) {
-                    throw new Error("Couldn't place for BOT")
+                    throw new Error(`Couldn't arrange Bot ships within ${this.id} game`)
                 }
 
                 const bot = new Bot(playerId, grid, ships)

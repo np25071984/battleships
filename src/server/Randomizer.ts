@@ -5,11 +5,17 @@ import Grid from './Grid'
 
 class Randomizer
 {
-    iter: number = 0
+    private currentIter: number = 0
+    private maxIteration: number
+    private readonly CHUNK_SIZE: number = 500000
+
+    constructor(maxIteration: number = 0) {
+        this.maxIteration = maxIteration
+    }
 
     async findShipsCombination(col: number, row: number, shipsToPlace: ShipTypeAbstract[]): Promise<Ship[]|null> {
         // TODO: order shipsToPlace by size desc
-        this.iter = 0
+        this.currentIter = 0
 
         try {
             return await this.placeShips(col, row, [], shipsToPlace)
@@ -19,19 +25,27 @@ class Randomizer
         }
     }
 
+    /**
+     * @see https://stackoverflow.com/questions/77539960/apply-partitioning-approach-for-dynamic-programming/77540108#77540108
+     */
     private waitNextEventLoopCycle() {
         return new Promise(resolve => setTimeout(resolve, 0))
     }
 
-    async placeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]): Promise<Ship[]|null> {
-        this.iter++
-        if (this.iter % 5000 === 0) {
-            await this.waitNextEventLoopCycle()
-        }
-
+    private async placeShips(col: number, row: number, placedShips: Ship[], shipsToPlace: ShipTypeAbstract[]): Promise<Ship[]|null> {
         if (shipsToPlace.length === 0) {
             return placedShips
         }
+
+        if (this.maxIteration !== 0 && this.currentIter > this.maxIteration) {
+            throw new Error(`In ${this.currentIter} iteration we weren't able to fit all ships`)
+        }
+        this.currentIter++
+
+        if (this.currentIter % this.CHUNK_SIZE === 0) {
+            await this.waitNextEventLoopCycle()
+        }
+
         const grid = Grid.initGrid(col, row)
         placedShips.forEach((ship: Ship) => {
             grid.placeShipWithSurrounding(ship)
@@ -51,10 +65,6 @@ class Randomizer
                 }
                 const randomColOffset = Math.floor(Math.random() * maxCol)
                 for (var c = 0; c < maxCol; c++) {
-                    if (this.iter > row * col * 50) {
-                        throw new Error(`In ${this.iter} iteration we weren't able to fit all ships`)
-                    }
-
                     var cc = c + randomColOffset
                     if (cc >= maxCol) {
                         cc -= maxCol

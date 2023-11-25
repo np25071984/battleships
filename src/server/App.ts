@@ -95,7 +95,8 @@ class App {
                 shipTypes.push(ShipTypeFactory.getType(2))
             }
 
-            const randomizer: Randomizer = new Randomizer()
+            const maxIterations: number = gridCols * gridRows * 10
+            const randomizer: Randomizer = new Randomizer(maxIterations)
             randomizer.findShipsCombination(gridCols, gridRows, shipTypes)
                 .then((ships: Ship[]|null) => {
                     if (ships === null) {
@@ -108,13 +109,12 @@ class App {
                             'patrolboat': patrolBoatAmount,
                             'type': gameType,
                             'mode': gameMode,
-                            'error': "The grid is too small to fit all the ships!"
+                            'error': "There are too less (if any) ways to fit the ships into the grid. Please increase grid size or decrease ships amount."
                         })
                         return
                     }
 
                     const settings: Settings = new Settings(gridCols, gridRows, gameType, gameMode, shipTypes)
-
                     const gameId: string = this.makeId(6)
                     const game: Game = new Game(gameId, 1, settings)
                     this.addGame(game)
@@ -178,7 +178,8 @@ class App {
             }
             const game: Game = this.getGame(gameId)
 
-            const randomizer: Randomizer = new Randomizer()
+            const maxIterations: number = game.settings.gridCols * game.settings.gridRows * 100
+            const randomizer: Randomizer = new Randomizer(maxIterations)
             randomizer.findShipsCombination(
                 game.settings.gridCols,
                 game.settings.gridRows,
@@ -186,8 +187,7 @@ class App {
             ).then(
                 (ships: Ship[]|null) => {
                     if (ships === null) {
-                        console.log("Couldn't place")
-                        res.json([]) // TODO: this shouldn't ever happen
+                        res.json([])
                         return
                     }
 
