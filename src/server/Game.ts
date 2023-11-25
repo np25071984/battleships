@@ -16,14 +16,23 @@ class Game {
     public players: Player[]
     public roundShotsCounter: number
     public settings: Settings
+    public fallbackShipsConfiguration: Ship[]
 
-    constructor(gameId: string, round: number, settings: Settings) {
+    constructor(gameId: string, round: number, settings: Settings, fallbackConfiguration: Ship[]) {
         this.id = gameId
         this.round = round
         this.players = []
         this.settings = settings
-        // TODO: calculate playes shots in current round
-        this.roundShotsCounter = 0
+        this.roundShotsCounter = 0 // TODO: calculate playes shots in current round
+
+        /**
+         * During new game creation we try to generate random ships configuration in order to figure out
+         * whether the chosen ships make sense for given game grid or not.
+         * Once we succeed in this we store the configuration to be able use in the future. The generation algorithm
+         * is time consuming and we don't want to waste much resources on it. This why there are cases when we use stored
+         * configuration as a fallback solution.
+         */
+        this.fallbackShipsConfiguration = fallbackConfiguration
     }
 
     doesPlayerExist(playerId: string): boolean {
@@ -44,7 +53,7 @@ class Game {
             const playerId: string = 'bot'
             const grid = Grid.initGrid(this.settings.gridCols, this.settings.gridRows)
 
-            const maxIterations: number = this.settings.gridCols * this.settings.gridRows * 100
+            const maxIterations: number = this.settings.gridCols * this.settings.gridRows * 1000
             const randomizer: Randomizer = new Randomizer(maxIterations)
             randomizer.findShipsCombination(
                 this.settings.gridCols,
@@ -52,7 +61,8 @@ class Game {
                 this.settings.shipTypes
             ).then((ships: Ship[]|null) => {
                 if (ships === null) {
-                    throw new Error(`Couldn't arrange Bot ships within ${this.id} game`)
+                    // We were unable to find new random ships configuration. Let's use the fallback one
+                    ships = this.fallbackShipsConfiguration
                 }
 
                 const bot = new Bot(playerId, grid, ships)

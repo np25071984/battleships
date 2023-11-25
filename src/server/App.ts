@@ -109,14 +109,14 @@ class App {
                             'patrolboat': patrolBoatAmount,
                             'type': gameType,
                             'mode': gameMode,
-                            'error': "There are too less (if any) ways to fit the ships into the grid. Please increase grid size or decrease ships amount."
+                            'error': "There are too little (if any) ways to fit the ships into the grid. Please increase grid size or decrease ships amount."
                         })
                         return
                     }
 
                     const settings: Settings = new Settings(gridCols, gridRows, gameType, gameMode, shipTypes)
                     const gameId: string = this.makeId(6)
-                    const game: Game = new Game(gameId, 1, settings)
+                    const game: Game = new Game(gameId, 1, settings, ships)
                     this.addGame(game)
                     res.redirect(`/join/${gameId}`)
                 })
@@ -187,8 +187,8 @@ class App {
             ).then(
                 (ships: Ship[]|null) => {
                     if (ships === null) {
-                        res.json([])
-                        return
+                        // TODO: notify user that it is a pseudo random configuration
+                        ships = game.fallbackShipsConfiguration
                     }
 
                     const shipsData: Object[] = []
