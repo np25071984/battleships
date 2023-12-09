@@ -58,13 +58,13 @@ class Randomizer
             const maxCol = isHorizontal ? grid.cols - shipType.getSize() : grid.cols
             const maxRow = isHorizontal ? grid.rows : grid.rows - shipType.getSize()
             const randomRowOffset = Math.floor(Math.random() * maxRow)
-            for (var r = 0; r < maxRow; r++) {
+            for (var r = 0; r <= maxRow; r++) {
                 var rr = r + randomRowOffset
                 if (rr >= maxRow) {
                     rr -= maxRow
                 }
                 const randomColOffset = Math.floor(Math.random() * maxCol)
-                for (var c = 0; c < maxCol; c++) {
+                for (var c = 0; c <= maxCol; c++) {
                     var cc = c + randomColOffset
                     if (cc >= maxCol) {
                         cc -= maxCol
