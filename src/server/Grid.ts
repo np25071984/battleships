@@ -2,7 +2,6 @@ import Cell from '../common/Cell'
 import Position from '../common/Position'
 import Ship from '../common/Ship'
 import ShipSection from '../common/ShipSection'
-import ShipTypeAbstract from '../common/ShipTypeAbstract'
 import AbstractGrid from '../common/AbstractGrid'
 
 class Grid extends AbstractGrid
