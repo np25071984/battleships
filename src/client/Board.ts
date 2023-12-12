@@ -128,10 +128,14 @@ class Board
         }
     }
 
-    static getInstance(cols: number, rows: number, showAgenda: boolean): Board {
+    static getInstance(
+        cols: number,
+        rows: number,
+        showAgenda: boolean,
+        maxWidth: number = 423 // the board width is less or equal to this number of pixels
+    ): Board {
         const gap: number = 1
-        const maxBoardWidth = 423 // the board width is less or equal to this number of pixels
-        const boardWidth: number = Math.min(window.innerWidth, maxBoardWidth)
+        const boardWidth: number = Math.min(window.innerWidth, maxWidth)
         const fontSize: number = Math.floor(boardWidth/(cols * 3))
         var ltPoint: Point
         if (showAgenda) {

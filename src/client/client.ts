@@ -76,7 +76,7 @@ window.onload = function() {
 
         const shipsGridCols: number = event.ships_grid[0].length
         const shipsGridRows: number = event.ships_grid.length
-        window.shipsBoard = Board.getInstance(shipsGridCols, shipsGridRows, false)
+        window.shipsBoard = Board.getInstance(shipsGridCols, shipsGridRows, false, 250)
         shipsCanvas.width = window.shipsBoard.getTotalWidth()
         shipsCanvas.height = window.shipsBoard.getTotalHeight()
         window.shipsBoard.loadData(event.ships_grid)

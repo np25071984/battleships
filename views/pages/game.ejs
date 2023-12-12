@@ -27,6 +27,13 @@
                 <canvas style="background-color: azure;" id="ships-board"></canvas>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-12">
+                <button class="btn btn-outline-info" onclick="goFullScreen()">Fullscreen</button>
+            </div>
+        </div>
+
     </div>
     <script>
         const gameId = '<%= gameId %>'
@@ -39,6 +46,17 @@
         const urlParams = new URLSearchParams(window.location.search)
         window.playerId = urlParams.get('playerId')
         document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/"
+
+        function goFullScreen() {
+            const gameBoardsDiv = document.getElementById("game-boards")
+            if (gameBoardsDiv.requestFullscreen) {
+                gameBoardsDiv.requestFullscreen()
+            } else if(gameBoardsDiv.webkitRequestFullscreen) {
+                gameBoardsDiv.webkitRequestFullscreen()
+            } else if(gameBoardsDiv.mozRequestFullScreen) {
+                gameBoardsDiv.mozRequestFullScreen()
+            }
+        }
      </script>
 </body>
 </html>
