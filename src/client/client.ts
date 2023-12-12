@@ -25,9 +25,21 @@ window.mouseClickEvent = function(position: Position) {
 }
 
 window.onload = function() {
-    console.log("gameId: " + window.gameId);
+    window.mouseMoveEvent = (position: Position) => {
+        const cell = window.shotsBoard.grid.getCell(position)
+        cell.isHover = true
+        cell.setChanged()
 
-    window.render = new Render();
+        const shotsCanvas = document.getElementById("shots-board") as HTMLCanvasElement
+        if (shotsCanvas == null) {
+            throw Error("Can't find Shots board")
+        }
+        window.render.refreshGrid(shotsCanvas, window.shotsBoard)
+    }
+
+    console.log("gameId: " + window.gameId)
+
+    window.render = new Render()
 
     window.socket = window.io()
     window.socket.on(BattleshipsEvent.EVENT_TYPE_CONNECTED, function(event) {

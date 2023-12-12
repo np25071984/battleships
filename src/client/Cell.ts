@@ -5,9 +5,9 @@ import BaseCell from '../common/Cell'
 
 class Cell extends BaseCell
 {
-    public static readonly CELL_TYPE_CLICKED: number = 5;
-    public static readonly CELL_TYPE_SHIP_SELECTED: number = 6;
-    public static readonly CELL_TYPE_SHADOW: number = 7;
+    public static readonly CELL_TYPE_CLICKED: number = 5
+    public static readonly CELL_TYPE_SHIP_SELECTED: number = 6
+    public static readonly CELL_TYPE_SHADOW: number = 7
 
     public rect: Rect
     public isHover: boolean
@@ -20,22 +20,22 @@ class Cell extends BaseCell
 
     isInside(point: Point): boolean {
         if (point.x < this.rect.ltPoint.x) {
-            return false;
+            return false
         }
 
         if (point.x > this.rect.rbPoint.x) {
-            return false;
+            return false
         }
 
         if (point.y < this.rect.ltPoint.y) {
-            return false;
+            return false
         }
 
         if (point.y > this.rect.rbPoint.y) {
-            return false;
+            return false
         }
 
-        return true;
+        return true
     }
 
     mouseMove(point: Point): void {
@@ -43,14 +43,9 @@ class Cell extends BaseCell
             if (window.mouseMoveEvent) {
                 window.mouseMoveEvent(this.position)
             }
-
-            if (!this.isHover) {
-                this.isHover = true;
-                this.setChanged()
-            }
         } else {
             if (this.isHover) {
-                this.isHover = false;
+                this.isHover = false
                 this.setChanged()
             }
         }
@@ -58,7 +53,7 @@ class Cell extends BaseCell
 
     mouseClick(point: Point): void {
         if (!this.isInside(point)) {
-            return;
+            return
         }
 
         if (window.mouseClickEvent) {
@@ -68,7 +63,7 @@ class Cell extends BaseCell
 
     mouseDown(point: Point) {
         if (!this.isInside(point)) {
-            return;
+            return
         }
 
         window.mouseDownEvent(this.position)
@@ -76,7 +71,7 @@ class Cell extends BaseCell
 
     mouseUp(point: Point) {
         if (!this.isInside(point)) {
-            return;
+            return
         }
 
         window.mouseUpEvent(this.position)

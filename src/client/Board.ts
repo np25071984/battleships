@@ -114,18 +114,24 @@ class Board
         const boardWidth: number = Math.min(window.innerWidth, maxBoardWidth)
         const fontSize: number = Math.floor(boardWidth/(cols * 3))
         const ltPoint = new Point(fontSize + 2, fontSize + 2)
+        // distance between any two similar points of adjacent cells
         const step: number = Math.floor((boardWidth - (ltPoint.x * 2)) / cols)
 
         const cells: Cell[][] = []
         for (var r = 0; r < rows; r++) {
             const gridRow: Cell[] = []
             for (var c = 0; c < cols; c++) {
-                const x = ltPoint.x + gap + step * c
-                const y = ltPoint.y + gap + step * r
+                // add gap in order to get left border
+                const x = ltPoint.x + step * c + gap
+                // add gap in order to get right border
+                const y = ltPoint.y + step * r + gap
                 const ltP = new Point(x, y)
-                const pos = new Position(c, r)
+                // subtract gap in order to get right and bottom borders
                 const rbP = new Point(x + step - gap, y + step - gap)
                 const outerRect = new Rect(ltP, rbP)
+
+                const pos = new Position(c, r)
+
                 gridRow[c] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false)
             }
             cells[r] = gridRow
