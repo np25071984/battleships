@@ -108,48 +108,35 @@ class Board
         }
     }
 
-    static getInstance(
-        col: number,
-        row: number,
-        showAgenda: boolean
-    ): Board {
+    static getInstance(cols: number, rows: number, showAgenda: boolean): Board {
         const gap: number = 1
-        const normalWidth = 14 * 2 + gap * 2 + col * 40
-        const maxWide: number = Math.min(window.innerWidth, normalWidth)
-        const fontSize: number = Math.floor(maxWide/(col*3))
+        const maxBoardWidth = 423 // the board width is less or equal to this number of pixels
+        const boardWidth: number = Math.min(window.innerWidth, maxBoardWidth)
+        const fontSize: number = Math.floor(boardWidth/(cols * 3))
         const ltPoint = new Point(fontSize + 2, fontSize + 2)
-
-        const xSt = ltPoint.x + gap
-        const ySt = ltPoint.y + gap
-        const step: number = Math.floor((maxWide - (ltPoint.x * 2) - (gap * 2)) / col)
-
-        const width = step - gap
-        const totalWidth = gap + (step * col)
-        const totalHeight = gap + (step * row)
+        const step: number = Math.floor((boardWidth - (ltPoint.x * 2)) / cols)
 
         const cells: Cell[][] = []
-        var positionY = 0
-        for (var y = ySt; y < ltPoint.y + totalHeight; y += step) {
-            var positionX = 0
+        for (var r = 0; r < rows; r++) {
             const gridRow: Cell[] = []
-            for (var x = xSt; x < ltPoint.x + totalWidth; x += step) {
+            for (var c = 0; c < cols; c++) {
+                const x = ltPoint.x + gap + step * c
+                const y = ltPoint.y + gap + step * r
                 const ltP = new Point(x, y)
-                const pos = new Position(positionX, positionY)
-                const rbP = new Point(x + width, y + width)
+                const pos = new Position(c, r)
+                const rbP = new Point(x + step - gap, y + step - gap)
                 const outerRect = new Rect(ltP, rbP)
-                gridRow[positionX] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false)
-                positionX++
+                gridRow[c] = new Cell(outerRect, pos, false, Cell.CELL_TYPE_FOG_OF_WAR, false)
             }
-            cells[positionY] = gridRow
-            positionY++;
+            cells[r] = gridRow
         }
 
         const grid = new Grid(cells)
-        const rbPoint = new Point(ltPoint.x + totalWidth, ltPoint.y + totalHeight)
+        const rbPoint = new Point(ltPoint.x + step * cols + gap, ltPoint.y + step * rows + gap)
         const boardOuterRect = new Rect(ltPoint, rbPoint)
         const board = new Board(boardOuterRect, grid, fontSize, showAgenda)
 
-        return board;
+        return board
     }
 }
 
