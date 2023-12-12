@@ -8,7 +8,9 @@ import ShipSection from '../common/ShipSection'
 
 class Board
 {
-    public rect: Rect
+    public static readonly AGENDA_GAP: number = 2
+
+    public rect: Rect // without agenda
     public grid: Grid
     public fontSize: number
     public round: number | undefined
@@ -24,6 +26,24 @@ class Board
         this.active = false
         this.showAgenda = showAgenda
         this.isReady = false
+    }
+
+    getTotalWidth(): number {
+        var width: number = this.rect.getWidth()
+        if (this.showAgenda) {
+            width += (this.fontSize + Board.AGENDA_GAP) * 2
+        }
+
+        return width
+    }
+
+    getTotalHeight(): number {
+        var height: number = this.rect.getHeight()
+        if (this.showAgenda) {
+            height += (this.fontSize + Board.AGENDA_GAP) * 2
+        }
+
+        return height
     }
 
     rotateShip(): boolean {
@@ -113,7 +133,12 @@ class Board
         const maxBoardWidth = 423 // the board width is less or equal to this number of pixels
         const boardWidth: number = Math.min(window.innerWidth, maxBoardWidth)
         const fontSize: number = Math.floor(boardWidth/(cols * 3))
-        const ltPoint = new Point(fontSize + 2, fontSize + 2)
+        var ltPoint: Point
+        if (showAgenda) {
+            ltPoint = new Point(fontSize + Board.AGENDA_GAP, fontSize + Board.AGENDA_GAP)
+        } else {
+            ltPoint = new Point(0, 0)
+        }
         // distance between any two similar points of adjacent cells
         const step: number = Math.floor((boardWidth - (ltPoint.x * 2)) / cols)
 

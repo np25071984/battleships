@@ -67,8 +67,8 @@ window.onload = function() {
         const shotsGridCols: number = event.shots_grid[0].length
         const shotsGridRows: number = event.shots_grid.length
         window.shotsBoard = Board.getInstance(shotsGridCols, shotsGridRows, true)
-        shotsCanvas.width = window.shotsBoard.rect.getWidth()
-        shotsCanvas.height = window.shotsBoard.rect.getHeight()
+        shotsCanvas.width = window.shotsBoard.getTotalWidth()
+        shotsCanvas.height = window.shotsBoard.getTotalHeight()
         window.shotsBoard.loadData(event.shots_grid)
         window.shotsBoard.setReady(true)
         window.render.drawEmptyBoard(shotsCanvas, window.shotsBoard)
@@ -77,8 +77,8 @@ window.onload = function() {
         const shipsGridCols: number = event.ships_grid[0].length
         const shipsGridRows: number = event.ships_grid.length
         window.shipsBoard = Board.getInstance(shipsGridCols, shipsGridRows, false)
-        shipsCanvas.width = window.shipsBoard.rect.getWidth()
-        shipsCanvas.height = window.shipsBoard.rect.getHeight()
+        shipsCanvas.width = window.shipsBoard.getTotalWidth()
+        shipsCanvas.height = window.shipsBoard.getTotalHeight()
         window.shipsBoard.loadData(event.ships_grid)
         window.shipsBoard.setReady(true)
         window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)

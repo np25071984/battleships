@@ -197,8 +197,8 @@ window.onload = function () {
     }
 
     window.shipsBoard = Board.getInstance(window.cols, window.rows, true)
-    placementCanvas.width = window.shipsBoard.rect.getWidth()
-    placementCanvas.height = window.shipsBoard.rect.getHeight()
+    placementCanvas.width = window.shipsBoard.getTotalWidth()
+    placementCanvas.height = window.shipsBoard.getTotalHeight()
     window.shipsBoard.active = true
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 
