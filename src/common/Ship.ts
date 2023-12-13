@@ -47,9 +47,11 @@ class Ship
                 this.liveSectionCount--
                 if (this.liveSectionCount === 0) {
                     this.alive = false
-                    return ShotResult.HIT_RESULT_SUNK
+                    return new ShotResult(ShotResult.HIT_RESULT_SUNK, {
+                        "size": this.type.getSize()
+                    })
                 } else {
-                    return ShotResult.HIT_RESULT_DAMAGE
+                    return new ShotResult(ShotResult.HIT_RESULT_DAMAGE)
                 }
             }
         }

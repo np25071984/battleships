@@ -130,9 +130,9 @@ class Bot extends Player {
             const p = new Position(upd.col, upd.row)
             this.decisionGrid.getCell(p).setType(upd.type)
 
-            if (result === ShotResult.HIT_RESULT_DAMAGE) {
+            if (result.isDamage()) {
                 this.targetedShipSections.push(p)
-            } else if (result === ShotResult.HIT_RESULT_SUNK) {
+            } else if (result.isSunk()) {
                 for (var index = 0; index < this.enemyShipTypes.length; index++) {
                     const type = this.enemyShipTypes[index]
                     if (type.getSize() === this.targetedShipSections.length) {
@@ -143,8 +143,6 @@ class Bot extends Player {
                 this.targetedShipSections = []
             }
         })
-
-        // TODO: find "dead" cells and mark them
     }
 }
 

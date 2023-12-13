@@ -5,6 +5,7 @@ import Point from './Point'
 import Cell from './Cell'
 import type Window from './types/index.d.ts'
 import Board from './Board'
+import ShotResult from '../common/ShotResult'
 
 window.mouseClickEvent = function(position: Position) {
     const cell: Cell = window.shotsBoard.grid.getCell(position)
@@ -130,6 +131,13 @@ window.onload = function() {
     })
 
     window.socket.on(BattleshipsEvent.EVENT_TYPE_ANNOUNCE, function(event) {
+        if (event.result === ShotResult.HIT_RESULT_SUNK) {
+            const spanElement = document.getElementById(`remaining-ships-${event.size}`)
+            if (spanElement && spanElement.firstElementChild) {
+                spanElement.firstElementChild.remove()
+            }
+        }
+
         for (const u in event.ships_updates) {
             const upd =  event.ships_updates[u]
             window.shipsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(upd.type)

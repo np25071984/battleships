@@ -204,15 +204,14 @@ class Game {
     getShotResult(playerId: string): ShotResult {
         const player: Player = this.getPlayer(playerId)
         const shotPosition = player.shots[this.round]
-
         const opponent: Player = this.getOpponent(playerId)
-        var shotResult: ShotResult = ShotResult.HIT_RESULT_MISS
+        var shotResult: ShotResult = new ShotResult(ShotResult.HIT_RESULT_MISS)
         let surraund = []
         for (const s in opponent.ships) {
             const ship: Ship = opponent.ships[s]
             if (ship.isLocatedAt(shotPosition)) {
                 shotResult = ship.hit(shotPosition)
-                if (shotResult === ShotResult.HIT_RESULT_SUNK) {
+                if (shotResult.isSunk()) {
                     opponent.shipsCount--
                     surraund = ship.getSurrounding()
                 }
@@ -221,7 +220,7 @@ class Game {
         }
 
         const cell = player.grid.getCell(shotPosition)
-        switch (shotResult) {
+        switch (shotResult.shotResult) {
             case ShotResult.HIT_RESULT_MISS:
                 cell.setType(Cell.CELL_TYPE_WATER)
                 break
@@ -232,6 +231,7 @@ class Game {
                         c.setType(Cell.CELL_TYPE_WATER)
                     }
                 }
+                // no brake statement on purpose
             case ShotResult.HIT_RESULT_DAMAGE:
                 cell.setType(Cell.CELL_TYPE_WRACKAGE)
                 break
@@ -251,23 +251,41 @@ class Game {
         const player1Updates = player1.getUpdates()
         const player2Updates = player2.getUpdates()
 
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
+        const player1ShotResultObject = {
             'playerId': player1.id,
-            'result': player1ShotRes,
+            'result': player1ShotRes.shotResult,
             'shots_updates': player1Updates,
-            'ships_updates': player2Updates
-        })
+            'ships_updates': player2Updates,
+        }
+
+        if (player1ShotRes.isSunk()) {
+            if (!('size' in player1ShotRes.details)) {
+                throw new Error("Couldn't find details object")
+            }
+            player1ShotResultObject['size'] = player1ShotRes.details.size
+        }
+
+        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ANNOUNCE, player1ShotResultObject)
 
         if (player2.id === 'bot') {
             const bot = player2 as Bot
             bot.syncDecisionBoard(player2ShotRes, player2Updates)
         } else {
-            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ANNOUNCE, {
+            const player2ShotResultObject = {
                 'playerId': player2.id,
-                'result': player2ShotRes,
+                'result': player2ShotRes.shotResult,
                 'shots_updates': player2Updates,
-                'ships_updates': player1Updates
-            })
+                'ships_updates': player1Updates,
+            }
+
+            if (player2ShotRes.isSunk()) {
+                if (!('size' in player2ShotRes.details)) {
+                    throw new Error("Couldn't find details object")
+                }
+                player2ShotResultObject['size'] = player2ShotRes.details.size
+            }
+
+            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ANNOUNCE, player2ShotResultObject)
         }
     }
 
@@ -297,7 +315,7 @@ class Game {
                 global.io.sockets.to(loser.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
                     'result': App.GAME_RESULT_DEFEAT,
                     'playerId': loser.id,
-                    'opponent_ships': winner.getAliveShips()
+                    'opponent_ships': winner.getRemainingShipsSections()
                 })
             }
 

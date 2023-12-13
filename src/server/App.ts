@@ -249,14 +249,43 @@ class App {
         })
 
         router.get('/:gameId', (req, res) => {
+            const queryParams = req.query
+            if (!('playerId' in queryParams)) {
+                // TODO: redirect to main
+                res.send("Didn't get playerId in the url query parameter list")
+                return
+            }
+
             const gameId: string = req.params.gameId
             if (!(gameId in this.games)) {
                 // TODO: redirect on Join page
                 res.send(`Game '${gameId}' not found`)
                 return
             }
+            const game: Game = this.games[gameId]
 
-            res.render('pages/game.ejs', {'gameId': req.params.gameId})
+            var remainingShips: Object
+            if (game.round === 1) {
+                // game just started; no sunk ships
+                remainingShips = {}
+                for (const type of game.settings.shipTypes) {
+                    const size: number = type.getSize()
+                    if (!(size in remainingShips)) {
+                        remainingShips[type.getSize()] = 0
+                    }
+
+                    remainingShips[type.getSize()]++
+                }
+            } else {
+                const playerId: string = queryParams.playerId
+                const player: Player = game.getOpponent(playerId)
+                remainingShips = player.getRemainingShipsStat()
+            }
+
+            res.render('pages/game.ejs', {
+                'gameId': req.params.gameId,
+                'remainingShips': remainingShips,
+            })
         })
 
         this.express.use(express.urlencoded({extended: true}));

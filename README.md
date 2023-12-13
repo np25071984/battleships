@@ -117,11 +117,12 @@ sequenceDiagram
 
 ## TODO
 * Mobile first
-* We want to use `requestFullscreen()` feature which means we need a single canvas that holds all data (two grids and game stats) in it. So that the game mechanics should be rewritten in order to use a single canvas element.
 * Improve AI (make shots into intersections which have most ship probability)
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)
+* 🐞 Restore `Remaining ships` section on reload
+* 🐞 Single game, 14x13 grid + one extra ship to Classic set, random placement + some corrections; in some cases Bot couldn't find any available cells to make the shot
 
 ## Terminology
 

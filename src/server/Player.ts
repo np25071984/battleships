@@ -49,7 +49,7 @@ class Player {
         return updates
     }
 
-    getAliveShips(): object[] {
+    getRemainingShipsSections(): object[] {
         const aliveSections: object[] = []
         for (const s in this.ships) {
             const ship: Ship = this.ships[s]
@@ -66,6 +66,24 @@ class Player {
         }
 
         return aliveSections
+    }
+
+    getRemainingShipsStat(): Object {
+        const playerRemainingShips: Object = {}
+        this.ships.forEach((ship: Ship) => {
+            if (!ship.alive) {
+                return
+            }
+
+            const size: number = ship.type.getSize()
+            if (!(size in playerRemainingShips)) {
+                playerRemainingShips[size] = 0
+            }
+
+            playerRemainingShips[size]++
+        })
+
+        return playerRemainingShips
     }
 }
 

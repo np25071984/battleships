@@ -25,6 +25,18 @@
             </div>
             <div class="col-sm-6 text-end order-sm-1">
                 <canvas style="background-color: azure;" id="ships-board"></canvas>
+
+                <br />
+                Opponent's remaining ships:<br />
+                <% for (var size in remainingShips) { %>
+                    <% if (remainingShips[size] > 0) { %>
+                        <span id="remaining-ships-<%= size %>">
+                        <% for (var i = 0; i < remainingShips[size]; i++) { %>
+                            <span><%= "🟦".repeat(size) %></span>&nbsp;
+                        <% } %>
+                        </span><br />
+                    <% } %>
+                <% } %>
             </div>
         </div>
 
