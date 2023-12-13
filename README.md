@@ -38,7 +38,7 @@ Main menu offers two options:
 * single game - game with a AI
 * multiplayer - game with another person
     * public - this game will appear on "Join game" page
-    * private - this game won't be visible on "Join game" page
+    * private - this game won't be visible on "Join game" page (you have to share the link with the opponent)
 
 ### Game settings
 
@@ -56,11 +56,9 @@ You can choose between hardcoded and custom game settings values
 | Destroyer | 3 |
 | Patrol Boat | 2 |
 
-[//]: # (do we need mine? the lucky may unveil 8 cells at once)
-
 ## Join game page
 
-Once the game was created it is known information which ships are there and the board size. It is time to put the ships in place. You can move them around the board and rotate. Also `Shuffle` feature is available which lets to get randomly placed ships.
+Once the game was created it is known information which ships are there and what the board size is. It is time to put the ships in place. You can move them around the board and rotate. Also `Shuffle` feature is available which lets to get randomly placed ships.
 
 ## Gameflow
 
@@ -114,6 +112,49 @@ sequenceDiagram
         Server->>Client2: GAME_RESULT_DRAW
     end
 ```
+## Engineering
+
+1. There are three tough questions should be get answered to make the game run:
+
+    a. Does the ships combination make sense for a given grid size?
+    We would like to know that the combination meaningless on the game creation stage not when the game started.
+
+    b. Are there more that two possible combinations?
+    If players don't have another choice but place the ships the same way it makes the game meaningless.?
+
+    c. How to find a random combination
+    Usually there are any millions of different combinations to choose from.
+
+    All those questions are quite computation-intensive, this is why it would be nice to get them answered with minimum computation amount.
+
+2. Despite there isn't much animation in the game, it is nice to make it as efficient as possible. So that we apply following techniques in order to boost performance:
+
+    a. Event-driven desing
+    We recalculate/redraw everything only if an event accured
+
+    b. Partially canvas update
+    In order to save resources we can redraw only changed canvas pieces
+
+## The future ideas
+
+The classic game is quite boring due to there aren't many game strategies. The main idea is to make it more varied so that people could play more in order to try new approaches.
+
+1. Make it possible to have different ships configuration in order to apply different game strategies
+
+2. Variety of ships shots
+    a. Regulare shot (like it is in classic game)
+
+    b. Shot, which explore "+" shape 3x3 size territory
+
+    c. Torpedo shot which hits 4 cells through
+
+3. Variety of ship shapes
+
+4. For each shot type apply different reload time
+
+5. Make shots according to the ships you have; once a ship was sunk it isn't able to make shots anymore
+
+Now that we got such variety the player may come up with different strategies. They may choose many cheap ships to perform firestorm. Or they may pick less amount of advanced ships and hit several targets precisely with powerful topedos.
 
 ## TODO
 * Mobile first
@@ -121,7 +162,6 @@ sequenceDiagram
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)
-* 🐞 Restore `Remaining ships` section on reload
 * 🐞 Single game, 14x13 grid + one extra ship to Classic set, random placement + some corrections; in some cases Bot couldn't find any available cells to make the shot
 
 ## Terminology
