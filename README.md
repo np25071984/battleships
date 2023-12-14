@@ -112,9 +112,10 @@ sequenceDiagram
         Server->>Client2: GAME_RESULT_DRAW
     end
 ```
+
 ## Engineering
 
-1. There are three tough questions should be get answered to make the game run:
+1. There are three tough questions that should be get answered to make the game run:
 
     a. Does the ships combination make sense for a given grid size?
     We would like to know that the combination meaningless on the game creation stage not when the game started.
@@ -134,6 +135,20 @@ sequenceDiagram
 
     b. Partially canvas update
     In order to save resources we can redraw only changed canvas pieces
+
+3. The AI. Obviously, it isn't enough to make random shots. In order to make AI more competitive we taught it to do this:
+
+    a. Remember cells that were shot
+
+    b. Once a ship is found focus on destroying it and mark surrounding cells as checked
+
+    c. Before each shot scan all cells and mark them `useless` if it isn't possible to fit there the smallest survived ship. Nest rounds we skip such `useless` cells
+
+    d. Scan grid wisely in order to find the ships. Don't need to shot adjacent cells, it is better to make a gap which size is equal to the smallest survivor ship size
+
+    e. Find cells with the highest probability of a ship location. For example if there are unexplored "+" shaped cells the center will have the highest probability of having a ship in it.
+
+    f. Big Data shows that people tended to place ships in "favorite" places. So that we want collect such anonymized data and use it when make decision about shots.
 
 ## The future ideas
 
@@ -156,6 +171,41 @@ The classic game is quite boring due to there aren't many game strategies. The m
 
 Now that we got such variety the player may come up with different strategies. They may choose many cheap ships to perform firestorm. Or they may pick less amount of advanced ships and hit several targets precisely with powerful topedos.
 
+## Contributing
+
+Feel free to report bugs, suggest improvements, and send pull requests!
+
+### How to build
+
+1. Clone the repo
+
+```sh
+git clone https://github.com/GHopperMSK/battleships.git
+```
+
+2. Get inside the dir
+
+```sh
+cd battleships
+```
+
+3. Install dependencies
+
+```sh
+npm install
+```
+
+4. Build and run
+
+```sh
+npm run start
+```
+
+5. Now we are good to go. Open up any browser and navigate to
+```sh
+http://localhost:3000
+```
+
 ## TODO
 * Mobile first
 * Improve AI (make shots into intersections which have most ship probability)
@@ -168,5 +218,6 @@ Now that we got such variety the player may come up with different strategies. T
 
 * ships board - board where player's ships and opponent's shots are shown
 * shots board - board where a player makes shots on
+* ships combination - ships disposition on the game board which includes the board size, ships types and amount, the ships position
 * round - game phase when both players make shots
-* announce - game phase when both players get their shot result in current round
+* announce - game phase when both players are get announced about their shots results within current round
