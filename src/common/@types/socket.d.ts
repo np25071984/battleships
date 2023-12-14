@@ -1,9 +1,11 @@
+import { GameResult } from '../Enums'
+
 type ConnectedEvent = {
     playerId: string
 }
 
 type GameResultEvent = {
-    'result': string
+    'result': GameResult
     'playerId': string
     'opponent_ships'?: Object
 }

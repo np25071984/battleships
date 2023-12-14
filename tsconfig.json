@@ -7,7 +7,8 @@
         "typeRoots": [
             "./node_modules/@types",
             "src/client/@types",
-            "src/server/@types"
+            "src/server/@types",
+            "src/common/@types",
         ]
     },
     "include": [

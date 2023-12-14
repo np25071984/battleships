@@ -12,14 +12,11 @@ import {
     GameResultEvent,
     ShotResultEvent,
     InitEvent,
-    RoundEvent
+    RoundEvent,
 } from '../common/@types/socket'
+import { GameResult } from '../common/Enums'
 
 class Game {
-    public static readonly GAME_RESULT_WIN: string = 'win'
-    public static readonly GAME_RESULT_DRAW: string = 'draw'
-    public static readonly GAME_RESULT_DEFEAT: string = 'defeat'
-
     public id: string
     public round: number
     public players: Player[]
@@ -326,7 +323,7 @@ class Game {
             const winner = this.getOpponent(loserId)
             if (loser.id !== 'bot') {
                 const gameResultEvent: GameResultEvent = {
-                    'result': Game.GAME_RESULT_DEFEAT,
+                    'result': GameResult.defeat,
                     'playerId': loser.id,
                     'opponent_ships': winner.getRemainingShipsSections()
                 }
@@ -335,7 +332,7 @@ class Game {
 
             if (winner.id !== 'bot') {
                 const gameResultEvent: GameResultEvent = {
-                    'result': Game.GAME_RESULT_WIN,
+                    'result': GameResult.win,
                     'playerId': winner.id,
                 }
                 global.io.sockets.to(winner.socketId).emit("game_result", gameResultEvent)
@@ -347,7 +344,7 @@ class Game {
                 }
 
                 const gameResultEvent: GameResultEvent = {
-                    'result': Game.GAME_RESULT_DRAW,
+                    'result': GameResult.draw,
                     'playerId': player.id,
                 }
                 global.io.sockets.to(player.socketId).emit("game_result", gameResultEvent)

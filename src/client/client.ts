@@ -13,8 +13,9 @@ import {
     GameResultEvent,
     ShotResultEvent,
     InitEvent,
-    RoundEvent
+    RoundEvent,
 } from '../common/@types/socket'
+import { GameResult } from '../common/Enums'
 
 window.mouseClickEvent = function(position: Position) {
     const cell: Cell = window.shotsBoard.grid.getCell(position)
@@ -161,10 +162,10 @@ window.onload = function() {
 
     window.socket.on("game_result", function(event: GameResultEvent) {
         switch (event.result) {
-            case "win":
+            case GameResult.win:
                 alert("Congratulations, you won!")
                 break
-            case "defeat":
+            case GameResult.defeat:
                 for (const u in event.opponent_ships) {
                     const upd =  event.opponent_ships[u]
                     window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(Cell.CELL_TYPE_SHIP)
@@ -172,7 +173,7 @@ window.onload = function() {
                 window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
                 alert("Defeat")
                 break
-            case "draw":
+            case GameResult.draw:
                 alert("Draw")
                 break
             default:
