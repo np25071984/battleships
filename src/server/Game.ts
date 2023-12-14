@@ -1,4 +1,3 @@
-import App from './App'
 import Player from './Player'
 import Grid from './Grid'
 import Position from '../common/Position'
@@ -9,8 +8,18 @@ import ShipSection from '../common/ShipSection'
 import Settings from './Settings'
 import Bot from './Bot'
 import Randomizer from './Randomizer'
+import {
+    GameResultEvent,
+    ShotResultEvent,
+    InitEvent,
+    RoundEvent
+} from '../common/@types/socket'
 
 class Game {
+    public static readonly GAME_RESULT_WIN: string = 'win'
+    public static readonly GAME_RESULT_DRAW: string = 'draw'
+    public static readonly GAME_RESULT_DEFEAT: string = 'defeat'
+
     public id: string
     public round: number
     public players: Player[]
@@ -72,27 +81,6 @@ class Game {
         }
     }
 
-    initClients() {
-        const player1: Player = this.players[0]
-        const player2: Player = this.players[1]
-
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_INIT, {
-            'playerId': player1.id,
-            'round': this.round,
-            'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
-            'shots_grid': player1.grid.typesOnly(),
-        })
-
-        if (player2.id !== 'bot') {
-            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_INIT, {
-                'playerId': player2.id,
-                'round': this.round,
-                'ships_grid': this.getGridWithOpponentShips(player1).typesOnly(),
-                'shots_grid': player2.grid.typesOnly(),
-            })
-        }
-    }
-
     getGridWithOpponentShips(player: Player): Grid {
         const cells: Cell[][] = [];
         for (var r: number = 0; r < player.grid.rows; r++) {
@@ -136,12 +124,6 @@ class Game {
         }
 
         return grid
-    }
-
-    nextRound() {
-        this.round++
-        this.roundShotsCounter = 0
-        this.startRound()
     }
 
     isValidSocketId(targetSocketId: string): boolean {
@@ -240,6 +222,47 @@ class Game {
         return shotResult
     }
 
+    isOver(): boolean {
+        for (const p of this.players) {
+            if (p.shipsCount === 0) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    isReadyForNextRound(): boolean {
+        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
+            return this.roundShotsCounter === 1
+        } else {
+            return this.roundShotsCounter === 2
+        }
+    }
+
+    initClients() {
+        const player1: Player = this.players[0]
+        const player2: Player = this.players[1]
+
+        const initEvent: InitEvent = {
+            'playerId': player1.id,
+            'round': this.round,
+            'ships_grid': this.getGridWithOpponentShips(player2).typesOnly(),
+            'shots_grid': player1.grid.typesOnly(),
+        }
+        global.io.sockets.to(player1.socketId).emit("init", initEvent)
+
+        if (player2.id !== 'bot') {
+            const initEvent: InitEvent = {
+                'playerId': player2.id,
+                'round': this.round,
+                'ships_grid': this.getGridWithOpponentShips(player1).typesOnly(),
+                'shots_grid': player2.grid.typesOnly(),
+            }
+            global.io.sockets.to(player2.socketId).emit("init", initEvent)
+        }
+    }
+
     announceShotResults(): void {
         this.roundShotsCounter = 0
         const player1: Player = this.players[0]
@@ -251,7 +274,7 @@ class Game {
         const player1Updates = player1.getUpdates()
         const player2Updates = player2.getUpdates()
 
-        const player1ShotResultObject = {
+        const player1ShotResultObject: ShotResultEvent = {
             'playerId': player1.id,
             'result': player1ShotRes.shotResult,
             'shots_updates': player1Updates,
@@ -262,16 +285,16 @@ class Game {
             if (!('size' in player1ShotRes.details)) {
                 throw new Error("Couldn't find details object")
             }
-            player1ShotResultObject['size'] = player1ShotRes.details.size
+            player1ShotResultObject['size'] = player1ShotRes.details.size as number
         }
 
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ANNOUNCE, player1ShotResultObject)
+        global.io.sockets.to(player1.socketId).emit("announce", player1ShotResultObject)
 
         if (player2.id === 'bot') {
             const bot = player2 as Bot
             bot.syncDecisionBoard(player2ShotRes, player2Updates)
         } else {
-            const player2ShotResultObject = {
+            const player2ShotResultObject: ShotResultEvent = {
                 'playerId': player2.id,
                 'result': player2ShotRes.shotResult,
                 'shots_updates': player2Updates,
@@ -282,21 +305,11 @@ class Game {
                 if (!('size' in player2ShotRes.details)) {
                     throw new Error("Couldn't find details object")
                 }
-                player2ShotResultObject['size'] = player2ShotRes.details.size
+                player2ShotResultObject['size'] = player2ShotRes.details.size as number
             }
 
-            global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ANNOUNCE, player2ShotResultObject)
+            global.io.sockets.to(player2.socketId).emit("announce", player2ShotResultObject)
         }
-    }
-
-    isOver(): boolean {
-        for (const p of this.players) {
-            if (p.shipsCount === 0) {
-                return true
-            }
-        }
-
-        return false
     }
 
     announceGameResults() {
@@ -312,18 +325,20 @@ class Game {
             const loser = this.getPlayer(loserId)
             const winner = this.getOpponent(loserId)
             if (loser.id !== 'bot') {
-                global.io.sockets.to(loser.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
-                    'result': App.GAME_RESULT_DEFEAT,
+                const gameResultEvent: GameResultEvent = {
+                    'result': Game.GAME_RESULT_DEFEAT,
                     'playerId': loser.id,
                     'opponent_ships': winner.getRemainingShipsSections()
-                })
+                }
+                global.io.sockets.to(loser.socketId).emit("game_result", gameResultEvent)
             }
 
             if (winner.id !== 'bot') {
-                global.io.sockets.to(winner.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
-                    'result': App.GAME_RESULT_WIN,
+                const gameResultEvent: GameResultEvent = {
+                    'result': Game.GAME_RESULT_WIN,
                     'playerId': winner.id,
-                })
+                }
+                global.io.sockets.to(winner.socketId).emit("game_result", gameResultEvent)
             }
         } else if (losers.length == 2) {
             this.players.forEach((player: Player) => {
@@ -331,42 +346,33 @@ class Game {
                     return
                 }
 
-                global.io.sockets.to(player.socketId).emit(App.EVENT_TYPE_GAME_RESULT, {
-                    'result': App.GAME_RESULT_DRAW,
+                const gameResultEvent: GameResultEvent = {
+                    'result': Game.GAME_RESULT_DRAW,
                     'playerId': player.id,
-                })
+                }
+                global.io.sockets.to(player.socketId).emit("game_result", gameResultEvent)
             })
         } else {
             throw new Error(`Game ${this.id} doesn't look like it is over`)
         }
     }
 
-    isReadyForNextRound(): boolean {
-        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
-            return this.roundShotsCounter === 1
-        } else {
-            return this.roundShotsCounter === 2
-        }
-    }
-
     startRound() {
         const player1: Player = this.players[0]
-        global.io.sockets.to(player1.socketId).emit(App.EVENT_TYPE_ROUND, {'number': this.round})
+        const roundEvent: RoundEvent = {'number': this.round}
+        global.io.sockets.to(player1.socketId).emit("round", roundEvent)
 
         const player2: Player = this.players[1]
         if (player2.id === 'bot') {
             return
         }
-        global.io.sockets.to(player2.socketId).emit(App.EVENT_TYPE_ROUND, {'number': this.round})
+        global.io.sockets.to(player2.socketId).emit("round",roundEvent)
     }
 
-    notifyOpponent(playerId: string, eventType: string, event): void {
-        const opponent: Player = this.getOpponent(playerId)
-        if (opponent.id === 'bot') {
-            return
-        }
-
-        global.io.sockets.to(opponent.socketId).emit(eventType, event)
+    nextRound() {
+        this.round++
+        this.roundShotsCounter = 0
+        this.startRound()
     }
 }
 

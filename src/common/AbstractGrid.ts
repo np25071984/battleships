@@ -2,7 +2,7 @@ import CommonCell from './Cell'
 import ClientCell from '../client/Cell'
 import Position from './Position'
 import Ship from './Ship'
-import type Window from '../client/types/index.d.ts'
+import type Window from '../client/@types'
 
 type AnyCell = CommonCell | ClientCell
 

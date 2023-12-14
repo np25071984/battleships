@@ -6,12 +6,14 @@
         "sourceMap": true,
         "typeRoots": [
             "./node_modules/@types",
-            "src/client/types",
-            "./src/server/types"
+            "src/client/@types",
+            "src/server/@types"
         ]
     },
     "include": [
-        "src/server/**/*.ts", "src/common/**.*.ts", "src/server/Grid.ts"],
+        "src/server/**/*.ts",
+        "src/common/**.*.ts",
+    ],
     "exclude": [
         "node_modules"
     ]

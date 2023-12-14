@@ -140,7 +140,7 @@ sequenceDiagram
 
     a. Remember cells that were shot
 
-    b. Once a ship is found focus on destroying it and mark surrounding cells as checked
+    b. Once a ship is found the AI focuses on destroying it and mark surrounding cells as checked. If there is only one ship section discovered then we have four options for the next shot. If there are more then one sections, we have only two options for shot (since ships are straight lines)
 
     c. Before each shot scan all cells and mark them `useless` if it isn't possible to fit there the smallest survived ship. Nest rounds we skip such `useless` cells
 
@@ -202,6 +202,7 @@ npm run start
 ```
 
 5. Now we are good to go. Open up any browser and navigate to
+
 ```sh
 http://localhost:3000
 ```

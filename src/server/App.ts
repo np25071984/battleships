@@ -1,4 +1,5 @@
 import * as express from 'express'
+import { Application, Request, Response, Router } from 'express'
 import Grid from './Grid'
 import Player from './Player'
 import Ship from '../common/Ship'
@@ -12,20 +13,7 @@ import { GameCreateValidator } from './Validators'
 import { validationResult } from 'express-validator'
 
 class App {
-    public static readonly EVENT_TYPE_CONNECTED: string = 'connected'
-    public static readonly EVENT_TYPE_DISCONNECT: string = 'disconnect'
-    public static readonly EVENT_TYPE_WAITING: string = 'waiting'
-    public static readonly EVENT_TYPE_INIT: string = 'init'
-    public static readonly EVENT_TYPE_JOINED: string = 'joined'
-    public static readonly EVENT_TYPE_LEFT: string = 'left'
-    public static readonly EVENT_TYPE_SHOT: string = 'shot'
-    public static readonly EVENT_TYPE_ANNOUNCE: string = 'announce'
-    public static readonly EVENT_TYPE_ROUND: string = 'round'
-    public static readonly EVENT_TYPE_GAME_RESULT: string = 'game_result'
-    public static readonly GAME_RESULT_WIN: string = 'win'
-    public static readonly GAME_RESULT_DRAW: string = 'draw'
-    public static readonly GAME_RESULT_DEFEAT: string = 'defeat'
-    public express
+    public express: Application
     public games: Game[]
 
     constructor() {
@@ -35,8 +23,8 @@ class App {
     }
 
     private mountRoutes(): void {
-        const router = express.Router()
-        router.get('/', (req, res) => {
+        const router: Router = express.Router()
+        router.get('/', (req: Request, res: Response) => {
             if (req.url === '/favicon.ico') {
                 res.writeHead(200, {'Content-Type': 'image/x-icon'})
                 res.end()
@@ -49,7 +37,7 @@ class App {
             res.render('pages/main.ejs', {'version': version})
         })
 
-        router.get('/create', (req, res) => {
+        router.get('/create', (req: Request, res: Response) => {
             res.render('pages/create.ejs', {
                 'cols': 10,
                 'rows': 10,
@@ -62,7 +50,7 @@ class App {
             })
         })
 
-        router.post('/create', GameCreateValidator, (req, res) => {
+        router.post('/create', GameCreateValidator, (req: Request, res: Response) => {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
                 res.status(400).json({errors: errors.array()})
@@ -122,7 +110,7 @@ class App {
                 })
         })
 
-        router.get('/join/:gameId', (req, res) => {
+        router.get('/join/:gameId', (req: Request, res: Response) => {
             const gameId: string = req.params.gameId
             if (!this.doesGameExist(gameId)) {
                 res.send(`Game '${gameId}' not found`)
@@ -140,7 +128,7 @@ class App {
             })
         })
 
-        router.post('/join/:gameId', (req, res) => {
+        router.post('/join/:gameId', (req: Request, res: Response) => {
             const gameId: string = req.params.gameId
             if (!this.doesGameExist(gameId)) {
                 res.send(`Game '${gameId}' not found`)
@@ -170,7 +158,7 @@ class App {
             res.redirect(`/${gameId}?playerId=${player.id}`)
         })
 
-        router.get('/shuffle/:gameId', (req, res) => {
+        router.get('/shuffle/:gameId', (req: Request, res: Response) => {
             const gameId: string = req.params.gameId
             if (!this.doesGameExist(gameId)) {
                 res.send(`Game '${gameId}' not found`)
@@ -206,21 +194,21 @@ class App {
             )
         })
 
-        router.get('/list', (req, res) => {
+        router.get('/list', (req: Request, res: Response) => {
             res.render('pages/list.ejs')
         })
 
-        router.get('/games', (req, res) => {
+        router.get('/games', (req: Request, res: Response) => {
             const gameList = []
             for (const gameId in this.games) {
                 const game: Game = this.games[gameId]
 
-                // only multiplayer public game
+                // only multiplayer public games
                 if (game.settings.gameType !== Settings.GAME_TYPE_MULTIPLAYER_PUBLIC) {
                     continue
                 }
 
-                // only started game
+                // only started games
                 if (game.players.length === 0) {
                     continue
                 }
@@ -245,10 +233,10 @@ class App {
                     break
                 }
             }
-            res.json(gameList);
+            res.json(gameList)
         })
 
-        router.get('/:gameId', (req, res) => {
+        router.get('/:gameId', (req: Request, res: Response) => {
             const queryParams = req.query
             if (!('playerId' in queryParams)) {
                 // TODO: redirect to main
@@ -266,7 +254,7 @@ class App {
 
             var remainingShips: Object
             if (game.round === 1) {
-                // game just started; no sunk ships
+                // game just started; the player isn't joined yet
                 remainingShips = {}
                 for (const type of game.settings.shipTypes) {
                     const size: number = type.getSize()
@@ -294,7 +282,7 @@ class App {
         this.express.use('/', router)
     }
 
-    public makeId(length: number): string {
+    makeId(length: number): string {
         let result: string = ''
         const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
         const charactersLength: number = characters.length

@@ -1,11 +1,20 @@
-import BattleshipsEvent from './BattleshipsEvent'
 import Render from './Render'
 import Position from '../common/Position'
 import Point from './Point'
 import Cell from './Cell'
-import type Window from './types/index.d.ts'
+import type Window from './@types/index'
 import Board from './Board'
 import ShotResult from '../common/ShotResult'
+import {
+    ConnectedEvent,
+    ShotEvent,
+    JoinedEvent,
+    LeftEvent,
+    GameResultEvent,
+    ShotResultEvent,
+    InitEvent,
+    RoundEvent
+} from '../common/@types/socket'
 
 window.mouseClickEvent = function(position: Position) {
     const cell: Cell = window.shotsBoard.grid.getCell(position)
@@ -17,12 +26,13 @@ window.mouseClickEvent = function(position: Position) {
     window.shotsBoard.active = false
     cell.setType(Cell.CELL_TYPE_CLICKED)
 
-    window.socket.emit(BattleshipsEvent.EVENT_TYPE_SHOT, {
+    const shotEvent: ShotEvent = {
         'col': cell.position.col,
         'row': cell.position.row,
         'playerId': window.playerId,
         'gameId': window.gameId,
-    });
+    }
+    window.socket.emit("shot", shotEvent);
 }
 
 window.onload = function() {
@@ -38,24 +48,18 @@ window.onload = function() {
         window.render.refreshGrid(shotsCanvas, window.shotsBoard)
     }
 
-    console.log("gameId: " + window.gameId)
-
     window.render = new Render()
 
     window.socket = window.io()
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_CONNECTED, function(event) {
+    window.socket.on("connected", function(event: ConnectedEvent) {
         window.playerId = event.playerId
         const d = new Date()
         d.setTime(d.getTime() + (1*24*60*60*1000))
         let expires = "expires="+ d.toUTCString()
         document.cookie = "playerId=" + window.playerId + ";" + expires + ";path=/"
+    })
 
-        console.dir("connected to the server")
-    });
-
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_INIT, function(event) {
-        console.dir("init client")
-
+    window.socket.on("init", function(event: InitEvent) {
         const shotsCanvas = document.getElementById("shots-board") as HTMLCanvasElement
         if (shotsCanvas == null) {
             throw Error("Can't find Shots board")
@@ -118,19 +122,19 @@ window.onload = function() {
         waitingMessageDiv.style.display = 'none';
     })
 
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_WAITING, function(event) {
+    window.socket.on("waiting", function() {
         console.log(`Waiting for the second player`)
     })
 
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_JOINED, function(event) {
+    window.socket.on("joined", function(event: JoinedEvent) {
         console.log(`Player ${event.playerId} has joined the game`)
     })
 
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_LEFT, function(event) {
+    window.socket.on("left", function(event: LeftEvent) {
         console.log(`Player ${event.playerId} has left the game`)
     })
 
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_ANNOUNCE, function(event) {
+    window.socket.on("announce", function(event: ShotResultEvent) {
         if (event.result === ShotResult.HIT_RESULT_SUNK) {
             const spanElement = document.getElementById(`remaining-ships-${event.size}`)
             if (spanElement && spanElement.firstElementChild) {
@@ -151,16 +155,16 @@ window.onload = function() {
         window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
     })
 
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_ROUND, function(event) {
+    window.socket.on("round", function(event: RoundEvent) {
         window.shotsBoard.roundStart(event.number)
     })
 
-    window.socket.on(BattleshipsEvent.EVENT_TYPE_GAME_RESULT, function(event) {
+    window.socket.on("game_result", function(event: GameResultEvent) {
         switch (event.result) {
-            case BattleshipsEvent.GAME_RESULT_WIN:
+            case "win":
                 alert("Congratulations, you won!")
                 break
-            case BattleshipsEvent.GAME_RESULT_DEFEAT:
+            case "defeat":
                 for (const u in event.opponent_ships) {
                     const upd =  event.opponent_ships[u]
                     window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(Cell.CELL_TYPE_SHIP)
@@ -168,7 +172,7 @@ window.onload = function() {
                 window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
                 alert("Defeat")
                 break
-            case BattleshipsEvent.GAME_RESULT_DRAW:
+            case "draw":
                 alert("Draw")
                 break
             default:
