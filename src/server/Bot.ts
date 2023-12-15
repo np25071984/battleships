@@ -1,7 +1,6 @@
 import Ship from '../common/Ship'
 import Grid from './Grid'
 import Position from '../common/Position'
-import ShipSection from '../common/ShipSection'
 import Player from './Player'
 import Cell from '../common/Cell'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
@@ -97,6 +96,10 @@ class Bot extends Player {
             }
         }
 
+        if (availableForShot.length === 0) {
+            throw new Error("Didn't find any cells to shot at")
+        }
+
         const randomIndex = Math.floor(Math.random() * availableForShot.length)
         const randomPosition = availableForShot[randomIndex]
         this.shots[round] = randomPosition
@@ -124,25 +127,29 @@ class Bot extends Player {
         return false
     }
 
-
     syncDecisionBoard(result: ShotResult, updates): void {
         updates.forEach((upd) => {
             const p = new Position(upd.col, upd.row)
             this.decisionGrid.getCell(p).setType(upd.type)
 
-            if (result.isDamage()) {
+            if (result.isDamage() && upd.type === Cell.CELL_TYPE_WRACKAGE) {
                 this.targetedShipSections.push(p)
-            } else if (result.isSunk()) {
-                for (var index = 0; index < this.enemyShipTypes.length; index++) {
-                    const type = this.enemyShipTypes[index]
-                    if (type.getSize() === this.targetedShipSections.length) {
-                        this.enemyShipTypes.splice(index, 1);
-                        break
-                    }
-                }
-                this.targetedShipSections = []
             }
         })
+
+        if (result.isSunk()) {
+            if (!('size' in result.details)) {
+                throw new Error("Couldn't find 'size' property in ShotResult object")
+            }
+            for (var index = 0; index < this.enemyShipTypes.length; index++) {
+                const type = this.enemyShipTypes[index]
+                if (type.getSize() === result.details.size as number) {
+                    this.enemyShipTypes.splice(index, 1)
+                    break
+                }
+            }
+            this.targetedShipSections = []
+        }
     }
 }
 
