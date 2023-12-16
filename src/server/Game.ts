@@ -93,7 +93,7 @@ class Game {
         const opponent: Player = this.getOpponent(player.id)
         for (const s in opponent.ships) {
             const ship: Ship = opponent.ships[s]
-            if (ship.alive) {
+            if (ship.isAlive) {
                 for (const secId in ship.sections) {
                     const section: ShipSection = ship.sections[secId]
                     const p = new Position(section.position.col, section.position.row)

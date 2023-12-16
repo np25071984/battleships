@@ -8,9 +8,9 @@ import ShipTypeFactory from '../common/ShipTypeFactory'
 import ShotResult from '../common/ShotResult'
 
 class Bot extends Player {
-    decisionGrid: Grid
-    enemyShipTypes: ShipTypeAbstract[]
-    targetedShipSections: Position[]
+    private decisionGrid: Grid
+    private enemyShipTypes: ShipTypeAbstract[]
+    private targetedShipSections: Position[]
 
     constructor(id: string, grid: Grid, ships: Ship[]) {
         super(id, grid, ships)

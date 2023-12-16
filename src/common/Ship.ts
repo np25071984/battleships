@@ -5,18 +5,18 @@ import ShotResult from './ShotResult'
 
 class Ship
 {
-    public liveSectionCount: number
+    private aliveSectionCount: number
     public position: Position
     public isHorizontal: boolean
     public type: ShipTypeAbstract
-    public alive: boolean
+    public isAlive: boolean
     public sections: ShipSection[]
 
     constructor(position: Position, isHorizontal: boolean, type: ShipTypeAbstract) {
-        this.liveSectionCount = type.getSize()
+        this.aliveSectionCount = type.getSize()
         this.position = position
         this.isHorizontal = isHorizontal
-        this.alive = true
+        this.isAlive = true
         this.type = type
         this.sections = []
         for (var i = 0; i < this.type.getSize(); i++) {
@@ -44,9 +44,9 @@ class Ship
         for (const section of this.sections) {
             if (section.isLocatedAt(position)) {
                 section.isAlive = false
-                this.liveSectionCount--
-                if (this.liveSectionCount === 0) {
-                    this.alive = false
+                this.aliveSectionCount--
+                if (this.aliveSectionCount === 0) {
+                    this.isAlive = false
                     return new ShotResult(ShotResult.HIT_RESULT_SUNK, {
                         "size": this.type.getSize()
                     })
@@ -60,17 +60,17 @@ class Ship
     }
 
     getSurrounding(): Position[] {
-        const intermediateRes = {};
+        const intermediateRes = {}
         for (const section of this.sections) {
             const surrounding = section.position.getSurrounding()
             for (const position of surrounding) {
                 const key = position.generateKey()
                 if(!(key in intermediateRes) && !this.isLocatedAt(position)) {
-                    intermediateRes[key] = position;
+                    intermediateRes[key] = position
                 }
             }
         }
-        return Object.values(intermediateRes);
+        return Object.values(intermediateRes)
     }
 }
 

@@ -1,10 +1,7 @@
 import Ship from '../common/Ship'
 import Grid from './Grid'
 import Position from '../common/Position'
-
-interface Shots {
-    [round: string]: Position
-}
+import { Shots } from './@types/player'
 
 class Player {
     ships: Ship[]
@@ -53,7 +50,7 @@ class Player {
         const aliveSections: object[] = []
         for (const s in this.ships) {
             const ship: Ship = this.ships[s]
-            if (ship.alive) {
+            if (ship.isAlive) {
                 for (const section of ship.sections) {
                     if (section.isAlive) {
                         aliveSections.push({
@@ -71,7 +68,7 @@ class Player {
     getRemainingShipsStat(): Object {
         const playerRemainingShips: Object = {}
         this.ships.forEach((ship: Ship) => {
-            if (!ship.alive) {
+            if (!ship.isAlive) {
                 return
             }
 
