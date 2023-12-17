@@ -4,8 +4,8 @@ import Position from '../common/Position'
 import Player from './Player'
 import Cell from '../common/Cell'
 import ShipTypeAbstract from '../common/ShipTypeAbstract'
-import ShipTypeFactory from '../common/ShipTypeFactory'
 import ShotResult from '../common/ShotResult'
+import ShipTypeFactory from '../common/ShipTypeFactory'
 
 class Bot extends Player {
     private decisionGrid: Grid

@@ -162,10 +162,10 @@ window.onload = function() {
 
     window.socket.on("game_result", function(event: GameResultEvent) {
         switch (event.result) {
-            case GameResult.win:
+            case GameResult.Win:
                 alert("Congratulations, you won!")
                 break
-            case GameResult.defeat:
+            case GameResult.Defeat:
                 for (const u in event.opponent_ships) {
                     const upd =  event.opponent_ships[u]
                     window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(Cell.CELL_TYPE_SHIP)
@@ -173,7 +173,7 @@ window.onload = function() {
                 window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
                 alert("Defeat")
                 break
-            case GameResult.draw:
+            case GameResult.Draw:
                 alert("Draw")
                 break
             default:

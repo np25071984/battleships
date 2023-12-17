@@ -11,6 +11,7 @@ import Game from './Game'
 import Randomizer from './Randomizer'
 import { GameCreateValidator } from './Validators'
 import { validationResult } from 'express-validator'
+import { ShipType } from './../common/Enums'
 
 class App {
     public express: Application
@@ -65,22 +66,22 @@ class App {
 
             const carrierAmount: number = parseInt(req.body.carrier)
             for (var i = 0; i < carrierAmount; i++) {
-                shipTypes.push(ShipTypeFactory.getType(5))
+                shipTypes.push(ShipTypeFactory.getType(ShipType.Carrier))
             }
 
             const battleshipAmount: number = parseInt(req.body.battleship)
             for (var i = 0; i < battleshipAmount; i++) {
-                shipTypes.push(ShipTypeFactory.getType(4))
+                shipTypes.push(ShipTypeFactory.getType(ShipType.Battleship))
             }
 
             const destroyerAmount: number = parseInt(req.body.destroyer)
             for (var i = 0; i < destroyerAmount; i++) {
-                shipTypes.push(ShipTypeFactory.getType(3))
+                shipTypes.push(ShipTypeFactory.getType(ShipType.Destroyer))
             }
 
             const patrolBoatAmount: number = parseInt(req.body.patrolboat)
             for (var i = 0; i < patrolBoatAmount; i++) {
-                shipTypes.push(ShipTypeFactory.getType(2))
+                shipTypes.push(ShipTypeFactory.getType(ShipType.PatrolBoat))
             }
 
             const maxIterations: number = gridCols * gridRows * 10
@@ -143,7 +144,7 @@ class App {
                 return
             }
 
-            const ships: Ship[] = [];
+            const ships: Ship[] = []
             // TODO: validate input
             for (const rawShip of req.body.ships) {
                 const raw = JSON.parse(rawShip)

@@ -21,6 +21,6 @@
     "scripts": {
         "build": "rimraf ./build && tsc && node_modules/.bin/webpack",
         "start": "npm run build && node build/server/server.js",
-        "test": "node --import tsx --test ./test/RandomizerTest.ts ./test/BotTest.ts"
+        "test": "node --import tsx --test ./test/RandomizerTest.ts ./test/BotTest.ts ./test/ShipTest.ts"
     }
 }
