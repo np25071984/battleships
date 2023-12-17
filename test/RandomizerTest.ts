@@ -5,13 +5,14 @@ import Position from '../src/common/Position'
 import Ship from '../src/common/Ship'
 import ShipTypeAbstract from '../src/common/ShipTypeAbstract'
 const assert = require('node:assert')
+import { ShipType } from './../src/common/Enums'
 
 describe('Randomizer class test', () => {
     it('the only possible combination', async () => {
         const shipTypes: Array<ShipTypeAbstract> = [
-            ShipTypeFactory.getType(4),
-            ShipTypeFactory.getType(4),
-            ShipTypeFactory.getType(3),
+            ShipTypeFactory.getType(ShipType.Battleship),
+            ShipTypeFactory.getType(ShipType.Battleship),
+            ShipTypeFactory.getType(ShipType.Destroyer),
         ]
 
         const randomizer: Randomizer = new Randomizer(1000)
@@ -22,7 +23,7 @@ describe('Randomizer class test', () => {
             assert.strictEqual(shipTypes.length, ships.length, `Unexpected ships amount: ${ships.length}`)
 
             ships.forEach((ship: Ship) => {
-                if (ship.type.getSize() === 3) {
+                if (ship.type.isDestroyer()) {
                     const expectedPositin = new Position(5, 0)
                     assert.strictEqual(expectedPositin.isEqual(ship.position), true)
                 } else {
@@ -40,16 +41,16 @@ describe('Randomizer class test', () => {
 
     it('one in a million combination', async () => {
         const shipTypes: Array<ShipTypeAbstract> = [
-            ShipTypeFactory.getType(2),
-            ShipTypeFactory.getType(2),
-            ShipTypeFactory.getType(2),
-            ShipTypeFactory.getType(2),
-            ShipTypeFactory.getType(3),
-            ShipTypeFactory.getType(3),
-            ShipTypeFactory.getType(3),
-            ShipTypeFactory.getType(4),
-            ShipTypeFactory.getType(4),
-            ShipTypeFactory.getType(5),
+            ShipTypeFactory.getType(ShipType.PatrolBoat),
+            ShipTypeFactory.getType(ShipType.PatrolBoat),
+            ShipTypeFactory.getType(ShipType.PatrolBoat),
+            ShipTypeFactory.getType(ShipType.PatrolBoat),
+            ShipTypeFactory.getType(ShipType.Destroyer),
+            ShipTypeFactory.getType(ShipType.Destroyer),
+            ShipTypeFactory.getType(ShipType.Destroyer),
+            ShipTypeFactory.getType(ShipType.Battleship),
+            ShipTypeFactory.getType(ShipType.Battleship),
+            ShipTypeFactory.getType(ShipType.Carrier),
         ]
 
         const randomizer: Randomizer = new Randomizer(1000)
@@ -63,9 +64,9 @@ describe('Randomizer class test', () => {
 
     it('impossible combination', async () => {
         const shipTypes: Array<ShipTypeAbstract> = [
-            ShipTypeFactory.getType(4),
-            ShipTypeFactory.getType(4),
-            ShipTypeFactory.getType(3),
+            ShipTypeFactory.getType(ShipType.Battleship),
+            ShipTypeFactory.getType(ShipType.Battleship),
+            ShipTypeFactory.getType(ShipType.Destroyer),
         ]
 
         const randomizer: Randomizer = new Randomizer(10)

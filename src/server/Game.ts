@@ -323,7 +323,7 @@ class Game {
             const winner = this.getOpponent(loserId)
             if (loser.id !== 'bot') {
                 const gameResultEvent: GameResultEvent = {
-                    'result': GameResult.defeat,
+                    'result': GameResult.Defeat,
                     'playerId': loser.id,
                     'opponent_ships': winner.getRemainingShipsSections()
                 }
@@ -332,7 +332,7 @@ class Game {
 
             if (winner.id !== 'bot') {
                 const gameResultEvent: GameResultEvent = {
-                    'result': GameResult.win,
+                    'result': GameResult.Win,
                     'playerId': winner.id,
                 }
                 global.io.sockets.to(winner.socketId).emit("game_result", gameResultEvent)
@@ -344,7 +344,7 @@ class Game {
                 }
 
                 const gameResultEvent: GameResultEvent = {
-                    'result': GameResult.draw,
+                    'result': GameResult.Draw,
                     'playerId': player.id,
                 }
                 global.io.sockets.to(player.socketId).emit("game_result", gameResultEvent)

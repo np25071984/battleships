@@ -3,21 +3,22 @@ import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
 import ShipTypeCarrier from '../common/ShipTypeCarrier'
 import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
 import ShipTypeAbstract from './ShipTypeAbstract'
+import { ShipType } from './Enums'
 
-abstract class ShipTypeFactory {
-
-    static getType(shipSize: number): ShipTypeAbstract {
-        switch (shipSize) {
-            case 5:
+class ShipTypeFactory
+{
+    static getType(shipType: ShipType): ShipTypeAbstract {
+        switch (shipType) {
+            case ShipType.Carrier:
                 return new ShipTypeCarrier()
-            case 4:
+            case ShipType.Battleship:
                 return new ShipTypeBattleShip()
-            case 3:
+            case ShipType.Destroyer:
                 return new ShipTypeDestroyer()
-            case 2:
+            case ShipType.PatrolBoat:
                 return new ShipTypePatrolBoat()
             default:
-                throw new Error(`Unsupported ship size ${shipSize}`)
+                throw new Error(`Unsupported ship type ${shipType}`)
         }
     }
 }

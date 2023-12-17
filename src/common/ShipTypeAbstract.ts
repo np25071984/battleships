@@ -1,13 +1,26 @@
-import ShipTypeDestroyer from '../common/ShipTypeDestroyer'
-import ShipTypeBattleShip from '../common/ShipTypeBattleShip'
-import ShipTypeCarrier from '../common/ShipTypeCarrier'
-import ShipTypePatrolBoat from '../common/ShipTypePatrolBoat'
+import { ShipType } from './Enums'
 
 abstract class ShipTypeAbstract {
-    protected SHIP_SIZE: number
+    protected abstract shipSize: number
 
     getSize(): number {
-        return this.SHIP_SIZE
+        return this.shipSize
+    }
+
+    isCarrier(): boolean {
+        return this.shipSize === ShipType.Carrier
+    }
+
+    isBattleship(): boolean {
+        return this.shipSize === ShipType.Battleship
+    }
+
+    isDestroyer(): boolean {
+        return this.shipSize === ShipType.Destroyer
+    }
+
+    isPatrolBoat(): boolean {
+        return this.shipSize === ShipType.PatrolBoat
     }
 }
 
