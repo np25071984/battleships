@@ -23,9 +23,9 @@ class Board
         this.grid = grid
         this.fontSize = fontSize
         this.round = undefined
-        this.active = false
+        this.active = false // whether should we handle user events or not
         this.showAgenda = showAgenda
-        this.isReady = false
+        this.isReady = false // if not ready we show "Loading..." message
     }
 
     getTotalWidth(): number {

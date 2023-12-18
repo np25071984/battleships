@@ -27,7 +27,9 @@ window.shuffleShip = function(): void {
     }
 
     window.shipsBoard.setReady(false)
+    window.shipsBoard.active = false
     window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
+
     window.shipsBoard.grid.resetShips()
 
     sendShipsRequest()
@@ -36,8 +38,13 @@ window.shuffleShip = function(): void {
     if (shuffleButton == null) {
         throw Error("Can't find Shuffle button")
     }
-
     shuffleButton.disabled = true
+
+    const submitButton = document.getElementById("submit-ships") as HTMLButtonElement
+    if (submitButton == null) {
+        throw Error("Can't find Submit button")
+    }
+    submitButton.disabled = true
 }
 
 function sendShipsRequest(): void {
@@ -57,16 +64,30 @@ function sendShipsRequest(): void {
                 window.shipsBoard.grid.loadShip(s)
             })
 
-            window.shipsBoard.setReady(true)
-            window.render.drawEmptyBoard(shipsCanvas, window.shipsBoard)
-            window.render.refreshGrid(shipsCanvas, window.shipsBoard)
-
             const shuffleButton = document.getElementById("shuffle-button") as HTMLButtonElement
             if (shuffleButton == null) {
                 throw Error("Can't find Shubble button")
             }
-
             shuffleButton.disabled = false
+
+            const submitButton = document.getElementById("submit-ships") as HTMLButtonElement
+            if (submitButton == null) {
+                throw Error("Can't find Submit button")
+            }
+            submitButton.disabled = false
+
+            const placementCanvas = document.getElementById("placement-board") as HTMLCanvasElement
+            if (placementCanvas == null) {
+                throw Error("Can't find Board")
+            }
+
+            // set ready state and draw empty background instead "Loading..." message
+            window.shipsBoard.setReady(true)
+            window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
+
+            // allow user events and draw the grid itself
+            window.shipsBoard.active = true
+            window.render.refreshGrid(shipsCanvas, window.shipsBoard)
         }
     }
     xhttp.open("GET", `/shuffle/${window.gameId}`, true)
@@ -199,16 +220,36 @@ window.onload = function () {
     window.shipsBoard = Board.getInstance(window.cols, window.rows, true)
     placementCanvas.width = window.shipsBoard.getTotalWidth()
     placementCanvas.height = window.shipsBoard.getTotalHeight()
-    window.shipsBoard.active = true
+    // by this time the board's isReady state is equal to false; so let's draw "Loading..." message
     window.render.drawEmptyBoard(placementCanvas, window.shipsBoard)
 
-    function getMousePoint(canvasRect, clientX, clientY) {
-        const x = clientX - canvasRect.left
-        const y = clientY - canvasRect.top
-        return new Point(x, y)
+    const submitButton = document.getElementById("submit-ships")
+    if (submitButton == null) {
+        throw Error("Can't find Sibmit button")
     }
 
-    placementCanvas.addEventListener('mouseout', function (board, e) {
+    sendShipsRequest()
+    setUpEventListeners(placementCanvas)
+
+    submitButton.addEventListener('click', function () {
+        window.shipsBoard.grid.ships.forEach((ship: Ship) => {
+            const sh: string = JSON.stringify({
+                'col': ship.position.col,
+                'row': ship.position.row,
+                'type': ship.type.getSize(),
+                'isHorizontal': ship.isHorizontal,
+            })
+            var input = document.createElement('input')
+            input.setAttribute('name', "ships[]")
+            input.setAttribute('value', sh);
+            input.setAttribute('type', "hidden")
+            this.appendChild(input)
+        }, this)
+    })
+}
+
+function setUpEventListeners(canvas: HTMLCanvasElement) {
+    canvas.addEventListener('mouseout', function (board, e) {
         window.mouseMoveEvent = null
 
         if (window.shadeShip) {
@@ -224,16 +265,29 @@ window.onload = function () {
         }
 
         window.render.refreshGrid(this, board)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('mousemove', function (board, e) {
+    canvas.addEventListener('mousemove', function (board, e) {
+        var isSelectedShip: boolean = false
+        for (const ship of window.shipsBoard.grid.ships) {
+            if (ship.isSelected()) {
+                isSelectedShip = true
+                break
+            }
+        }
+
+
+        // there is nothing to move if we don't have a selected ship
+        if (!isSelectedShip) {
+            return
+        }
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseMove(mousePoint)
         window.render.refreshGrid(this, board)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('touchmove', function (board, e) {
+    canvas.addEventListener('touchmove', function (board, e) {
         for (const ship of window.shipsBoard.grid.ships) {
             if (ship.isSelected()) {
                 e.preventDefault()
@@ -244,58 +298,41 @@ window.onload = function () {
         const mousePoint = getMousePoint(rect, e.touches[0].clientX, e.touches[0].clientY)
         board.mouseMove(mousePoint)
         window.render.refreshGrid(this, board)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('click', function(board, e) {
+    canvas.addEventListener('click', function(board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseClick(mousePoint)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('mousedown', function (board, e) {
+    canvas.addEventListener('mousedown', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseDown(mousePoint)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('touchstart', function (board, e) {
+    canvas.addEventListener('touchstart', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.touches[0].clientX, e.touches[0].clientY)
         board.mouseDown(mousePoint)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('mouseup', function (board, e) {
+    canvas.addEventListener('mouseup', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.clientX, e.clientY)
         board.mouseUp(mousePoint)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
 
-    placementCanvas.addEventListener('touchend', function (board, e) {
+    canvas.addEventListener('touchend', function (board, e) {
         const rect = this.getBoundingClientRect()
         const mousePoint = getMousePoint(rect, e.changedTouches[0].clientX, e.changedTouches[0].clientY)
         board.mouseUp(mousePoint)
-    }.bind(placementCanvas, window.shipsBoard))
+    }.bind(canvas, window.shipsBoard))
+}
 
-    const submitButton = document.getElementById("submit-ships")
-    if (submitButton == null) {
-        throw Error("Can't find Sibmit button")
-    }
-
-    submitButton.addEventListener('click', function (event) {
-        window.shipsBoard.grid.ships.forEach((ship: Ship) => {
-            const sh: string = JSON.stringify({
-                'col': ship.position.col,
-                'row': ship.position.row,
-                'type': ship.type.getSize(),
-                'isHorizontal': ship.isHorizontal,
-            })
-            var input = document.createElement('input')
-            input.setAttribute('name', "ships[]")
-            input.setAttribute('value', sh);
-            input.setAttribute('type', "hidden")
-            this.appendChild(input)
-        }, this)
-    })
-
-    sendShipsRequest()
+function getMousePoint(canvasRect, clientX: number, clientY: number) {
+    const x = clientX - canvasRect.left
+    const y = clientY - canvasRect.top
+    return new Point(x, y)
 }

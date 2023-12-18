@@ -14,6 +14,8 @@ class Render {
     public static readonly COLOR_WATER: string = '#e8faf7'
     public static readonly COLOR_SHADOW: string = 'gray'
 
+    private isAgendaRendered: boolean = false
+
     drawEmptyBoard(canvas: HTMLCanvasElement, board: Board) {
         const context = canvas.getContext("2d")
         if (!context) {
@@ -46,6 +48,10 @@ class Render {
     }
 
     drawAgenda(canvas: HTMLCanvasElement, board: Board) {
+        if (this.isAgendaRendered) {
+            return
+        }
+
         const context = canvas.getContext("2d")
         if (!context) {
             throw Error("Can't get context")
@@ -72,6 +78,7 @@ class Render {
             context.fillText((i + 1).toString(), curShift, board.rect.ltPoint.y)
         }
         context.closePath()
+        this.isAgendaRendered = true
     }
 
     refreshGrid(canvas: HTMLCanvasElement, board: Board) {
