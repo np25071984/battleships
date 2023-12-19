@@ -180,7 +180,7 @@ Feel free to report bugs, suggest improvements, and send pull requests!
 1. Clone the repo
 
 ```sh
-git clone https://github.com/GHopperMSK/battleships.git
+git clone https://github.com/np25071984/battleships.git
 ```
 
 2. Get inside the dir

@@ -1,5 +1,5 @@
 import { describe, it } from 'node:test'
-import Randomizer from '../src/Server/Randomizer'
+import Randomizer from '../src/server/Randomizer'
 import ShipTypeFactory from '../src/common/ShipTypeFactory'
 import Position from '../src/common/Position'
 import Ship from '../src/common/Ship'
@@ -20,7 +20,7 @@ describe('Randomizer class test', () => {
             if (ships === null) {
                 throw new Error("findShipsCombination returned null")
             }
-            assert.strictEqual(shipTypes.length, ships.length, `Unexpected ships amount: ${ships.length}`)
+            assert.strictEqual(ships.length, shipTypes.length, `Unexpected ships amount: ${ships.length}`)
 
             ships.forEach((ship: Ship) => {
                 if (ship.type.isDestroyer()) {
@@ -58,7 +58,7 @@ describe('Randomizer class test', () => {
             if (ships === null) {
                 throw new Error("findShipsCombination returned null")
             }
-            assert.strictEqual(shipTypes.length, ships.length, `Unexpected ships amount: ${ships.length}`)
+            assert.strictEqual(ships.length, shipTypes.length, `Unexpected ships amount: ${ships.length}`)
         })
     })
 
