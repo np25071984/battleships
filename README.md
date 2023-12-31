@@ -213,7 +213,6 @@ http://localhost:3000
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)
-* 🐞 Single game, 14x13 grid + one extra ship to Classic set, random placement + some corrections; in some cases Bot couldn't find any available cells to make the shot
 
 ## Terminology
 
