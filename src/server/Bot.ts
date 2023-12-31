@@ -62,7 +62,7 @@ class Bot extends Player {
                 }
             })
         } else {
-            var tl: Position = new Position(9999, 9999)
+            var tl: Position = new Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
             var br: Position = new Position(0, 0)
             this.targetedShipSections.forEach((pos: Position) => {
                 if (tl.col >= pos.col && tl.row >= pos.row) {

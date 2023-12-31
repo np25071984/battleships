@@ -27,7 +27,7 @@
                 <canvas style="background-color: azure;" id="ships-board"></canvas>
 
                 <br />
-                Opponent's remaining ships:<br />
+                <p style="color: #4c78d9"> Opponent's remaining ships:</p><br />
                 <% for (var size in remainingShips) { %>
                     <% if (remainingShips[size] > 0) { %>
                         <span id="remaining-ships-<%= size %>">
