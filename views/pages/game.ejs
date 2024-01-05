@@ -9,7 +9,7 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="container-sm">
+    <div class="container-sm" style="width: fit-content;">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="/">Main</a></li>
@@ -20,14 +20,13 @@
 
         <p id="waiting-message">Waiting for the opponent...</p>
         <div class="row" id="game-boards" style="visibility: hidden">
-            <div class="col-sm-6 order-sm-2">
+            <div class="col-sm-7 order-sm-2">
                 <canvas style="background-color: azure;" id="shots-board"></canvas>
             </div>
-            <div class="col-sm-6 text-end order-sm-1">
+            <div class="col-sm-5 text-end order-sm-1">
                 <canvas style="background-color: azure;" id="ships-board"></canvas>
-
                 <br />
-                <p style="color: #4c78d9"> Opponent's remaining ships:</p><br />
+                <span style="color: #4c78d9"> Opponent's remaining ships:</span><br />
                 <% for (var size in remainingShips) { %>
                     <% if (remainingShips[size] > 0) { %>
                         <span id="remaining-ships-<%= size %>">

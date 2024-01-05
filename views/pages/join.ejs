@@ -8,7 +8,39 @@
     <script type="text/javascript" src="/static/ships.js"></script>
 </head>
 <body>
-    <div class="container-sm">
+    <div class="container-sm" style="width: fit-content">
+        <div class="row text-center">
+            <h1 style="line-height: 105px;">Join game</h1>
+        </div>
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Main</a></li>
+                <li class="breadcrumb-item"><a href="/list">List</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Join</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col">
+                <canvas style="background-color: azure;" id="placement-board"></canvas>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-outline-info" onclick="window.rotateShip()" id="rotate-ship" disabled>Rotate</button>
+                <button class="btn btn-outline-info" onclick="window.shuffleShip()" id="shuffle-button" disabled>Shuffle</button>
+            </div>
+            <div class="col">
+                <form action="/join/<%= gameId %>" method="post">
+                    <button type="submit" class="btn btn-primary float-end" id="submit-ships" disabled>Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="container-sm" style="width: fit-content">
         <div class="row text-center">
             <h1 style="line-height: 105px;">Join game</h1>
         </div>
@@ -40,17 +72,17 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-10 mb-3">
+            <div class="col; mb-3">
                 <button class="btn btn-outline-info" onclick="window.rotateShip()" id="rotate-ship" disabled>Rotate</button>
                 <button class="btn btn-outline-info" onclick="window.shuffleShip()" id="shuffle-button" disabled>Shuffle</button>
             </div>
-            <div class="col-sm-2 mb-3">
+            <div class="col; mb-3">
                 <form action="/join/<%= gameId %>" method="post">
-                    <button type="submit" class="btn btn-primary form-control" id="submit-ships" disabled>Submit</button>
+                    <button type="submit" class="btn btn-primary" id="submit-ships" disabled>Submit</button>
                 </form>
             </div>
         </div>
-    </div>
+    </div> -->
     <script>
         window.gameId = '<%- gameId %>'
         window.cols = '<%- cols %>'
