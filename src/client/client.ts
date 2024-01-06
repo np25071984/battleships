@@ -1,3 +1,4 @@
+import Animation from './Animation'
 import Render from './Render'
 import Position from '../common/Position'
 import Point from './Point'
@@ -143,17 +144,27 @@ window.onload = function() {
             }
         }
 
+        var cellToRunAnimation: Cell | undefined
+
         for (const u in event.ships_updates) {
             const upd =  event.ships_updates[u]
-            window.shipsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(upd.type)
+            const cell: Cell = window.shipsBoard.grid.getCell(new Position(upd.col, upd.row))
+            cell.setType(upd.type)
+            if (upd.type === Cell.CELL_TYPE_WRACKAGE || typeof cellToRunAnimation === 'undefined') {
+                cellToRunAnimation = cell
+            }
         }
-        window.render.refreshGrid(document.getElementById("ships-board"), window.shipsBoard)
+        const shipsBoard: HTMLCanvasElement = document.getElementById("ships-board") as HTMLCanvasElement
+        window.render.refreshGrid(shipsBoard, window.shipsBoard)
 
         for (const u in event.shots_updates) {
             const upd =  event.shots_updates[u]
             window.shotsBoard.grid.getCell(new Position(upd.col, upd.row)).setType(upd.type)
         }
         window.render.refreshGrid(document.getElementById("shots-board"), window.shotsBoard)
+        if (cellToRunAnimation) {
+            const animation = new Animation(cellToRunAnimation, shipsBoard)
+        }
     })
 
     window.socket.on("round", function(event: RoundEvent) {

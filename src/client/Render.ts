@@ -27,6 +27,7 @@ class Render {
         context.beginPath()
         context.rect(board.rect.ltPoint.x, board.rect.ltPoint.y, board.rect.getWidth(), board.rect.getHeight())
         context.fillStyle = '#90d3de'
+        context.globalAlpha = 1
         context.fill()
         context.closePath()
 
@@ -36,6 +37,7 @@ class Render {
             const fontWidth = Math.round(cellWidth / 2)
             context.font = `${fontWidth}px serif`
             context.fillStyle = '#000000'
+            context.globalAlpha = 1
             context.textBaseline = 'middle'
             context.textAlign = "center"
             context.fillText("Loading..." , board.rect.ltPoint.x + (board.rect.getWidth() / 2), board.rect.ltPoint.y + (board.rect.getHeight() / 2))
@@ -61,6 +63,7 @@ class Render {
 
         context.beginPath()
         context.fillStyle = '#000000'
+        context.globalAlpha = 1
         context.font = `${board.fontSize}px serif`
         context.textAlign = 'center'
         context.textBaseline = 'middle'
@@ -137,6 +140,7 @@ class Render {
                 context.beginPath()
                 context.rect(cell.rect.ltPoint.x, cell.rect.ltPoint.y, cell.rect.getWidth(), cell.rect.getHeight())
                 context.fillStyle = this.getCellColor(cell)
+                context.globalAlpha = 1
                 context.fill()
                 context.closePath()
                 cell.save()
@@ -169,7 +173,7 @@ class Render {
                 return Render.COLOR_WATER;
             case Cell.CELL_TYPE_SHADOW:
                 return Render.COLOR_SHADOW
-                default:
+            default:
                 throw new Error('Unknown cell type');
         }
     }
