@@ -84,6 +84,11 @@ global.io.on("connect", (socket) => {
         }
 
         const game: Game = app.getGame(gameId)
+        if (game.isOver()) {
+            // the game was finished
+            app.purgeGameData(gameId)
+            return
+        }
 
         var playerId: string
         for (const p of game.players) {
@@ -119,18 +124,5 @@ global.io.on("connect", (socket) => {
 
         const position = new Position(event.col, event.row)
         game.shot(position, playerId)
-
-        if (!game.isReadyForNextRound()) {
-            // wait for the second player
-            return
-        }
-
-        game.announceShotResults()
-        if (game.isOver()) {
-            game.announceGameResults()
-            app.purgeGameData(gameId)
-        } else {
-            game.nextRound()
-        }
     })
 })

@@ -8,6 +8,8 @@ import ShotResult from '../common/ShotResult'
 import ShipTypeFactory from '../common/ShipTypeFactory'
 
 class Bot extends Player {
+    public static readonly SHOT_MAX_DELAY_MILLISECONDS: number = 0
+
     private decisionGrid: Grid
     private enemyShipTypes: ShipTypeAbstract[]
     private targetedShipSections: Position[]
@@ -22,7 +24,7 @@ class Bot extends Player {
         })
     }
 
-    makeShot(round: number): void {
+    getPosition(): Position {
         const availableForShot: Position[] = []
         const damagedSections = this.targetedShipSections.length
         if (damagedSections === 0) {
@@ -102,7 +104,7 @@ class Bot extends Player {
 
         const randomIndex = Math.floor(Math.random() * availableForShot.length)
         const randomPosition = availableForShot[randomIndex]
-        this.shots[round] = randomPosition
+        return randomPosition
     }
 
     private doesPositionMakeSense(position: Position, shipType: ShipTypeAbstract): boolean {

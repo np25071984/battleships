@@ -24,10 +24,7 @@ describe('Bot.makeShot() method test', () => {
             1 in bot.shots,
             "The shots collection isn't empty after the bot has been created"
         )
-        bot.makeShot(1)
-        assert.strictEqual(true, 1 in bot.shots, "Unable to find shot position after shot has been made")
-
-        const position: Position = bot.shots[1]
+        const position: Position = bot.getPosition()
         assert.strictEqual(true, position.col < 4, `shot is outside the grid (column: ${position.col})`)
         assert.strictEqual(true, position.row < 4, `shot is outside the grid (row: ${position.row}`)
     })
@@ -55,7 +52,7 @@ describe('Bot.makeShot() method test', () => {
         bot.syncDecisionBoard(shotResult, updates)
 
         assert.throws(() => {
-            bot.makeShot(17)
+            bot.getPosition()
         }, "Was able find an available option to make a shot on fully discovered board")
     })
 
@@ -84,8 +81,7 @@ describe('Bot.makeShot() method test', () => {
         }
         bot.syncDecisionBoard(shotResult, updates)
 
-        bot.makeShot(16)
-        const position: Position = bot.shots[16]
+        const position: Position = bot.getPosition()
         assert.strictEqual(true, position.col === 2, `shot isn't in the only available column (actual: ${position.col})`)
         assert.strictEqual(true, position.row === 3, `shot isn't in the only available row (actual: ${position.row})`)
     })
@@ -114,7 +110,7 @@ describe('Bot.makeShot() method test', () => {
         bot.syncDecisionBoard(shotResult, updates)
 
         assert.throws(() => {
-            bot.makeShot(9)
+            bot.getPosition()
         }, "Was able find an available option to make a shot when there are only 1x1 unexplored cells")
 
     })

@@ -174,10 +174,18 @@ class Game {
             this.roundShotsCounter++
         }
 
-        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
-            const bot: Bot = this.players[1] as Bot
-            bot.makeShot(this.round)
+        if (!this.isReadyForNextRound()) {
+            // wait for the second player
+            return
         }
+
+        this.announceShotResults()
+        if (this.isOver()) {
+            this.announceGameResults()
+        } else {
+            this.nextRound()
+        }
+
     }
 
     getShotResult(playerId: string): ShotResult {
@@ -230,11 +238,7 @@ class Game {
     }
 
     isReadyForNextRound(): boolean {
-        if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
-            return this.roundShotsCounter === 1
-        } else {
-            return this.roundShotsCounter === 2
-        }
+        return this.roundShotsCounter === 2
     }
 
     initClients() {
@@ -361,9 +365,14 @@ class Game {
 
         const player2: Player = this.players[1]
         if (player2.id === 'bot') {
-            return
+            const bot: Bot = this.players[1] as Bot
+            setTimeout(() => {
+                    const position: Position = bot.getPosition()
+                    this.shot(position, bot.id)
+                }, Math.random() * Bot.SHOT_MAX_DELAY_MILLISECONDS)
+        } else {
+            global.io.sockets.to(player2.socketId).emit("round",roundEvent)
         }
-        global.io.sockets.to(player2.socketId).emit("round",roundEvent)
     }
 
     nextRound() {

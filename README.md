@@ -5,12 +5,32 @@
 
 It is hosted at http://ec2-3-142-134-11.us-east-2.compute.amazonaws.com:3000/
 
+## Game goal
+
+Players secretly place their ships on the game grid according to [rules](#rules) and take turns by making shots at row and column on the opponent’s grid in order hit a ship. The game continues until one player sinks all of the opponent’s ships.
+
+```mermaid
+flowchart LR
+    S[Strat] -->
+    PLACE_SHIPS[Place ships] -->
+    CHECK_SURVIVED{Is there \nsurvived\nship?}
+
+    MAKE_SHOT[Make shot] --> CHECK_SURVIVED
+
+    CHECK_SURVIVED -->|Yes| MAKE_SHOT
+    CHECK_SURVIVED -->|No| Finish
+
+```
+
 ## Rules
 
 * two players
-* there should be at least one cell gap between ships
-* the ships combination (number and types) is the same for each player
-* both players make a shot each round; there isn't the first and the last who shot
+* the ships can be placed horizontally or vertically, but not diagonally
+* the ships must be completely on the grid; no part can hang off the edge
+* there should be at least one cell gap between the ships
+* the ships combination (number of ships and their size) is the same for each player
+* both players make the shot each round; there isn't the first and the last who shot
+* once the game began the ships can't be moved
 
 ## Game navigation
 
@@ -210,9 +230,12 @@ http://localhost:3000
 ## TODO
 * Mobile first
 * Improve AI (make shots into intersections which have most ship probability)
+* Clean up hunged games periodically
+* Game chat with system messages (game started, the opponent connected/disconnected/made a shot, etc)
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)
+* Have only one board that combines shots and ships boards
 
 ## Terminology
 
