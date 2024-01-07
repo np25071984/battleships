@@ -1,4 +1,4 @@
-# Battleships
+# ![battleships icon](public/images/favicon-32x32.png) Battleships
 
 > Battleships (also known as Battleship or Sea Battle) is a strategy type guessing game for two players. It is played on ruled grids (paper or board) on which each player's fleet of warships are marked. The locations of the fleets are concealed from the other player. Players alternate turns calling "shots" at the other player's ships, and the objective of the game is to destroy the opposing player's fleet.
 > --  <cite>[Wikipedia](https://en.wikipedia.org/wiki/Battleship_(game))</cite>

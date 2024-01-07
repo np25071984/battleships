@@ -26,13 +26,6 @@ class App {
     private mountRoutes(): void {
         const router: Router = express.Router()
         router.get('/', (req: Request, res: Response) => {
-            if (req.url === '/favicon.ico') {
-                res.writeHead(200, {'Content-Type': 'image/x-icon'})
-                res.end()
-                console.log('favicon requested')
-                return
-            }
-
             const { version } = require('../../package.json')
 
             res.render('pages/main.ejs', {'version': version})
@@ -280,6 +273,8 @@ class App {
         this.express.use(express.urlencoded({extended: true}));
         this.express.use(express.json()) // To parse the incoming requests with JSON payloads
         this.express.use('/static', express.static('build/client'))
+        this.express.use('/public', express.static('public'))
+        this.express.use('/favicon.ico', express.static('public/images/favicon.ico'));
         this.express.use('/', router)
     }
 
