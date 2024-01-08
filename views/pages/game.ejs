@@ -26,16 +26,18 @@
             <div class="col-sm-5 text-end order-sm-1">
                 <canvas style="background-color: azure;" id="ships-board"></canvas>
                 <br />
-                <span style="color: #4c78d9"> Opponent's remaining ships:</span><br />
-                <% for (var size in remainingShips) { %>
-                    <% if (remainingShips[size] > 0) { %>
-                        <span id="remaining-ships-<%= size %>">
-                        <% for (var i = 0; i < remainingShips[size]; i++) { %>
-                            <span><%= "🟦".repeat(size) %></span>&nbsp;
+                <span style="color: #4c78d9"> Opponent's remaining ships:</span>
+                <p id="remaining_ships">
+                    <% for (var size in remainingShips) { %>
+                        <% if (remainingShips[size] > 0) { %>
+                            <span id="remaining-ships-<%= size %>">
+                                <% for (var i = 0; i < remainingShips[size]; i++) {
+                                     %><span style="margin-left: 5px"><%= "🟦".repeat(size) %></span><%
+                                } %>
+                            </span><br />
                         <% } %>
-                        </span><br />
                     <% } %>
-                <% } %>
+                </p>
             </div>
         </div>
 
@@ -68,6 +70,53 @@
                 gameBoardsDiv.mozRequestFullScreen()
             }
         }
+
+        const animateRemovedNode = (ele, previousSibling, nextSibling) => {
+            if (ele.hasAttribute("dont-animate")) {
+                return
+            }
+
+            // Create a clone of the removed node
+            const clonedNode = ele.cloneNode(true)
+            clonedNode.setAttribute("dont-animate", 'true')
+
+            // Insert the cloned node at the appropriate position
+            if (nextSibling && nextSibling.parentNode) {
+                nextSibling.parentNode.insertBefore(clonedNode, nextSibling)
+            } else if (previousSibling && previousSibling.parentNode) {
+                previousSibling.parentNode.appendChild(clonedNode)
+            }
+
+            clonedNode.style.transformOrigin = "center"
+            clonedNode.style.overflow = "hidden"
+            clonedNode.animate([{ opcity: 1 }, { opacity: 0 },], {
+                duration: 600,
+                easing: "linear",
+            }).addEventListener("finish", () => {
+                clonedNode.style.overflow = ""
+                clonedNode.remove()
+            });
+        }
+
+        const mutationCallback = (entries, instance) => {
+            entries.forEach((entry) => {
+                entry.removedNodes.forEach((removedNode) => {
+                    animateRemovedNode(removedNode, entry.previousSibling, entry.nextSibling)
+                })
+            })
+        }
+        const mutationObserver = new MutationObserver(mutationCallback)
+
+        const remainingShipSpanElements = document.querySelectorAll('SPAN[id*="remaining-ships-"]')
+        remainingShipSpanElements.forEach((element) => {
+            mutationObserver.observe(element, {
+                attributes: false,
+                characterData: false,
+                childList: true,
+                subtree: false,
+            })
+        })
+
      </script>
 </body>
 </html>
