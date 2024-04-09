@@ -7,6 +7,7 @@ module.exports = {
     entry: {
         game: "./src/client/client.ts",
         ships: "./src/client/ships-placement.ts",
+        tooltips: "./src/client/tooltips.ts"
     },
     output: {
         path: path.resolve(__dirname, './build/client'),
