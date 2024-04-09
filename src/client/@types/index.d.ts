@@ -19,6 +19,7 @@ declare global {
         shadeShip: Ship|null
         rotateShip: any
         shuffleShip: any
+        nextTooltip: any
         cols: number
         rows: number
     }
