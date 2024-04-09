@@ -6,6 +6,32 @@
     <title>Battleships</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script type="text/javascript" src="/static/ships.js"></script>
+    <script type="text/javascript" src="/static/tooltips.js"></script>
+    <style>
+        .tooltip {
+            display: none;
+            width: max-content;
+            max-width: 15vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 90%;
+            opacity: 100%;
+            background: whitesmoke;
+            cursor: pointer;
+        }
+
+        .arrow {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            transform: rotate(45deg);
+            background: whitesmoke;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
     <div class="container-sm" style="width: fit-content">
@@ -24,21 +50,43 @@
         <div class="row">
             <div class="col">
                 <canvas style="background-color: azure;" id="placement-board"></canvas>
+                <div id="placement-board-tooltip" role="tooltip" class="tooltip border border-info text-info cursor-pointer" onclick="window.nextTooltip('rotate-ship', ['top', 'bottom'], 'placement-board')">
+                    This is where your ships are located. You can move them around by clicking and dragging. Don't forget that they cannot touch each other.
+                    <div id="placement-board-arrow" class="arrow border-info"></div>
+                </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col">
                 <button class="btn btn-outline-info" onclick="window.rotateShip()" id="rotate-ship" disabled>Rotate</button>
+                <div class="tooltip border border-info text-info" role="tooltip" id="rotate-ship-tooltip" onclick="window.nextTooltip('shuffle-button', ['top', 'bottom'], 'rotate-ship')">
+                    Use this button to rotate the ship 90 degrees. If the ship is horizontal, it will move clockwise; if vertical, it will move counterclockwise. You can use this only when rotation is allowed.
+                    <div id="rotate-ship-arrow" class="arrow border-info"></div>
+                </div>
                 <button class="btn btn-outline-info" onclick="window.shuffleShip()" id="shuffle-button" disabled>Shuffle</button>
+                <div class="tooltip border border-info text-info" role="tooltip" id="shuffle-button-tooltip" onclick="window.nextTooltip('submit-ships', ['top', 'bottom'], 'shuffle-button')">
+                    Use this button to place the ships randomly.
+                    <div id="shuffle-button-arrow" class="arrow border-info"></div>
+                </div>
+                <button class="btn btn-outline-info" onclick="window.nextTooltip('placement-board', ['left', 'right'], null)" id="help-button"> ? </button>
+                <div class="tooltip border border-info text-info" role="tooltip" id="help-button-tooltip" onclick="window.nextTooltip(null, null, 'help-button')">
+                    Click this button to see this help again.
+                    <div id="help-button-arrow" class="arrow border-info"></div>
+                </div>
             </div>
             <div class="col">
                 <form action="/join/<%= gameId %>" method="post">
                     <button type="submit" class="btn btn-primary float-end" id="submit-ships" disabled>Submit</button>
+                    <div class="tooltip border border-info text-info" role="tooltip" id="submit-ships-tooltip" onclick="window.nextTooltip('help-button', ['top', 'bottom'], 'submit-ships')">
+                        When you're ready, click this button to submit your ship placement.
+                        <div id="submit-ships-arrow" class="arrow border-info"></div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
+    <div style="height: 1000px"></div>
 
     <!-- <div class="container-sm" style="width: fit-content">
         <div class="row text-center">
