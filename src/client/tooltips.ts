@@ -2,15 +2,20 @@ import {arrow, autoPlacement, autoUpdate, computePosition, offset, Placement, sh
 import type Window from "./@types/index.d.ts";
 
 let cleanup = null;
-window.nextTooltip = (refID: string, placement: string[], removeID: string) => {
-    if (removeID !== null) {
-        tooltipOff(document.getElementById(removeID + "-tooltip"));
-        cleanup();
+window.nextTooltip = (refID: string, placement: string[]) => {
+    if (cleanup !== null) {
+        cleanup()
     }
+
+    document.querySelectorAll(".tooltip").forEach(x => {
+        (x as HTMLElement).style.display = "none"
+    })
+
     if (refID !== null) {
         let ref = document.getElementById(refID);
         let tooltip = document.getElementById(refID + "-tooltip");
         let arrow = document.getElementById(refID + "-arrow");
+
         cleanup = autoUpdate(
             ref,
             tooltip,
@@ -66,8 +71,3 @@ const tooltipOn = (ref: HTMLElement, tooltip: HTMLElement, arrowElement: HTMLEle
         });
     });
 }
-
-const tooltipOff = (tooltip: HTMLElement) => {
-    tooltip.style.display = "none";
-}
-
