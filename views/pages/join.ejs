@@ -50,7 +50,7 @@
         <div class="row">
             <div class="col">
                 <canvas style="background-color: azure;" id="placement-board"></canvas>
-                <div id="placement-board-tooltip" role="tooltip" class="tooltip border border-info text-info cursor-pointer" onclick="window.nextTooltip('rotate-ship', ['top', 'bottom'], 'placement-board')">
+                <div id="placement-board-tooltip" role="tooltip" class="tooltip border border-info text-info cursor-pointer" onclick="window.nextTooltip('rotate-ship', ['top', 'bottom'])">
                     This is where your ships are located. You can move them around by clicking and dragging. Don't forget that they cannot touch each other.
                     <div id="placement-board-arrow" class="arrow border-info"></div>
                 </div>
@@ -60,12 +60,12 @@
         <div class="row">
             <div class="col">
                 <button class="btn btn-outline-info" onclick="window.rotateShip()" id="rotate-ship" disabled>Rotate</button>
-                <div class="tooltip border border-info text-info" role="tooltip" id="rotate-ship-tooltip" onclick="window.nextTooltip('shuffle-button', ['top', 'bottom'], 'rotate-ship')">
+                <div class="tooltip border border-info text-info" role="tooltip" id="rotate-ship-tooltip" onclick="window.nextTooltip('shuffle-button', ['top', 'bottom'])">
                     Use this button to rotate the ship 90 degrees. If the ship is horizontal, it will move clockwise; if vertical, it will move counterclockwise. You can use this only when rotation is allowed.
                     <div id="rotate-ship-arrow" class="arrow border-info"></div>
                 </div>
                 <button class="btn btn-outline-info" onclick="window.shuffleShip()" id="shuffle-button" disabled>Shuffle</button>
-                <div class="tooltip border border-info text-info" role="tooltip" id="shuffle-button-tooltip" onclick="window.nextTooltip('submit-ships', ['top', 'bottom'], 'shuffle-button')">
+                <div class="tooltip border border-info text-info" role="tooltip" id="shuffle-button-tooltip" onclick="window.nextTooltip('submit-ships', ['top', 'bottom'])">
                     Use this button to place the ships randomly.
                     <div id="shuffle-button-arrow" class="arrow border-info"></div>
                 </div>
@@ -78,7 +78,7 @@
             <div class="col">
                 <form action="/join/<%= gameId %>" method="post">
                     <button type="submit" class="btn btn-primary float-end" id="submit-ships" disabled>Submit</button>
-                    <div class="tooltip border border-info text-info" role="tooltip" id="submit-ships-tooltip" onclick="window.nextTooltip('help-button', ['top', 'bottom'], 'submit-ships')">
+                    <div class="tooltip border border-info text-info" role="tooltip" id="submit-ships-tooltip" onclick="window.nextTooltip('help-button', ['top', 'bottom'])">
                         When you're ready, click this button to submit your ship placement.
                         <div id="submit-ships-arrow" class="arrow border-info"></div>
                     </div>
