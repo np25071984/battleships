@@ -3,8 +3,6 @@
 > Battleships (also known as Battleship or Sea Battle) is a strategy type guessing game for two players. It is played on ruled grids (paper or board) on which each player's fleet of warships are marked. The locations of the fleets are concealed from the other player. Players alternate turns calling "shots" at the other player's ships, and the objective of the game is to destroy the opposing player's fleet.
 > --  <cite>[Wikipedia](https://en.wikipedia.org/wiki/Battleship_(game))</cite>
 
-It is hosted at http://ec2-3-142-134-11.us-east-2.compute.amazonaws.com:3000/
-
 ## Game goal
 
 Players secretly place their ships on the game grid according to [rules](#rules) and take turns by making shots at row and column on the opponent’s grid in order hit a ship. The game continues until one player sinks all of the opponent’s ships.
@@ -235,7 +233,7 @@ http://localhost:3000
 * Implement round timer (?)
 * Add Restart Game feature (?)
 * Use permanent storage (?)
-* Have only one board that combines shots and ships boards
+* Have only one board that combines shots and ships boards (?)
 
 ## Terminology
 
