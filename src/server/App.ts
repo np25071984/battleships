@@ -152,6 +152,9 @@ class App {
             // client to the game page, so the opponent is already present once the socket connects.
             game.joinPlayer(player).then(() => {
                 res.redirect(`/${gameId}?playerId=${player.id}`)
+            }).catch((err) => {
+                console.log(`Failed to join player '${playerId}' to game '${gameId}': ${err}`)
+                res.status(500).send('Something went wrong while joining the game. Please try again.')
             })
         })
 

@@ -67,4 +67,37 @@ describe('Game.joinPlayer() method test', () => {
         assert.strictEqual(game.players.length, 1)
         assert.strictEqual(game.doesOpponentExist(player.id), false)
     })
+
+    it('rejects and rolls back the player when bot placement fails', async () => {
+        // Same ships/grid as RandomizerTest.ts's "impossible combination" case: this combination can
+        // never fit a 5x3 grid, so findShipsCombination() reliably resolves to null - regardless of
+        // Game's own (much larger) maxIterations budget for this grid - and joinPlayer() falls back to
+        // fallbackShipsConfiguration. Passing `null` there stands in for a broken fallback and makes
+        // `new Bot(...)` throw (Player's constructor reads `ships.length`), which is the unhandled
+        // rejection that could hang the /join request forever.
+        const settings = new Settings(
+            5,
+            3,
+            Settings.GAME_TYPE_SINGLE,
+            Settings.GAME_MOEDE_CLASSIC,
+            [
+                ShipTypeFactory.getType(ShipType.Battleship),
+                ShipTypeFactory.getType(ShipType.Battleship),
+                ShipTypeFactory.getType(ShipType.Destroyer),
+            ]
+        )
+        const game = new Game('test-game-broken-fallback', 1, settings, null)
+
+        const player = new Player('player-1', Grid.initGrid(5, 3), [
+            new Ship(new Position(0, 0), true, ShipTypeFactory.getType(ShipType.PatrolBoat)),
+        ])
+
+        await assert.rejects(() => game.joinPlayer(player))
+
+        assert.strictEqual(
+            game.doesPlayerExist(player.id),
+            false,
+            'the player should be rolled back when bot placement fails'
+        )
+    })
 })

@@ -78,6 +78,12 @@ class Game {
                 const bot = new Bot(playerId, grid, ships)
                 bot.updateSocketId('null-socket')
                 this.players.push(bot)
+            }).catch((err) => {
+                // Bot placement failed (e.g. a broken ships configuration made `new Bot(...)` throw).
+                // Roll back the player we pushed above so the game isn't left half-joined with no way
+                // to retry, then let the rejection propagate so the caller can respond to it.
+                this.players = this.players.filter((p) => p !== player)
+                throw err
             })
         }
 
