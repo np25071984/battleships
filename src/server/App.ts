@@ -148,8 +148,11 @@ class App {
             }
             const player: Player = new Player(playerId, grid, ships)
 
-            game.joinPlayer(player)
-            res.redirect(`/${gameId}?playerId=${player.id}`)
+            // Wait for the bot (in single-player games) to be fully placed before redirecting the
+            // client to the game page, so the opponent is already present once the socket connects.
+            game.joinPlayer(player).then(() => {
+                res.redirect(`/${gameId}?playerId=${player.id}`)
+            })
         })
 
         router.get('/shuffle/:gameId', (req: Request, res: Response) => {
