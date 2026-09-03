@@ -52,7 +52,7 @@ class Game {
         return false
     }
 
-    joinPlayer(player: Player): void {
+    joinPlayer(player: Player): Promise<void> {
         this.players.push(player)
 
         if (this.settings.gameType === Settings.GAME_TYPE_SINGLE) {
@@ -61,7 +61,11 @@ class Game {
 
             const maxIterations: number = this.settings.gridCols * this.settings.gridRows * 1000
             const randomizer: Randomizer = new Randomizer(maxIterations)
-            randomizer.findShipsCombination(
+            // The bot has to be fully in place (ships placed, socket "connected") before we let the
+            // caller respond to the join request. Otherwise the human player's socket may connect
+            // and check doesOpponentExist() before this promise resolves, get told to wait, and never
+            // be notified once the bot actually joins - leaving the game stuck in "waiting" forever.
+            return randomizer.findShipsCombination(
                 this.settings.gridCols,
                 this.settings.gridRows,
                 this.settings.shipTypes
@@ -76,6 +80,8 @@ class Game {
                 this.players.push(bot)
             })
         }
+
+        return Promise.resolve()
     }
 
     getGridWithOpponentShips(player: Player): Grid {
